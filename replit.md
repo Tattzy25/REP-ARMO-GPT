@@ -114,6 +114,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Implemented real timestamps for messages replacing static "Just now" text
 - June 25, 2025. Implemented real-time streaming responses showing actual AI generation instead of fake typing animation
 - June 25, 2025. Implemented mobile-first responsive design with mobile sidebar toggle in header and mobile-optimized layouts
+- June 25, 2025. Hidden sidebar collapse toggle buttons on mobile while maintaining mobile header menu toggle functionality
 
 ## User Preferences
 

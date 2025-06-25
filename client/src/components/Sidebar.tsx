@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { ChevronLeft } from 'lucide-react';
 import { vibeConfigs } from '@/lib/vibes';
 import logoImage from '@assets/logo - armo gpt_1750839826863.png';
 
@@ -473,8 +474,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
         </motion.div>
       </div>
       
-      {/* Toggle Button when collapsed */}
-      {isCollapsed && (
+      {/* Toggle Button when collapsed - Only show on desktop */}
+      {!isMobile && isCollapsed && (
         <div className="fixed left-2 top-4 z-50">
           <button
             onClick={() => handleToggle(false)}
@@ -498,6 +499,30 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
               <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
             </svg>
           </button>
+        </div>
+      )}
+      
+      {/* Collapse Toggle at bottom - Only show on desktop */}
+      {!isMobile && (
+        <div className="p-4 border-t" style={{ borderColor: '#404040' }}>
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => handleToggle(!isCollapsed)}
+              className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200"
+              style={{
+                background: '#2e2e2e',
+                boxShadow: isCollapsed ? 
+                  'inset 4px 4px 8px #272727, inset -4px -4px 8px #353535' : 
+                  '4px 4px 8px #272727, -4px -4px 8px #353535'
+              }}
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <ChevronLeft 
+                size={16} 
+                className={`text-white transition-transform duration-200 ${isCollapsed ? 'rotate-180' : ''}`}
+              />
+            </button>
+          </div>
         </div>
       )}
     </>
