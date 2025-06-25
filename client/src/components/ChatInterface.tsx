@@ -103,23 +103,37 @@ export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterf
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="flex items-center justify-between p-4 border-b border-armo-accent/20 bg-armo-navy/80 backdrop-blur"
+        className="flex items-center justify-between p-4 border-b border-gray-600/20 backdrop-blur"
+        style={{ 
+          background: '#3a3a3a',
+          boxShadow: '0 4px 8px #323232'
+        }}
       >
         <div className="flex items-center space-x-3">
           <button
             onClick={onBackToLobby}
-            className="p-2 rounded-lg bg-armo-blue neumorphic hover:neon-cyan-glow transition-all"
+            className="p-2 rounded-lg transition-all duration-200"
+            style={{
+              background: '#404040',
+              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#404040';
+            }}
           >
             <i className="fas fa-arrow-left"></i>
           </button>
           <div>
-            <h2 className="font-bold text-lg">{vibeConfig.title}</h2>
-            <p className="text-sm text-gray-400">{vibeConfig.subtitle}</p>
+            <h2 className="font-bold text-lg text-white">{vibeConfig.title}</h2>
+            <p className="text-sm text-gray-300">{vibeConfig.subtitle}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-          <span className="text-sm">Online</span>
+          <span className="text-sm text-white">Online</span>
         </div>
       </motion.div>
 
@@ -152,7 +166,10 @@ export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterf
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm font-bold">Հ</span>
                 </div>
-                <div className="bg-armo-blue rounded-2xl rounded-tl-sm p-4 neumorphic">
+                <div className="rounded-2xl rounded-tl-sm p-4" style={{
+                  background: '#404040',
+                  boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+                }}>
                   <div className="flex space-x-2">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>

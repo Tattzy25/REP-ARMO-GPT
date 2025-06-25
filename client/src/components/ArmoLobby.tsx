@@ -10,7 +10,10 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
 
   return (
     <div className="flex-1 flex items-center justify-center p-8">
-      <div className="text-center max-w-4xl">
+      <div className="text-center max-w-4xl rounded-2xl p-8" style={{ 
+        background: '#3a3a3a',
+        boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
+      }}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -21,7 +24,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
             Բարի գալուստ!
           </h1>
           <p className="text-2xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-500 to-orange-500">Welcome to Armo-GPT</p>
-          <p className="text-lg text-gray-800">Your chaotic Armenian AI companion is ready to serve</p>
+          <p className="text-lg text-gray-300">Your chaotic Armenian AI companion is ready to serve</p>
         </motion.div>
 
         {/* Character Animation Area */}
@@ -34,7 +37,10 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
           <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 neumorphic flex items-center justify-center text-6xl pulse-slow">
             🤖
           </div>
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-armo-blue px-4 py-2 rounded-full neumorphic">
+          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full" style={{
+            background: '#404040',
+            boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+          }}>
             <span className="text-sm text-neon-cyan">Armo Hopar</span>
           </div>
         </motion.div>
@@ -64,7 +70,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
           ))}
         </motion.div>
 
-        <p className="text-sm text-gray-400">Click any feature above to start chatting with Armo Hopar</p>
+        <p className="text-sm text-gray-300">Click any feature above to start chatting with Armo Hopar</p>
       </div>
     </div>
   );

@@ -34,12 +34,18 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
         className="flex items-start space-x-3 message-container justify-end"
       >
         <div className="flex-1 flex justify-end">
-          <div className="bg-gradient-to-r from-neon-cyan to-neon-teal rounded-2xl rounded-tr-sm p-4 neumorphic max-w-md">
+          <div className="rounded-2xl rounded-tr-sm p-4 max-w-md" style={{
+            background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+            boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+          }}>
             <p className="text-sm text-white">{displayedContent}</p>
           </div>
         </div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-neon-cyan to-neon-teal flex items-center justify-center flex-shrink-0">
-          <i className="fas fa-user text-sm"></i>
+        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{
+          background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+          boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+        }}>
+          <i className="fas fa-user text-sm text-white"></i>
         </div>
       </motion.div>
     );
@@ -55,13 +61,16 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
         <span className="text-sm font-bold">Հ</span>
       </div>
       <div className="flex-1">
-        <div className="bg-armo-blue rounded-2xl rounded-tl-sm p-4 neumorphic max-w-md">
-          <p className="text-sm message-content">{displayedContent}</p>
+        <div className="rounded-2xl rounded-tl-sm p-4 max-w-md" style={{
+          background: '#404040',
+          boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+        }}>
+          <p className="text-sm text-white message-content">{displayedContent}</p>
           {isStreaming && (
             <span className="inline-block w-2 h-4 bg-neon-cyan ml-1 typing-animation"></span>
           )}
         </div>
-        <p className="text-xs text-gray-400 mt-1">Just now</p>
+        <p className="text-xs text-gray-300 mt-1">Just now</p>
       </div>
     </motion.div>
   );

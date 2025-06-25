@@ -32,6 +32,12 @@
   --neon-cyan: hsl(195, 100%, 50%);
   --neon-coral: hsl(0, 71%, 71%);
   --neon-teal: hsl(175, 58%, 65%);
+  
+  /* Dark Theme Colors */
+  --dark-bg: #3a3a3a;
+  --dark-bg-light: #404040;
+  --dark-shadow-light: #323232;
+  --dark-shadow-dark: #484848;
 }
 
 .dark {

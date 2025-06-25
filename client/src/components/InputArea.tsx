@@ -56,16 +56,30 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="p-4 border-t border-armo-accent/20 bg-armo-navy/80 backdrop-blur"
+      className="p-4 border-t border-gray-600/20 backdrop-blur"
+      style={{
+        background: '#3a3a3a',
+        boxShadow: '0 -4px 8px #323232'
+      }}
     >
       <div className="flex items-end space-x-3 max-w-4xl mx-auto">
         {/* File Upload */}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-3 rounded-xl bg-armo-blue neumorphic hover:neon-teal-glow transition-all duration-300 flex-shrink-0"
+          className="p-3 rounded-xl transition-all duration-200 flex-shrink-0"
+          style={{
+            background: '#404040',
+            boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#404040';
+          }}
           disabled={disabled}
         >
-          <i className="fas fa-paperclip text-neon-teal"></i>
+          <i className="fas fa-paperclip text-white"></i>
         </button>
         <input
           ref={fileInputRef}
@@ -77,7 +91,10 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
 
         {/* Input Field */}
         <div className="flex-1 relative">
-          <div className="bg-armo-blue rounded-2xl neumorphic-inset p-4">
+          <div className="rounded-2xl p-4" style={{
+            background: '#404040',
+            boxShadow: 'inset 6px 6px 12px #323232, inset -6px -6px 12px #484848'
+          }}>
             <textarea
               ref={textareaRef}
               value={message}
@@ -85,7 +102,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               onKeyPress={handleKeyPress}
               rows={1}
               placeholder="Ask Armo Hopar anything... (Armenian/English)"
-              className="w-full bg-transparent text-white placeholder-gray-400 resize-none outline-none"
+              className="w-full bg-transparent text-white placeholder-gray-300 resize-none outline-none"
               disabled={disabled}
             />
           </div>
@@ -94,19 +111,43 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         {/* Voice Input */}
         <button
           onClick={handleVoiceToggle}
-          className={`p-3 rounded-xl bg-armo-blue neumorphic transition-all duration-300 flex-shrink-0 ${
-            isRecording ? 'neon-coral-glow' : 'hover:neon-coral-glow'
-          }`}
+          className="p-3 rounded-xl transition-all duration-200 flex-shrink-0"
+          style={{
+            background: isRecording ? 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)' : '#404040',
+            boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+          }}
+          onMouseEnter={(e) => {
+            if (!isRecording) {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isRecording) {
+              e.currentTarget.style.background = '#404040';
+            }
+          }}
           disabled={disabled}
         >
-          <i className={`fas fa-microphone ${isRecording ? 'text-neon-coral animate-pulse' : 'text-neon-coral'}`}></i>
+          <i className={`fas fa-microphone text-white ${isRecording ? 'animate-pulse' : ''}`}></i>
         </button>
 
         {/* Send Button */}
         <button
           onClick={handleSend}
           disabled={!message.trim() || disabled}
-          className="p-3 rounded-xl bg-gradient-to-r from-neon-cyan to-neon-teal neumorphic hover:neon-cyan-glow transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-3 rounded-xl transition-all duration-200 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: !message.trim() || disabled ? '#404040' : 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+            boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+          }}
+          onMouseEnter={(e) => {
+            if (message.trim() && !disabled) {
+              e.currentTarget.style.transform = 'scale(1.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
         >
           <i className="fas fa-paper-plane text-white"></i>
         </button>

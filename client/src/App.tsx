@@ -42,7 +42,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <div className="h-screen bg-gradient-to-br from-armo-navy via-armo-blue to-armo-accent">
+        <div className="h-screen" style={{ background: '#3a3a3a' }}>
           
           {/* Sidebar */}
           <Sidebar
