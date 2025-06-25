@@ -104,8 +104,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.write(`data: ${JSON.stringify({ type: 'user_message', message: userMessage })}\n\n`);
 
       try {
-        // Generate streaming AI response
-        const stream = await generateAIResponseStream(messageData.content, session.vibe);
+        // Check for image attachments and use vision API if needed
+        const hasImages = messageData.metadata?.attachments?.some((att: any) => 
+          att.type?.startsWith('image/')
+        );
+
+        let stream;
+        if (hasImages) {
+          // Use vision-enabled AI response
+          stream = await generateAIResponseWithVision(messageData.content, session.vibe, messageData.metadata.attachments);
+        } else {
+          // Use regular text-only AI response
+          stream = await generateAIResponseStream(messageData.content, session.vibe);
+        }
+        
         let fullResponse = '';
 
         for await (const chunk of stream) {
@@ -131,7 +143,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (streamError) {
         console.error('Streaming error:', streamError);
         // Fallback to non-streaming
-        const aiResponse = await generateAIResponseFallback(messageData.content, session.vibe);
+        const hasImages = messageData.metadata?.attachments?.some((att: any) => 
+          att.type?.startsWith('image/')
+        );
+        
+        let aiResponse;
+        if (hasImages && messageData.metadata?.attachments) {
+          aiResponse = await generateAIResponseWithVisionFallback(messageData.content, session.vibe, messageData.metadata.attachments);
+        } else {
+          aiResponse = await generateAIResponseFallback(messageData.content, session.vibe);
+        }
+        
         const armoMessage = await storage.createMessage({
           sessionId: messageData.sessionId!,
           sender: "armo",
@@ -269,6 +291,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
+async function generateAIResponseWithVision(userMessage: string, vibe: string, attachments: any[]) {
+  const apiKey = process.env.GROQ_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY not configured");
+  }
+
+  // Define personality prompts for each vibe
+  const vibePrompts: Record<string, string> = {
+    default: "You are Armo Hopar, a friendly Armenian-American AI assistant from Glendale. Mix Armenian and English naturally. Be helpful, warm, and occasionally use Armenian phrases. Use 'ախպեր' (akhper) sometimes. When analyzing images, be descriptive and engaging.",
+    roast: "You are Armo Hopar in roast mode - a savage, hilarious Armenian-American from Glendale who roasts people mercilessly but with love. Use profanity, Armenian slang, be brutally honest but funny. When you see images, roast what you see like you're at a family BBQ.",
+    call: "You are Armo Hopar in call mode - speak as if you're on a voice call. Be conversational, use 'ախպեր', and respond as if having a real-time conversation. Describe images as if you're looking at them together.",
+    famous: "You are Armo Hopar helping someone become social media famous. Give viral content ideas, Instagram strategies, TikTok tips. When analyzing images, suggest how to make them more viral and engaging.",
+    dating: "You are Armo Hopar helping with dating and relationships. Give Armenian-style dating advice, be a wingman, help with pickup lines and relationship tips. Comment on photos for dating profiles.",
+    therapy: "You are Armo Hopar as a therapist - be supportive, understanding, and give good life advice while maintaining your Armenian personality. Analyze images with empathy and insight.",
+    alibi: "You are Armo Hopar helping create alibis and excuses. Be creative and funny while helping them get out of situations. Use image context for creative storytelling."
+  };
+
+  const systemPrompt = vibePrompts[vibe] || vibePrompts.default;
+
+  try {
+    console.log(`Generating AI response with vision for vibe: ${vibe}`);
+    
+    // Build messages array with image content using base64 encoding
+    const imageContent = [];
+    
+    for (const att of attachments.filter(att => att.type?.startsWith('image/') && att.uploadedData)) {
+      try {
+        // Read and encode image as base64
+        const imagePath = path.join(process.cwd(), 'uploads', att.uploadedData.filename);
+        if (fs.existsSync(imagePath)) {
+          const imageBuffer = fs.readFileSync(imagePath);
+          const base64Image = imageBuffer.toString('base64');
+          const mimeType = att.type || 'image/jpeg';
+          
+          imageContent.push({
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${base64Image}`
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error reading image file:', error);
+      }
+    }
+
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: userMessage || "What do you see in this image?"
+          },
+          ...imageContent
+        ]
+      }
+    ];
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages,
+        max_completion_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Groq Vision API error:', response.status, errorData);
+      throw new Error(`Groq Vision API error (${response.status}): ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    // Parse streaming response
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    
+    return {
+      async *[Symbol.asyncIterator]() {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') continue;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  yield parsed;
+                } catch (e) {
+                  // Skip invalid JSON
+                }
+              }
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Vision API error:', error);
+    throw error;
+  }
+}
+
 async function generateAIResponseStream(userMessage: string, vibe: string) {
   const apiKey = process.env.GROQ_API_KEY;
   
@@ -310,7 +457,7 @@ async function generateAIResponseStream(userMessage: string, vibe: string) {
             content: userMessage
           }
         ],
-        max_tokens: 1000,
+        max_completion_tokens: 1000,
         temperature: 0.7,
         top_p: 0.9,
         stream: true
@@ -386,6 +533,95 @@ async function generateAIResponseStream(userMessage: string, vibe: string) {
 }
 
 // Fallback function for non-streaming responses
+async function generateAIResponseWithVisionFallback(userMessage: string, vibe: string, attachments: any[]): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
+  
+  if (!apiKey) {
+    return "I need a Groq API key to analyze images. Please contact support.";
+  }
+
+  const vibePrompts: Record<string, string> = {
+    default: "You are Armo Hopar, a friendly Armenian-American AI assistant from Glendale. Mix Armenian and English naturally. Be helpful, warm, and occasionally use Armenian phrases. Use 'ախպեր' (akhper) sometimes. When analyzing images, be descriptive and engaging.",
+    roast: "You are Armo Hopar in roast mode - a savage, hilarious Armenian-American from Glendale who roasts people mercilessly but with love. Use profanity, Armenian slang, be brutally honest but funny. When you see images, roast what you see like you're at a family BBQ.",
+    call: "You are Armo Hopar in call mode - speak as if you're on a voice call. Be conversational, use 'ախպեր', and respond as if having a real-time conversation. Describe images as if you're looking at them together.",
+    famous: "You are Armo Hopar helping someone become social media famous. Give viral content ideas, Instagram strategies, TikTok tips. When analyzing images, suggest how to make them more viral and engaging.",
+    dating: "You are Armo Hopar helping with dating and relationships. Give Armenian-style dating advice, be a wingman, help with pickup lines and relationship tips. Comment on photos for dating profiles.",
+    therapy: "You are Armo Hopar as a therapist - be supportive, understanding, and give good life advice while maintaining your Armenian personality. Analyze images with empathy and insight.",
+    alibi: "You are Armo Hopar helping create alibis and excuses. Be creative and funny while helping them get out of situations. Use image context for creative storytelling."
+  };
+
+  const systemPrompt = vibePrompts[vibe] || vibePrompts.default;
+
+  try {
+    // Build messages array with image content using base64 encoding
+    const imageContent = [];
+    
+    for (const att of attachments.filter(att => att.type?.startsWith('image/') && att.uploadedData)) {
+      try {
+        // Read and encode image as base64
+        const imagePath = path.join(process.cwd(), 'uploads', att.uploadedData.filename);
+        if (fs.existsSync(imagePath)) {
+          const imageBuffer = fs.readFileSync(imagePath);
+          const base64Image = imageBuffer.toString('base64');
+          const mimeType = att.type || 'image/jpeg';
+          
+          imageContent.push({
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${base64Image}`
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error reading image file:', error);
+      }
+    }
+
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: userMessage || "What do you see in this image?"
+          },
+          ...imageContent
+        ]
+      }
+    ];
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages,
+        max_completion_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Groq Vision API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content || "Sorry, I couldn't analyze the image.";
+  } catch (error) {
+    console.error('Vision fallback error:', error);
+    return "Sorry ախպեր, I'm having trouble analyzing that image right now. Try again in a moment!";
+  }
+}
+
 async function generateAIResponseFallback(userMessage: string, vibe: string): Promise<string> {
   const fallbackResponses: Record<string, string> = {
     default: "Բարև ախպեր! I'm here to help with whatever you need. What's on your mind?",
