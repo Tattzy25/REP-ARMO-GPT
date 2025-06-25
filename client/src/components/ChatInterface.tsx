@@ -39,7 +39,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
   // Send message mutation
   const sendMessageMutation = useMutation({
-    mutationFn: ({ sessionId, content }: { sessionId: number; content: string }) => {
+    mutationFn: ({ sessionId, content, metadata }: { sessionId: number; content: string; metadata?: any }) => {
       setStreamingMessage(""); // Initialize streaming
       
       return chatApi.sendMessage(
@@ -102,9 +102,51 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
     console.log('Voice toggle');
   };
 
-  const handleFileUpload = (file: File) => {
-    // TODO: Implement file upload
-    console.log('File upload:', file);
+  const handleFileUpload = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('File uploaded successfully:', result.file);
+        
+        // Create a message with file attachment
+        if (sessionId) {
+          const fileMessage = `📎 Uploaded: ${result.file.originalName} (${(result.file.size / 1024).toFixed(1)} KB)`;
+          
+          // Add file info to message metadata
+          const messageWithFile = {
+            sessionId,
+            content: fileMessage,
+            metadata: {
+              type: 'file_upload',
+              fileId: result.file.id,
+              filename: result.file.filename,
+              originalName: result.file.originalName,
+              mimetype: result.file.mimetype,
+              size: result.file.size,
+              url: `/api/files/${result.file.filename}`
+            }
+          };
+          
+          sendMessageMutation.mutate({
+            sessionId,
+            content: fileMessage
+          });
+        }
+      } else {
+        console.error('File upload failed:', result.error);
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
+    }
   };
 
   return (

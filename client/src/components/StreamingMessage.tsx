@@ -1,12 +1,50 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Copy, Volume2, Share2 } from "lucide-react";
+import { Copy, Volume2, Share2, FileText, Image, Music, Video } from "lucide-react";
 
 interface StreamingMessageProps {
   content: string;
   sender: 'user' | 'armo';
   isStreaming?: boolean;
   createdAt?: string;
+}
+
+interface FileAttachmentProps {
+  sender: 'user' | 'armo';
+  content: string;
+}
+
+function FileAttachment({ sender, content }: FileAttachmentProps) {
+  // Check if message contains file upload indicator
+  if (!content.includes('📎 Uploaded:')) {
+    return null;
+  }
+
+  // Extract file info from content
+  const match = content.match(/📎 Uploaded: (.+?) \((.+?)\)/);
+  if (!match) return null;
+
+  const [, filename, size] = match;
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(filename);
+  const isAudio = /\.(mp3|wav|ogg)$/i.test(filename);
+  const isVideo = /\.(mp4|webm|ogg)$/i.test(filename);
+
+  const getFileIcon = () => {
+    if (isImage) return <Image size={16} />;
+    if (isAudio) return <Music size={16} />;
+    if (isVideo) return <Video size={16} />;
+    return <FileText size={16} />;
+  };
+
+  return (
+    <div className="mt-2 p-3 rounded-lg border border-gray-300 bg-gray-50">
+      <div className="flex items-center space-x-2 text-gray-700">
+        {getFileIcon()}
+        <span className="text-sm font-medium">{filename}</span>
+        <span className="text-xs text-gray-500">({size})</span>
+      </div>
+    </div>
+  );
 }
 
 export default function StreamingMessage({ content, sender, isStreaming = false, createdAt }: StreamingMessageProps) {
@@ -162,7 +200,13 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
           position: 'relative',
           zIndex: 2
         }}>
-          <p className="text-sm message-content" style={{ color: '#111111', fontWeight: '500' }}>{displayedContent}</p>
+          <div className="text-sm message-content" style={{ color: '#111111', fontWeight: '500' }}>
+            {displayedContent}
+            {/* Render file attachments if present */}
+            {createdAt && content.includes('📎 Uploaded:') && (
+              <FileAttachment sender={sender} content={content} />
+            )}
+          </div>
           {isStreaming && (
             <span className="inline-block w-2 h-4 bg-gray-600 ml-1 typing-animation"></span>
           )}
