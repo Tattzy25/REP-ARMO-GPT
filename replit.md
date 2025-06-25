@@ -98,6 +98,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Added Armo-GPT logo image with soft white glow to sidebar header
 - June 25, 2025. Replaced "Choose Your Vibe" heading with neumorphic "THE VIBEZ" dropdown button using custom gradient styling
 - June 25, 2025. Made sidebar fixed positioned with internal scrolling capability
+- June 25, 2025. Added Gallery and Recent Chats buttons below Vibez with matching neumorphic styling and icons
 
 ## User Preferences
 

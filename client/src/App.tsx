@@ -20,6 +20,8 @@ function App() {
       setAppState('lobby');
     } else if (vibe === 'call') {
       setAppState('call');
+    } else if (vibe === 'gallery' || vibe === 'recent') {
+      setAppState('chat'); // For now, these will use the chat interface
     } else {
       setAppState('chat');
     }

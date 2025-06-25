@@ -88,5 +88,25 @@ export const vibeConfigs: Record<string, VibeConfig> = {
     emoji: '💕',
     welcomeMessage: 'Ey ախպեր, looking for love? I got you covered! Tell me about yourself and what you\'re looking for, and I\'ll help you find your Armenian queen/king! 💕',
     glowColor: 'cyan'
+  },
+  gallery: {
+    id: 'gallery',
+    title: 'Gallery',
+    subtitle: 'View your images',
+    personality: 'helpful',
+    icon: 'fas fa-images',
+    emoji: '🖼️',
+    welcomeMessage: 'Welcome to your gallery! Here you can view all your shared images and memories.',
+    glowColor: 'teal'
+  },
+  recent: {
+    id: 'recent',
+    title: 'Recent Chats',
+    subtitle: 'Your chat history',
+    personality: 'helpful',
+    icon: 'fas fa-comments',
+    emoji: '💬',
+    welcomeMessage: 'Here are your recent conversations. Click on any to continue where you left off.',
+    glowColor: 'cyan'
   }
 };
