@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Copy, Volume2, Share2, ArrowLeft } from "lucide-react";
 import { chatApi, type ChatMessage } from "@/lib/api";
 import { vibeConfigs } from "@/lib/vibes";
 import StreamingMessage from "./StreamingMessage";
