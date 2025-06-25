@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, X, FileText, Image, Music, Video } from "lucide-react";
+import { ArrowLeft, X, Image } from "lucide-react";
 import { chatApi, type ChatMessage } from "@/lib/api";
 import { vibeConfigs } from "@/lib/vibes";
 import StreamingMessage from "./StreamingMessage";
@@ -196,10 +196,8 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
   };
 
   const getFileIcon = (file: File) => {
-    if (file.type.startsWith('image/')) return <Image size={16} />;
-    if (file.type.startsWith('audio/')) return <Music size={16} />;
-    if (file.type.startsWith('video/')) return <Video size={16} />;
-    return <FileText size={16} />;
+    // Only images are allowed now
+    return <Image size={16} />;
   };
 
   return (

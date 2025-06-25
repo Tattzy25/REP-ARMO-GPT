@@ -140,6 +140,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Added database table for attachments with proper schema and types
 - June 25, 2025. Created file staging area UI with remove functionality and file icons
 - June 25, 2025. Updated send logic to handle multiple attachments per message
+- June 25, 2025. Restricted file upload to images only (JPEG, PNG, GIF, WebP) with 5MB size limit
 
 ## User Preferences
 
