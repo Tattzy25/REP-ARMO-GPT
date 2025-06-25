@@ -103,6 +103,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Made navigation buttons section scrollable with invisible scrollbars
 - June 25, 2025. Replaced user profile with neumorphic Account and Settings buttons using black color scheme
 - June 25, 2025. Added consistent red-blue-orange gradient hover effects to all sidebar buttons
+- June 25, 2025. Added sidebar toggle functionality with neumorphic switch and minimized spacing
 
 ## User Preferences
 
