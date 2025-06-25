@@ -105,16 +105,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Check for image attachments and use vision API if needed
-        const hasImages = messageData.metadata?.attachments?.some((att: any) => 
-          att.type?.startsWith('image/')
-        );
+        const hasImages = messageData.metadata && 
+          typeof messageData.metadata === 'object' && 
+          'attachments' in messageData.metadata &&
+          Array.isArray(messageData.metadata.attachments) &&
+          messageData.metadata.attachments.some((att: any) => 
+            att.type?.startsWith('image/')
+          );
 
         let stream;
-        if (hasImages) {
+        if (hasImages && messageData.metadata && 'attachments' in messageData.metadata) {
           // Use vision-enabled AI response
-          stream = await generateAIResponseWithVision(messageData.content, session.vibe, messageData.metadata.attachments);
+          console.log('Using vision API for image analysis');
+          stream = await generateAIResponseWithVision(messageData.content, session.vibe, messageData.metadata.attachments as any[]);
         } else {
           // Use regular text-only AI response
+          console.log('Using regular text API');
           stream = await generateAIResponseStream(messageData.content, session.vibe);
         }
         
@@ -143,13 +149,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (streamError) {
         console.error('Streaming error:', streamError);
         // Fallback to non-streaming
-        const hasImages = messageData.metadata?.attachments?.some((att: any) => 
-          att.type?.startsWith('image/')
-        );
+        const hasImages = messageData.metadata && 
+          typeof messageData.metadata === 'object' && 
+          'attachments' in messageData.metadata &&
+          Array.isArray(messageData.metadata.attachments) &&
+          messageData.metadata.attachments.some((att: any) => 
+            att.type?.startsWith('image/')
+          );
         
         let aiResponse;
-        if (hasImages && messageData.metadata?.attachments) {
-          aiResponse = await generateAIResponseWithVisionFallback(messageData.content, session.vibe, messageData.metadata.attachments);
+        if (hasImages && messageData.metadata && 'attachments' in messageData.metadata) {
+          aiResponse = await generateAIResponseWithVisionFallback(messageData.content, session.vibe, messageData.metadata.attachments as any[]);
         } else {
           aiResponse = await generateAIResponseFallback(messageData.content, session.vibe);
         }
@@ -378,7 +388,10 @@ async function generateAIResponseWithVision(userMessage: string, vibe: string, a
     }
 
     // Parse streaming response
-    const reader = response.body!.getReader();
+    if (!response.body) {
+      throw new Error('No response body from Groq API');
+    }
+    const reader = response.body.getReader();
     const decoder = new TextDecoder();
     
     return {
@@ -480,6 +493,9 @@ async function generateAIResponseStream(userMessage: string, vibe: string) {
     }
 
     // Parse streaming response
+    if (!response.body) {
+      throw new Error('No response body from Groq API');
+    }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     
