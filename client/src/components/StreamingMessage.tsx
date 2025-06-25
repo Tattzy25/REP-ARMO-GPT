@@ -7,6 +7,7 @@ interface StreamingMessageProps {
   sender: 'user' | 'armo';
   isStreaming?: boolean;
   createdAt?: string;
+  metadata?: any;
 }
 
 interface FileAttachmentProps {
@@ -47,7 +48,7 @@ function FileAttachment({ sender, content }: FileAttachmentProps) {
   );
 }
 
-export default function StreamingMessage({ content, sender, isStreaming = false, createdAt }: StreamingMessageProps) {
+export default function StreamingMessage({ content, sender, isStreaming = false, createdAt, metadata }: StreamingMessageProps) {
 
   const formatTime = (dateString?: string) => {
     if (!dateString) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

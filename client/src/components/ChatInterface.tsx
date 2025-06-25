@@ -253,6 +253,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
                 content={message.content}
                 sender={message.sender}
                 createdAt={message.createdAt}
+                metadata={message.metadata}
               />
             ))}
             

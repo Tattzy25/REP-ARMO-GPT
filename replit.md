@@ -145,6 +145,9 @@ The application features multiple AI personality modes:
 - June 25, 2025. Implemented base64 image encoding for vision API requests following Groq documentation
 - June 25, 2025. Added personality-aware image analysis for different vibes (roast mode, dating advice, etc.)
 - June 25, 2025. Created fallback handlers for vision API errors with proper error messaging
+- June 25, 2025. Fixed image attachment data flow from frontend to backend for vision API processing
+- June 25, 2025. Added image thumbnail display in chat messages with proper metadata handling
+- June 25, 2025. Enhanced StreamingMessage component to show image attachments with neumorphic styling
 
 ## User Preferences
 
