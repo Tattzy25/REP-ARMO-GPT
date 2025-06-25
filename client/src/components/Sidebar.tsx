@@ -50,11 +50,25 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             setIsDropdownOpen(false);
             onVibeSelect('lobby');
           }}
-          className="w-full mb-3 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border hover:scale-105"
+          className="w-full mb-3 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border"
           style={{
             background: 'linear-gradient(to bottom, #171717, #242424)',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)',
             borderColor: '#292929',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#ffffff';
+            e.currentTarget.style.color = '#2e2e2e';
+            e.currentTarget.style.boxShadow = 'none';
+            const svg = e.currentTarget.querySelector('svg path');
+            if (svg) svg.style.fill = '#2e2e2e';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
+            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
+            const svg = e.currentTarget.querySelector('svg path');
+            if (svg) svg.style.fill = 'url(#homeIconGradient)';
           }}
         >
           ARMO LOBBY
@@ -97,6 +111,24 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             borderColor: '#292929',
             transform: isDropdownOpen ? 'translateY(2px)' : 'translateY(0)',
           }}
+          onMouseEnter={(e) => {
+            if (!isDropdownOpen) {
+              e.currentTarget.style.background = '#ffffff';
+              e.currentTarget.style.color = '#2e2e2e';
+              e.currentTarget.style.boxShadow = 'none';
+              const svg = e.currentTarget.querySelector('svg path');
+              if (svg) svg.style.fill = '#2e2e2e';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isDropdownOpen) {
+              e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
+              e.currentTarget.style.color = '#ffffff';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
+              const svg = e.currentTarget.querySelector('svg path');
+              if (svg) svg.style.fill = 'url(#iconGradient)';
+            }
+          }}
         >
           THE VIBEZ
           <div 
@@ -135,11 +167,25 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             setIsDropdownOpen(false);
             onVibeSelect('gallery');
           }}
-          className="w-full mb-3 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border hover:scale-105"
+          className="w-full mb-3 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border"
           style={{
             background: 'linear-gradient(to bottom, #171717, #242424)',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)',
             borderColor: '#292929',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#ffffff';
+            e.currentTarget.style.color = '#2e2e2e';
+            e.currentTarget.style.boxShadow = 'none';
+            const svg = e.currentTarget.querySelector('svg path');
+            if (svg) svg.style.fill = '#2e2e2e';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
+            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
+            const svg = e.currentTarget.querySelector('svg path');
+            if (svg) svg.style.fill = 'url(#galleryIconGradient)';
           }}
         >
           GALLERY
@@ -178,11 +224,25 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             setIsDropdownOpen(false);
             onVibeSelect('recent');
           }}
-          className="w-full mb-4 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border hover:scale-105"
+          className="w-full mb-4 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border"
           style={{
             background: 'linear-gradient(to bottom, #171717, #242424)',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)',
             borderColor: '#292929',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#ffffff';
+            e.currentTarget.style.color = '#2e2e2e';
+            e.currentTarget.style.boxShadow = 'none';
+            const svg = e.currentTarget.querySelector('svg path');
+            if (svg) svg.style.fill = '#2e2e2e';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
+            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
+            const svg = e.currentTarget.querySelector('svg path');
+            if (svg) svg.style.fill = 'url(#chatIconGradient)';
           }}
         >
           RECENT CHATS

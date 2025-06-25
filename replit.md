@@ -102,6 +102,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Removed subtitle "Your Armenian AI Hopar" from sidebar header for cleaner appearance
 - June 25, 2025. Made navigation buttons section scrollable with invisible scrollbars
 - June 25, 2025. Replaced user profile with neumorphic Account and Settings buttons using black color scheme
+- June 25, 2025. Added consistent white hover effects to all navigation buttons matching Account/Settings style
 
 ## User Preferences
 
