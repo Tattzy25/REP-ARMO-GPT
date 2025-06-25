@@ -115,6 +115,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Implemented real-time streaming responses showing actual AI generation instead of fake typing animation
 - June 25, 2025. Implemented mobile-first responsive design with mobile sidebar toggle in header and mobile-optimized layouts
 - June 25, 2025. Fixed ArrowLeft import error and completed mobile responsive implementation with sidebar overlay functionality
+- June 25, 2025. Repositioned action buttons (copy, voice, share) to appear next to timestamp below chat messages with enhanced neumorphic styling and gradient hover effects
 
 ## User Preferences
 

@@ -158,34 +158,66 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
           )}
         </div>
         <div className="flex items-center justify-between mt-2">
-          <div className="text-xs text-gray-400">
-            {formatTime(createdAt)}
-          </div>
-          {sender === 'armo' && !isStreaming && (
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={handleCopy}
-                className="p-1 rounded-full hover:bg-gray-600 transition-colors duration-200"
-                title="Copy message"
-              >
-                <Copy size={14} className="text-gray-400 hover:text-white" />
-              </button>
-              <button
-                onClick={handleReadAloud}
-                className="p-1 rounded-full hover:bg-gray-600 transition-colors duration-200"
-                title="Read aloud"
-              >
-                <Volume2 size={14} className="text-gray-400 hover:text-white" />
-              </button>
-              <button
-                onClick={handleShare}
-                className="p-1 rounded-full hover:bg-gray-600 transition-colors duration-200"
-                title="Share message"
-              >
-                <Share2 size={14} className="text-gray-400 hover:text-white" />
-              </button>
+          <div className="flex items-center space-x-3">
+            <div className="text-xs text-gray-400">
+              {formatTime(createdAt)}
             </div>
-          )}
+            {sender === 'armo' && !isStreaming && (
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleCopy}
+                  className="p-1.5 rounded-lg transition-all duration-200"
+                  style={{
+                    background: '#404040',
+                    boxShadow: '2px 2px 4px #323232, -2px -2px 4px #484848'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(45deg, #ff4444, #4444ff, #ff8844)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#404040';
+                  }}
+                  title="Copy message"
+                >
+                  <Copy size={12} className="text-white" />
+                </button>
+                <button
+                  onClick={handleReadAloud}
+                  className="p-1.5 rounded-lg transition-all duration-200"
+                  style={{
+                    background: '#404040',
+                    boxShadow: '2px 2px 4px #323232, -2px -2px 4px #484848'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(45deg, #ff4444, #4444ff, #ff8844)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#404040';
+                  }}
+                  title="Read aloud"
+                >
+                  <Volume2 size={12} className="text-white" />
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="p-1.5 rounded-lg transition-all duration-200"
+                  style={{
+                    background: '#404040',
+                    boxShadow: '2px 2px 4px #323232, -2px -2px 4px #484848'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(45deg, #ff4444, #4444ff, #ff8844)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#404040';
+                  }}
+                  title="Share message"
+                >
+                  <Share2 size={12} className="text-white" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
