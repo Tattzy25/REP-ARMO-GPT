@@ -23,7 +23,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
           <img 
             src={logoImage} 
             alt="Armo GPT Logo" 
-            className="w-20 h-20 rounded-lg"
+            className="w-32 h-32 rounded-lg"
             style={{
               filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))'
             }}
