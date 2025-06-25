@@ -119,20 +119,23 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         className="flex items-start space-x-3 message-container justify-end"
+        style={{ zIndex: 1, position: 'relative' }}
       >
         <div className="flex-1 flex justify-end">
           <div className="rounded-2xl rounded-tr-sm p-4 max-w-md" style={{
             background: 'linear-gradient(135deg, #20b2aa, #40e0d0, #48d1cc)',
-            boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+            boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848',
+            position: 'relative',
+            zIndex: 2
           }}>
-            <p className="text-sm text-white">{displayedContent}</p>
+            <p className="text-sm text-white" style={{ fontWeight: '500' }}>{displayedContent}</p>
           </div>
         </div>
         <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{
           background: 'linear-gradient(135deg, #20b2aa, #40e0d0, #48d1cc)',
           boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
         }}>
-          <i className="fas fa-user text-sm" style={{ color: 'white' }}></i>
+          <span className="text-sm font-bold text-white">U</span>
         </div>
       </motion.div>
     );
@@ -143,16 +146,23 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       className="flex items-start space-x-3 message-container"
+      style={{ zIndex: 1, position: 'relative' }}
     >
-      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 flex items-center justify-center flex-shrink-0">
-        <span className="text-sm font-bold">Հ</span>
+      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{
+        background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8844)',
+        boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+      }}>
+        <span className="text-sm font-bold text-white">Հ</span>
       </div>
       <div className="flex-1">
         <div className="rounded-2xl rounded-tl-sm p-4 max-w-md" style={{
-          background: 'white',
-          boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+          background: '#ffffff',
+          boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848',
+          minHeight: '40px',
+          position: 'relative',
+          zIndex: 2
         }}>
-          <p className="text-sm text-black message-content">{displayedContent}</p>
+          <p className="text-sm message-content" style={{ color: '#111111', fontWeight: '500' }}>{displayedContent}</p>
           {isStreaming && (
             <span className="inline-block w-2 h-4 bg-gray-600 ml-1 typing-animation"></span>
           )}
