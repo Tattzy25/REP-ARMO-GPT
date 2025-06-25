@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 import { vibeConfigs } from '@/lib/vibes';
@@ -9,6 +9,7 @@ interface SidebarProps {
   onVibeSelect: (vibe: string) => void;
   onSidebarToggle?: (isCollapsed: boolean) => void;
   isMobile?: boolean;
+  isCollapsed?: boolean;
 }
 
 export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false }: SidebarProps) {
@@ -23,8 +24,18 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
 
   return (
     <>
+      {/* Mobile Overlay Background */}
+      {isMobile && !isCollapsed && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => handleToggle(true)}
+        />
+      )}
+      
       <div 
-        className={`fixed left-0 top-0 h-screen border-r border-armo-accent/20 flex flex-col z-10 overflow-hidden transition-all duration-300`}
+        className={`fixed left-0 h-screen border-r border-armo-accent/20 flex flex-col overflow-hidden transition-all duration-300 ${
+          isMobile ? 'z-50' : 'z-10'
+        } ${isMobile ? 'top-0' : 'top-0'}`}
         style={{
           background: '#2e2e2e',
           width: isCollapsed ? '0px' : '320px',

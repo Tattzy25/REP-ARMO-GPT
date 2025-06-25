@@ -73,22 +73,30 @@ function App() {
           style={{ background: "#bbbbbb" }}
         >
           {/* Mobile Header */}
-          <div
-            className="mobile-header fixed top-0 left-0 right-0 z-50 h-16 px-4 hidden items-center justify-between"
-            style={{
-              background: "#3a3a3a",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-            }}
-          >
-            <div className="text-white font-bold text-lg">Armo-GPT</div>
-            <button
-              onClick={handleSidebarToggle}
-              className="p-2 rounded-lg text-white"
-              style={{ background: "#2e2e2e" }}
+          {isMobile && (
+            <div
+              className="fixed top-0 left-0 right-0 z-50 h-16 px-4 flex items-center justify-between"
+              style={{
+                background: "#3a3a3a",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+              }}
             >
-              {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+              <div className="text-white font-bold text-lg">Armo-GPT</div>
+              <button
+                onClick={handleSidebarToggle}
+                className="p-2 rounded-lg text-white"
+                style={{ background: "#2e2e2e" }}
+              >
+                <svg 
+                  viewBox="0 0 24 24" 
+                  className="w-6 h-6 text-white"
+                  fill="currentColor"
+                >
+                  <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+              </button>
+            </div>
+          )}
 
           {/* Mobile Overlay */}
           <div
