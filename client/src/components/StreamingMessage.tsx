@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Copy, Volume2, Share2 } from "lucide-react";
 
 interface StreamingMessageProps {
   content: string;
@@ -9,6 +10,49 @@ interface StreamingMessageProps {
 
 export default function StreamingMessage({ content, sender, isStreaming = false }: StreamingMessageProps) {
   const [displayedContent, setDisplayedContent] = useState(isStreaming ? '' : content);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      console.log('Message copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy message:', err);
+    }
+  };
+
+  const handleReadAloud = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(content);
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+      window.speechSynthesis.speak(utterance);
+      console.log('Reading message aloud');
+    } else {
+      console.error('Speech synthesis not supported');
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Armo-GPT Message',
+      text: content,
+      url: window.location.href
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        console.log('Message shared successfully');
+      } else {
+        await navigator.clipboard.writeText(`${content}\n\n- Shared from Armo-GPT`);
+        console.log('Message copied for sharing (fallback)');
+      }
+    } catch (err) {
+      console.error('Failed to share message:', err);
+    }
+  };
 
   useEffect(() => {
     if (isStreaming && content) {
@@ -55,7 +99,7 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="flex items-start space-x-3 message-container"
+      className="group flex items-start space-x-3 message-container"
     >
       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 flex items-center justify-center flex-shrink-0">
         <span className="text-sm font-bold">Հ</span>
@@ -70,7 +114,36 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
             <span className="inline-block w-2 h-4 bg-gray-600 ml-1 typing-animation"></span>
           )}
         </div>
-        <p className="text-xs text-gray-400 mt-1">Just now</p>
+        <div className="flex items-center justify-between mt-2">
+          <div className="text-xs text-gray-400">
+            Just now
+          </div>
+          {sender === 'armo' && !isStreaming && (
+            <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <button
+                onClick={handleCopy}
+                className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200"
+                title="Copy message"
+              >
+                <Copy size={12} className="text-gray-400 hover:text-white" />
+              </button>
+              <button
+                onClick={handleReadAloud}
+                className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200"
+                title="Read aloud"
+              >
+                <Volume2 size={12} className="text-gray-400 hover:text-white" />
+              </button>
+              <button
+                onClick={handleShare}
+                className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200"
+                title="Share message"
+              >
+                <Share2 size={12} className="text-gray-400 hover:text-white" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
