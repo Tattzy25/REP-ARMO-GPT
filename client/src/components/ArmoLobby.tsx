@@ -34,7 +34,9 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mb-8 relative"
         >
-          <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 neumorphic flex items-center justify-center text-6xl pulse-slow">
+          <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 flex items-center justify-center text-6xl pulse-slow" style={{
+            boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+          }}>
             🤖
           </div>
           <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full" style={{
@@ -61,7 +63,17 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onSelectVibe(feature.id)}
-              className={`group p-6 rounded-2xl bg-gradient-to-br from-red-500 via-blue-500 to-orange-500 neumorphic hover:${feature.glowColor === 'cyan' ? 'neon-cyan-glow' : feature.glowColor === 'coral' ? 'neon-coral-glow' : 'neon-teal-glow'} transition-all duration-300`}
+              className="group p-6 rounded-2xl transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+                boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848, 0 0 8px rgba(255, 68, 68, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848';
+              }}
             >
               <div className="text-4xl mb-3 group-hover:bounce-slow">{feature.emoji}</div>
               <h3 className="font-bold text-lg mb-1 text-white">{feature.title.split(' ')[0]}</h3>

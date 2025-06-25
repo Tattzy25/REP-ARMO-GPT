@@ -42,7 +42,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <div className="h-screen" style={{ background: '#3a3a3a' }}>
+        <div className="min-h-screen w-full" style={{ background: '#3a3a3a' }}>
           
           {/* Sidebar */}
           <Sidebar
@@ -53,9 +53,10 @@ function App() {
 
           {/* Main Content Area */}
           <div 
-            className={`flex flex-col relative h-full transition-all duration-300 ${
+            className={`flex flex-col relative min-h-screen transition-all duration-300 ${
               isSidebarCollapsed ? 'ml-0' : 'ml-80'
             }`}
+            style={{ background: '#3a3a3a' }}
           >
             {appState === 'lobby' && (
               <ArmoLobby onSelectVibe={handleVibeSelect} />
