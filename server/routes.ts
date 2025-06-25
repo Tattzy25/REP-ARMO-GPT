@@ -105,13 +105,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Check for image attachments and use vision API if needed
+        console.log('Message metadata:', JSON.stringify(messageData.metadata, null, 2));
+        
         const hasImages = messageData.metadata && 
           typeof messageData.metadata === 'object' && 
+          messageData.metadata !== null &&
+          !Array.isArray(messageData.metadata) &&
           'attachments' in messageData.metadata &&
           Array.isArray(messageData.metadata.attachments) &&
+          messageData.metadata.attachments.length > 0 &&
           messageData.metadata.attachments.some((att: any) => 
-            att.type?.startsWith('image/')
+            att.type && att.type.startsWith('image/')
           );
+
+        console.log('Has images:', hasImages);
 
         let stream;
         if (hasImages && messageData.metadata && 'attachments' in messageData.metadata) {
@@ -151,10 +158,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Fallback to non-streaming
         const hasImages = messageData.metadata && 
           typeof messageData.metadata === 'object' && 
+          messageData.metadata !== null &&
+          !Array.isArray(messageData.metadata) &&
           'attachments' in messageData.metadata &&
           Array.isArray(messageData.metadata.attachments) &&
+          messageData.metadata.attachments.length > 0 &&
           messageData.metadata.attachments.some((att: any) => 
-            att.type?.startsWith('image/')
+            att.type && att.type.startsWith('image/')
           );
         
         let aiResponse;

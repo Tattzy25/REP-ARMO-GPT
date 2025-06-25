@@ -51,9 +51,7 @@ export const chatApi = {
       body: JSON.stringify({
         sessionId,
         sender: 'user',
-        content: attachments && attachments.length > 0 
-          ? `${content}\n\n📎 Files attached: ${attachments.map(f => f.file.name).join(', ')}`
-          : content,
+        content: content || "What do you see in this image?",
         metadata: attachments && attachments.length > 0 ? { 
           attachments: attachments.map(f => ({
             originalName: f.file.name,
