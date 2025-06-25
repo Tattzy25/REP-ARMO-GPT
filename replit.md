@@ -58,7 +58,7 @@ The application features multiple AI personality modes:
 ## External Dependencies
 
 ### Core Libraries
-- **Database**: @neondatabase/serverless for PostgreSQL connection
+- **Database**: Supabase PostgreSQL with @neondatabase/serverless driver
 - **ORM**: drizzle-orm and drizzle-zod for database operations
 - **UI**: Extensive Radix UI component library
 - **Validation**: Zod for schema validation
@@ -83,7 +83,8 @@ The application features multiple AI personality modes:
 - **Start Command**: `npm run start` runs the production build
 
 ### Environment Variables
-- `DATABASE_URL`: PostgreSQL connection string
+- `SUPABASE_DATABASE_URL`: Supabase PostgreSQL connection string (primary)
+- `DATABASE_URL`: Fallback PostgreSQL connection string
 - `GROQ_API_KEY`: AI service authentication
 - `ELEVENLABS_API_KEY`: Voice service authentication
 - `TAVILY_API_KEY`: Search service authentication
@@ -117,6 +118,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Fixed ArrowLeft import error and completed mobile responsive implementation with sidebar overlay functionality
 - June 25, 2025. Repositioned action buttons (copy, voice, share) to appear next to timestamp below chat messages with enhanced neumorphic styling and gradient hover effects
 - June 25, 2025. Fixed chat input field positioning to be locked at bottom with proper z-index and responsive margins to prevent messages from hiding behind input area
+- June 25, 2025. Integrated Supabase database as primary database provider with fallback to existing DATABASE_URL for backward compatibility
 
 ## User Preferences
 
