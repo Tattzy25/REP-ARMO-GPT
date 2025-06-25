@@ -6,12 +6,18 @@ import logoImage from '@assets/logo - armo gpt_1750839826863.png';
 interface SidebarProps {
   currentVibe: string;
   onVibeSelect: (vibe: string) => void;
+  onSidebarToggle?: (isCollapsed: boolean) => void;
 }
 
-export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
+export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle }: SidebarProps) {
   const features = Object.values(vibeConfigs);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleToggle = (collapsed: boolean) => {
+    setIsCollapsed(collapsed);
+    onSidebarToggle?.(collapsed);
+  };
 
   return (
     <>
@@ -36,7 +42,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
                 type="checkbox" 
                 className="sr-only"
                 checked={isCollapsed}
-                onChange={(e) => setIsCollapsed(e.target.checked)}
+                onChange={(e) => handleToggle(e.target.checked)}
               />
               <div 
                 className="h-full w-full rounded-full transition-transform duration-400"
@@ -470,7 +476,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
       {isCollapsed && (
         <div className="fixed left-2 top-4 z-50">
           <button
-            onClick={() => setIsCollapsed(false)}
+            onClick={() => handleToggle(false)}
             className="p-2 rounded-lg transition-all duration-200"
             style={{
               background: '#2e2e2e',

@@ -13,6 +13,7 @@ type AppState = 'lobby' | 'chat' | 'call';
 function App() {
   const [appState, setAppState] = useState<AppState>('lobby');
   const [currentVibe, setCurrentVibe] = useState<string>('default');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const handleVibeSelect = (vibe: string) => {
     setCurrentVibe(vibe);
@@ -47,10 +48,15 @@ function App() {
           <Sidebar
             currentVibe={currentVibe}
             onVibeSelect={handleVibeSelect}
+            onSidebarToggle={setIsSidebarCollapsed}
           />
 
           {/* Main Content Area */}
-          <div className="ml-80 flex flex-col relative h-full">
+          <div 
+            className={`flex flex-col relative h-full transition-all duration-300 ${
+              isSidebarCollapsed ? 'ml-0' : 'ml-80'
+            }`}
+          >
             {appState === 'lobby' && (
               <ArmoLobby onSelectVibe={handleVibeSelect} />
             )}
