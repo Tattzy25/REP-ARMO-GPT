@@ -41,7 +41,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         
       </motion.div>
       {/* Navigation Buttons */}
-      <div className="flex-1 p-4 relative overflow-hidden flex flex-col">
+<div className="flex-1 p-4 relative overflow-y-auto flex flex-col dropdown-content">
         {/* Home Button */}
         <motion.button
           initial={{ opacity: 0, y: -20 }}
