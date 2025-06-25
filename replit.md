@@ -133,6 +133,9 @@ The application features multiple AI personality modes:
 - June 25, 2025. Implemented full file upload functionality with multer backend support for images, audio, video, and documents
 - June 25, 2025. Added file attachment display in chat messages with appropriate icons and metadata
 - June 25, 2025. Created secure file serving endpoint with 10MB upload limit and type validation
+- June 25, 2025. Fixed file upload auto-send behavior - uploads no longer automatically create chat messages
+- June 25, 2025. Improved AI chat bubble animation smoothness with better transitions and timing
+- June 25, 2025. Enhanced streaming message rendering to reduce jerky motion effects
 
 ## User Preferences
 

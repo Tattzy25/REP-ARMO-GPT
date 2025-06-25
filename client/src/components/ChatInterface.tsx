@@ -51,9 +51,11 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         },
         // onComplete - when AI finishes
         (completedMessage: ChatMessage) => {
-          setStreamingMessage(null);
-          setMessages(prev => [...prev, completedMessage]);
-          queryClient.invalidateQueries({ queryKey: [`/api/chat/${currentVibe}/history`] });
+          setTimeout(() => {
+            setStreamingMessage(null);
+            setMessages(prev => [...prev, completedMessage]);
+            queryClient.invalidateQueries({ queryKey: [`/api/chat/${currentVibe}/history`] });
+          }, 500); // Small delay to let streaming animation finish smoothly
         },
         // onUserMessage - add user message immediately
         (userMessage: ChatMessage) => {
@@ -121,15 +123,9 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
       if (result.success) {
         console.log('File uploaded successfully:', result.file);
         
-        // Create a message with file attachment
-        if (sessionId) {
-          const fileMessage = `📎 Uploaded: ${result.file.originalName} (${(result.file.size / 1024).toFixed(1)} KB)`;
-          
-          sendMessageMutation.mutate({
-            sessionId,
-            content: fileMessage
-          });
-        }
+        // Just log the successful upload, don't automatically send a message
+        console.log(`File "${result.file.originalName}" ready for sharing in chat`);
+        // User can manually mention the file in their next message if needed
       } else {
         console.error('File upload failed:', result.error);
       }

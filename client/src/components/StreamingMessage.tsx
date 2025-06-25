@@ -145,7 +145,7 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
         } else {
           clearInterval(streamInterval);
         }
-      }, 30);
+      }, 20); // Faster streaming for smoother effect
 
       return () => clearInterval(streamInterval);
     }
@@ -154,8 +154,9 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
   if (sender === 'user') {
     return (
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className="flex items-start space-x-3 message-container justify-end"
         style={{ zIndex: 1, position: 'relative' }}
       >
@@ -181,8 +182,9 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       className="flex items-start space-x-3 message-container"
       style={{ zIndex: 1, position: 'relative' }}
     >
