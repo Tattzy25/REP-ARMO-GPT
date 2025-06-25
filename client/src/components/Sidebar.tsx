@@ -18,10 +18,6 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         className="p-6 border-b border-armo-accent/20"
       >
         <div className="flex items-center space-x-3 mb-4">
-          {/* Armenian flag colors accent */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 flex items-center justify-center neumorphic">
-            <span className="text-xl font-bold">Հ</span>
-          </div>
           <div>
             <h1 className="text-xl font-bold text-neon-cyan">Armo-GPT</h1>
             <p className="text-sm text-gray-400">Your Armenian AI Hopar</p>

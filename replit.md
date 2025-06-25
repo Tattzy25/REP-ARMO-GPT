@@ -94,6 +94,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Updated color scheme to gray (#bbbbbb background, #9f9f9f/#d7d7d7 shadows)
 - June 25, 2025. Added red-blue-orange gradient to main content headers and cards
 - June 25, 2025. Updated sidebar to dark theme (#2e2e2e background, #272727/#353535 shadows)
+- June 25, 2025. Removed Armenian flag icon from sidebar header
 
 ## User Preferences
 
