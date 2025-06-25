@@ -13,6 +13,7 @@ interface InputAreaProps {
 export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false, isSidebarCollapsed = false, isMobile = false }: InputAreaProps) {
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -134,7 +135,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               </button>
 
               {/* Plus Button with Dropdown */}
-              <div className="relative">
+              <div className="relative tools-dropdown">
                 <button
                   onClick={() => setIsToolsOpen(!isToolsOpen)}
                   disabled={disabled}
