@@ -56,14 +56,14 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="p-4 border-t border-gray-600/20 backdrop-blur"
+      className="sticky bottom-0 p-4 border-t border-gray-600/20 backdrop-blur mt-auto"
       style={{
         background: '#3a3a3a',
         boxShadow: '0 -4px 8px #323232'
       }}
     >
       <div className="flex items-end space-x-3 max-w-4xl mx-auto">
-        {/* File Upload */}
+        {/* File Upload Button */}
         <button
           onClick={() => fileInputRef.current?.click()}
           className="p-3 rounded-xl transition-all duration-200 flex-shrink-0"
@@ -78,6 +78,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
             e.currentTarget.style.background = '#404040';
           }}
           disabled={disabled}
+          title="Upload files (images, documents, audio, video)"
         >
           <i className="fas fa-paperclip text-white"></i>
         </button>
@@ -108,7 +109,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
           </div>
         </div>
 
-        {/* Voice Input */}
+        {/* Voice Input Button */}
         <button
           onClick={handleVoiceToggle}
           className="p-3 rounded-xl transition-all duration-200 flex-shrink-0"
@@ -127,11 +128,12 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
             }
           }}
           disabled={disabled}
+          title="Voice input - speak your message"
         >
           <i className={`fas fa-microphone text-white ${isRecording ? 'animate-pulse' : ''}`}></i>
         </button>
 
-        {/* Send Button */}
+        {/* Send Message Button */}
         <button
           onClick={handleSend}
           disabled={!message.trim() || disabled}
@@ -148,6 +150,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)';
           }}
+          title="Send message (Enter)"
         >
           <i className="fas fa-paper-plane text-white"></i>
         </button>

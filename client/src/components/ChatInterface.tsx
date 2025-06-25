@@ -98,7 +98,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterf
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col min-h-screen">
       {/* Chat Header */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
@@ -167,13 +167,13 @@ export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterf
                   <span className="text-sm font-bold">Հ</span>
                 </div>
                 <div className="rounded-2xl rounded-tl-sm p-4" style={{
-                  background: '#404040',
+                  background: 'white',
                   boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
                 }}>
                   <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
                   </div>
                 </div>
               </div>

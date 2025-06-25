@@ -35,14 +35,14 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
       >
         <div className="flex-1 flex justify-end">
           <div className="rounded-2xl rounded-tr-sm p-4 max-w-md" style={{
-            background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+            background: 'linear-gradient(135deg, #20b2aa, #40e0d0, #48d1cc)',
             boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
           }}>
             <p className="text-sm text-white">{displayedContent}</p>
           </div>
         </div>
         <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{
-          background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+          background: 'linear-gradient(135deg, #20b2aa, #40e0d0, #48d1cc)',
           boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
         }}>
           <i className="fas fa-user text-sm text-white"></i>
@@ -62,15 +62,15 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
       </div>
       <div className="flex-1">
         <div className="rounded-2xl rounded-tl-sm p-4 max-w-md" style={{
-          background: '#404040',
+          background: 'white',
           boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
         }}>
-          <p className="text-sm text-white message-content">{displayedContent}</p>
+          <p className="text-sm text-black message-content">{displayedContent}</p>
           {isStreaming && (
-            <span className="inline-block w-2 h-4 bg-neon-cyan ml-1 typing-animation"></span>
+            <span className="inline-block w-2 h-4 bg-gray-600 ml-1 typing-animation"></span>
           )}
         </div>
-        <p className="text-xs text-gray-300 mt-1">Just now</p>
+        <p className="text-xs text-gray-400 mt-1">Just now</p>
       </div>
     </motion.div>
   );
