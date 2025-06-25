@@ -123,6 +123,8 @@ The application features multiple AI personality modes:
 - June 25, 2025. Removed unauthorized "Online" status indicator from chat header
 - June 25, 2025. Centered chat header title and subtitle for better visual balance
 - June 25, 2025. Added "+" button with Deep Search dropdown in input area as requested (functionality not yet connected)
+- June 25, 2025. Redesigned Deep Search button with custom neumorphic styling to match site aesthetics
+- June 25, 2025. Repositioned "+" button below file upload button to prevent interference with chat input area
 
 ## User Preferences
 

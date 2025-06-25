@@ -121,7 +121,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
             }}
           >
             {/* Left Side Buttons */}
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2 z-10">
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex flex-col items-start space-y-2 z-10">
               {/* File Upload Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -150,10 +150,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
                 {/* Tools Dropdown */}
                 {isToolsOpen && (
                   <div 
-                    className="absolute bottom-full left-0 mb-2 bg-gray-800 rounded-lg shadow-lg border border-gray-600 min-w-[150px] z-20"
-                    style={{
-                      boxShadow: '4px 4px 12px #1a1a1a, -2px -2px 8px #4a4a4a'
-                    }}
+                    className="absolute bottom-full left-0 mb-2 min-w-[150px] z-20"
                   >
                     <button
                       onClick={() => {
@@ -161,12 +158,25 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
                         // TODO: Implement Deep Search functionality
                         console.log('Deep Search clicked');
                       }}
-                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                      className="text-white px-4 py-2 text-sm rounded-lg transition-all duration-300 cursor-pointer border border-gray-700"
+                      style={{
+                        background: '#212121',
+                        boxShadow: '6px 6px 12px #0a0a0a, -6px -6px 12px #2f2f2f'
+                      }}
+                      onMouseDown={(e) => {
+                        e.currentTarget.style.color = '#666';
+                        e.currentTarget.style.boxShadow = '0px 0px 0px #000, 0px 0px 0px #2f2f2f, inset 4px 4px 12px #1a1a1a, inset -4px -4px 12px #1f1f1f';
+                      }}
+                      onMouseUp={(e) => {
+                        e.currentTarget.style.color = '#fff';
+                        e.currentTarget.style.boxShadow = '6px 6px 12px #0a0a0a, -6px -6px 12px #2f2f2f';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '#fff';
+                        e.currentTarget.style.boxShadow = '6px 6px 12px #0a0a0a, -6px -6px 12px #2f2f2f';
+                      }}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M21 21L16.514 16.506M19 10.5C19 15.194 15.194 19 10.5 19S2 15.194 2 10.5 5.806 2 10.5 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span>Deep Search</span>
+                      Deep Search
                     </button>
                   </div>
                 )}
@@ -184,7 +194,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               onKeyDown={handleKeyPress}
               placeholder="Ask Armo Hopar anything... (Armenian/English)"
               disabled={disabled}
-              className="w-full min-h-[60px] max-h-32 py-4 pl-20 pr-28 bg-transparent resize-none outline-none text-white placeholder-gray-400 transition-all duration-200"
+              className="w-full min-h-[60px] max-h-32 py-4 pl-16 pr-28 bg-transparent resize-none outline-none text-white placeholder-gray-400 transition-all duration-200"
               style={{
                 fontSize: '16px',
                 lineHeight: '1.5'
