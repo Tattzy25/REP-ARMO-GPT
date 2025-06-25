@@ -122,7 +122,7 @@ function App() {
           {/* Main Content Area */}
           <div
             className={`main-content flex flex-col relative min-h-screen transition-all duration-300 ${
-              isMobile ? "pt-16" : isSidebarCollapsed ? "ml-0" : "ml-80"
+              isMobile ? "pt-16 w-full" : isSidebarCollapsed ? "ml-0" : "ml-80"
             }`}
             style={{ background: "#3a3a3a" }}
           >
