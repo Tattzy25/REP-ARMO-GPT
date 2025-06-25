@@ -112,6 +112,10 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         body: formData
       });
 
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      }
+
       const result = await response.json();
       
       if (result.success) {
@@ -120,21 +124,6 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         // Create a message with file attachment
         if (sessionId) {
           const fileMessage = `📎 Uploaded: ${result.file.originalName} (${(result.file.size / 1024).toFixed(1)} KB)`;
-          
-          // Add file info to message metadata
-          const messageWithFile = {
-            sessionId,
-            content: fileMessage,
-            metadata: {
-              type: 'file_upload',
-              fileId: result.file.id,
-              filename: result.file.filename,
-              originalName: result.file.originalName,
-              mimetype: result.file.mimetype,
-              size: result.file.size,
-              url: `/api/files/${result.file.filename}`
-            }
-          };
           
           sendMessageMutation.mutate({
             sessionId,

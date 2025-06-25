@@ -219,6 +219,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // File upload endpoint
+  app.post("/api/upload", upload.single('file'), (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const file = req.file;
+      const fileInfo = {
+        id: Date.now().toString(),
+        originalName: file.originalname,
+        filename: file.filename,
+        mimetype: file.mimetype,
+        size: file.size,
+        path: file.path,
+        uploadedAt: new Date().toISOString()
+      };
+
+      console.log('File uploaded successfully:', fileInfo);
+      
+      res.json({
+        success: true,
+        file: fileInfo,
+        message: `File "${file.originalname}" uploaded successfully`
+      });
+    } catch (error: any) {
+      console.error('File upload error:', error);
+      res.status(500).json({ 
+        error: "File upload failed", 
+        details: error.message 
+      });
+    }
+  });
+
+  // Serve uploaded files
+  app.get("/api/files/:filename", (req: Request, res: Response) => {
+    const filename = req.params.filename;
+    const filePath = path.join(process.cwd(), 'uploads', filename);
+    
+    if (fs.existsSync(filePath)) {
+      res.sendFile(path.resolve(filePath));
+    } else {
+      res.status(404).json({ error: "File not found" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
