@@ -37,7 +37,9 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     }
   };
 
-  const handleVoiceToggle = () => {
+  const handleVoiceToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsRecording(!isRecording);
     onVoiceToggle();
   };
@@ -102,7 +104,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         </div>
 
         {/* Voice Input Button */}
-        <div className="neumorphic-button" onClick={handleVoiceToggle} title="Voice input">
+        <div className="neumorphic-button" onClick={handleVoiceToggle} title="Click to start/stop recording">
           <div className="toggle">
             <input type="checkbox" checked={isRecording} disabled={disabled} readOnly />
             <span className="button" />
