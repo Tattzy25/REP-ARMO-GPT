@@ -17,11 +17,11 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
           transition={{ duration: 0.8 }}
           className="mb-8"
         >
-          <h1 className="text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan via-neon-teal to-neon-coral glow-animation">
+          <h1 className="text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 glow-animation">
             Բարի գալուստ!
           </h1>
-          <p className="text-2xl mb-2">Welcome to Armo-GPT</p>
-          <p className="text-lg text-gray-400">Your chaotic Armenian AI companion is ready to serve</p>
+          <p className="text-2xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-500 to-orange-500">Welcome to Armo-GPT</p>
+          <p className="text-lg text-gray-800">Your chaotic Armenian AI companion is ready to serve</p>
         </motion.div>
 
         {/* Character Animation Area */}
@@ -55,11 +55,11 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onSelectVibe(feature.id)}
-              className={`group p-6 rounded-2xl bg-armo-blue neumorphic hover:${feature.glowColor === 'cyan' ? 'neon-cyan-glow' : feature.glowColor === 'coral' ? 'neon-coral-glow' : 'neon-teal-glow'} transition-all duration-300`}
+              className={`group p-6 rounded-2xl bg-gradient-to-br from-red-500 via-blue-500 to-orange-500 neumorphic hover:${feature.glowColor === 'cyan' ? 'neon-cyan-glow' : feature.glowColor === 'coral' ? 'neon-coral-glow' : 'neon-teal-glow'} transition-all duration-300`}
             >
               <div className="text-4xl mb-3 group-hover:bounce-slow">{feature.emoji}</div>
-              <h3 className="font-bold text-lg mb-1">{feature.title.split(' ')[0]}</h3>
-              <p className="text-xs text-gray-400">{feature.subtitle.split(' ').slice(0, 2).join(' ')}</p>
+              <h3 className="font-bold text-lg mb-1 text-white">{feature.title.split(' ')[0]}</h3>
+              <p className="text-xs text-gray-200">{feature.subtitle.split(' ').slice(0, 2).join(' ')}</p>
             </motion.button>
           ))}
         </motion.div>
