@@ -40,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Send message and get AI response
+  // Send message and get AI response with streaming
   app.post("/api/chat/message", async (req, res) => {
     try {
       const messageData = insertMessageSchema.parse(req.body);
@@ -54,17 +54,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Session not found" });
       }
       
-      const aiResponse = await generateAIResponse(messageData.content, session.vibe);
-      
-      // Save AI response
-      const armoMessage = await storage.createMessage({
-        sessionId: messageData.sessionId!,
-        sender: "armo",
-        content: aiResponse,
-        metadata: null
-      });
-      
-      res.json({ userMessage, armoMessage, aiResponse });
+      // Set up server-sent events
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+
+      // Send user message first
+      res.write(`data: ${JSON.stringify({ type: 'user_message', message: userMessage })}\n\n`);
+
+      try {
+        // Generate streaming AI response
+        const stream = await generateAIResponseStream(messageData.content, session.vibe);
+        let fullResponse = '';
+
+        for await (const chunk of stream) {
+          if (chunk.choices && chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content) {
+            const deltaContent = chunk.choices[0].delta.content;
+            fullResponse += deltaContent;
+            res.write(`data: ${JSON.stringify({ type: 'delta', content: deltaContent })}\n\n`);
+          }
+        }
+
+        // Save final AI message
+        const armoMessage = await storage.createMessage({
+          sessionId: messageData.sessionId!,
+          sender: "armo",
+          content: fullResponse,
+          metadata: null
+        });
+
+        // Send completion
+        res.write(`data: ${JSON.stringify({ type: 'complete', message: armoMessage })}\n\n`);
+        res.end();
+
+      } catch (streamError) {
+        console.error('Streaming error:', streamError);
+        // Fallback to non-streaming
+        const aiResponse = await generateAIResponseFallback(messageData.content, session.vibe);
+        const armoMessage = await storage.createMessage({
+          sessionId: messageData.sessionId!,
+          sender: "armo",
+          content: aiResponse,
+          metadata: null
+        });
+        res.write(`data: ${JSON.stringify({ type: 'complete', message: armoMessage })}\n\n`);
+        res.end();
+      }
+
     } catch (error) {
       console.error("Chat error:", error);
       res.status(500).json({ error: "Failed to process message" });
@@ -146,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-async function generateAIResponse(userMessage: string, vibe: string): Promise<string> {
+async function generateAIResponseStream(userMessage: string, vibe: string) {
   const apiKey = process.env.GROQ_API_KEY;
   
   if (!apiKey) {
@@ -190,7 +227,7 @@ async function generateAIResponse(userMessage: string, vibe: string): Promise<st
         max_tokens: 1000,
         temperature: 0.7,
         top_p: 0.9,
-        stream: false
+        stream: true
       })
     });
 
@@ -209,20 +246,41 @@ async function generateAIResponse(userMessage: string, vibe: string): Promise<st
       }
     }
 
-    const data = await response.json();
+    // Parse streaming response
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
     
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Invalid Groq API response format:', data);
-      throw new Error('Invalid response format from Groq API');
-    }
+    return {
+      async *[Symbol.asyncIterator]() {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') return;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  yield parsed;
+                } catch (e) {
+                  // Skip invalid JSON
+                }
+              }
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+      }
+    };
 
-    const content = data.choices[0].message.content;
-    if (!content || content.trim() === '') {
-      throw new Error('Empty response from Groq API');
-    }
-
-    console.log('Groq API response generated successfully');
-    return content;
+    console.log('Groq API streaming response started');
     
   } catch (error) {
     console.error('Groq API error:', error);
@@ -239,4 +297,18 @@ async function generateAIResponse(userMessage: string, vibe: string): Promise<st
     
     return fallbackResponses[vibe] || fallbackResponses.default;
   }
+}
+
+// Fallback function for non-streaming responses
+async function generateAIResponseFallback(userMessage: string, vibe: string): Promise<string> {
+  const fallbackResponses: Record<string, string> = {
+    default: "Բարև ախպեր! I'm here to help with whatever you need. What's on your mind?",
+    roast: "Bruh, something went wrong but I'm still here to roast you! What's up?",
+    famous: "Tech issues can't stop us from making you famous! What content are we creating?",
+    dating: "My servers are acting shy like a first date, but I'm still your wingman!",
+    therapy: "I'm experiencing some technical emotions, but I'm here to listen.",
+    alibi: "Even my excuses have excuses right now, but I got you covered!"
+  };
+  
+  return fallbackResponses[vibe] || fallbackResponses.default;
 }

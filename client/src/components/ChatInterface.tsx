@@ -37,20 +37,28 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
   // Send message mutation
   const sendMessageMutation = useMutation({
-    mutationFn: ({ sessionId, content }: { sessionId: number; content: string }) =>
-      chatApi.sendMessage(sessionId, content),
-    onSuccess: (response) => {
-      // Add user message immediately
-      setMessages(prev => [...prev, response.userMessage]);
+    mutationFn: ({ sessionId, content }: { sessionId: number; content: string }) => {
+      setStreamingMessage(""); // Initialize streaming
       
-      // Stream AI response
-      setStreamingMessage(response.aiResponse);
-      
-      // After streaming completes, add the final message
-      setTimeout(() => {
-        setMessages(prev => [...prev, response.armoMessage]);
-        setStreamingMessage(null);
-      }, response.aiResponse.length * 30 + 500);
+      return chatApi.sendMessage(
+        sessionId,
+        content,
+        // onDelta - real-time streaming
+        (deltaContent: string) => {
+          setStreamingMessage(prev => prev + deltaContent);
+        },
+        // onComplete - when AI finishes
+        (completedMessage: ChatMessage) => {
+          setTimeout(() => {
+            setStreamingMessage(null);
+            queryClient.invalidateQueries({ queryKey: [`/api/chat/${currentVibe}/history`] });
+          }, 100);
+        },
+        // onUserMessage - add user message immediately
+        (userMessage: ChatMessage) => {
+          setMessages(prev => [...prev, userMessage]);
+        }
+      );
     },
   });
 

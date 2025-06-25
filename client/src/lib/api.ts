@@ -35,18 +35,62 @@ export const chatApi = {
     return response.json();
   },
 
-  sendMessage: async (sessionId: number, content: string): Promise<{
-    userMessage: ChatMessage;
-    armoMessage: ChatMessage;
-    aiResponse: string;
-  }> => {
-    const response = await apiRequest('POST', '/api/chat/message', {
-      sessionId,
-      sender: 'user',
-      content,
-      metadata: null
+  sendMessage: async (
+    sessionId: number, 
+    content: string, 
+    onDelta?: (content: string) => void,
+    onComplete?: (message: ChatMessage) => void,
+    onUserMessage?: (message: ChatMessage) => void
+  ) => {
+    const response = await fetch('/api/chat/message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId,
+        sender: 'user',
+        content,
+        metadata: null
+      })
     });
-    return response.json();
+
+    if (!response.body) {
+      throw new Error('No response body');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'user_message' && onUserMessage) {
+                onUserMessage(data.message);
+              } else if (data.type === 'delta' && onDelta) {
+                onDelta(data.content);
+              } else if (data.type === 'complete' && onComplete) {
+                onComplete(data.message);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
   },
 
   search: async (query: string): Promise<{ results: any[] }> => {
