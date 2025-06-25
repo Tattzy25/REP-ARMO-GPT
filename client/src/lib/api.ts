@@ -6,7 +6,7 @@ export interface ChatMessage {
   sender: 'user' | 'armo';
   content: string;
   metadata?: any;
-  createdAt?: Date;
+  createdAt: string;
 }
 
 export interface ChatSession {

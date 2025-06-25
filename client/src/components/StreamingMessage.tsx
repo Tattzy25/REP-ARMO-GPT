@@ -6,9 +6,15 @@ interface StreamingMessageProps {
   content: string;
   sender: 'user' | 'armo';
   isStreaming?: boolean;
+  createdAt?: string;
 }
 
-export default function StreamingMessage({ content, sender, isStreaming = false }: StreamingMessageProps) {
+export default function StreamingMessage({ content, sender, isStreaming = false, createdAt }: StreamingMessageProps) {
+
+  const formatTime = (dateString?: string) => {
+    if (!dateString) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
   const [displayedContent, setDisplayedContent] = useState(isStreaming ? '' : content);
 
   const handleCopy = async () => {
@@ -153,7 +159,7 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
         </div>
         <div className="flex items-center justify-between mt-2">
           <div className="text-xs text-gray-400">
-            Just now
+            {formatTime(createdAt)}
           </div>
           {sender === 'armo' && !isStreaming && (
             <div className="flex items-center space-x-1">

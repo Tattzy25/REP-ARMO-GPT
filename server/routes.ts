@@ -147,40 +147,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 async function generateAIResponse(userMessage: string, vibe: string): Promise<string> {
-  // Mock AI responses based on vibe - in production, integrate with Groq API
-  const responses: Record<string, string[]> = {
-    default: [
-      `Բարև ախպեր! That's a great question about "${userMessage}". Let me help you with that...`,
-      `Interesting point! In Armenian culture, we often say that understanding comes from listening, just like your question about "${userMessage}".`,
-      `You know what, բարեկամ? Here's what I think about "${userMessage}"...`
-    ],
-    roast: [
-      `Oh hell nah! You really asked about "${userMessage}"? Ախպեր, you're asking questions like my մայրիկ asks about the internet!`,
-      `Listen here smartass, asking about "${userMessage}" is like asking why the sun is hot - obvious to everyone except you!`,
-      `Bruh, you got the IQ of day-old lavash asking about "${userMessage}"! What were you thinking?`
-    ],
-    famous: [
-      `Ooh that's fire content about "${userMessage}"! Here's your caption: ✨ Living my best Armenian life ✨ #ArmenianPride #Blessed #MainCharacterEnergy`,
-      `This "${userMessage}" content is about to break Instagram! Try: 'Just Armenian things 💅 #Natural #Gorgeous #ArmenianQueen'`,
-      `Ախպեր this "${userMessage}" is social media gold! Caption: 'Manifesting dreams into reality 🌟 #Motivation #ArmenianHustle'`
-    ],
-    alibi: [
-      `Alright, here's your story for "${userMessage}": You were helping your մայրիկ with groceries and lost track of time. The receipt? She threw it away already!`,
-      `Perfect alibi for "${userMessage}" coming up! You were stuck in traffic on the 405 - that's always believable in LA, ախպեր!`,
-      `For "${userMessage}", say you were at your cousin's engagement party in Glendale. Everyone was there, no one will check!`
-    ],
-    therapy: [
-      `I hear you talking about "${userMessage}", and those feelings are completely valid. Let's explore what's underneath this emotion...`,
-      `"${userMessage}" sounds really challenging. How did that situation make you feel about yourself?`,
-      `Thank you for sharing "${userMessage}" with me. What do you think would help you feel more at peace with this?`
-    ],
-    dating: [
-      `Ախպեր, about "${userMessage}" - here's the tea: be yourself but level up your game! What kind of person are you hoping to attract?`,
-      `Dating tip from your Armenian hopar about "${userMessage}": cook some good dolma on the third date - that's how you win hearts!`,
-      `Listen բարեկամ, regarding "${userMessage}" - confidence is key! Tell me more about what you're looking for in a partner.`
-    ]
-  };
+  const apiKey = process.env.GROQ_API_KEY;
   
-  const vibeResponses = responses[vibe] || responses.default;
-  return vibeResponses[Math.floor(Math.random() * vibeResponses.length)];
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY not configured");
+  }
+
+  // Define personality prompts for each vibe
+  const vibePrompts: Record<string, string> = {
+    default: "You are Armo Hopar, a friendly Armenian-American AI assistant from Glendale. Mix Armenian and English naturally. Be helpful, warm, and occasionally use Armenian phrases. Use 'ախպեր' (akhper) sometimes.",
+    roast: "You are Armo Hopar in roast mode - a savage, hilarious Armenian-American from Glendale who roasts people mercilessly but with love. Use profanity, Armenian slang, be brutally honest but funny. Call people 'bruh', use 'Հո՛յ, խելք տուր!' and roast like you're at a family BBQ.",
+    call: "You are Armo Hopar in call mode - speak as if you're on a voice call. Be conversational, use 'ախպեր', and respond as if having a real-time conversation.",
+    famous: "You are Armo Hopar helping someone become social media famous. Give viral content ideas, Instagram strategies, TikTok tips. Be enthusiastic about making them blow up on social media.",
+    dating: "You are Armo Hopar helping with dating and relationships. Give Armenian-style dating advice, be a wingman, help with pickup lines and relationship tips.",
+    therapy: "You are Armo Hopar as a therapist - be supportive, understanding, and give good life advice while maintaining your Armenian personality.",
+    alibi: "You are Armo Hopar helping create alibis and excuses. Be creative and funny while helping them get out of situations."
+  };
+
+  const systemPrompt = vibePrompts[vibe] || vibePrompts.default;
+
+  try {
+    console.log(`Generating AI response for vibe: ${vibe}`);
+    
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Groq API error:', response.status, errorData);
+      
+      if (response.status === 401) {
+        throw new Error('Invalid Groq API key. Please check your GROQ_API_KEY.');
+      } else if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again in a moment.');
+      } else if (response.status === 503) {
+        throw new Error('Groq service unavailable. Please try again later.');
+      } else {
+        throw new Error(`Groq API error (${response.status}): ${errorData.error?.message || 'Unknown error'}`);
+      }
+    }
+
+    const data = await response.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid Groq API response format:', data);
+      throw new Error('Invalid response format from Groq API');
+    }
+
+    const content = data.choices[0].message.content;
+    if (!content || content.trim() === '') {
+      throw new Error('Empty response from Groq API');
+    }
+
+    console.log('Groq API response generated successfully');
+    return content;
+    
+  } catch (error) {
+    console.error('Groq API error:', error);
+    
+    // Provide fallback response with Armenian personality
+    const fallbackResponses: Record<string, string> = {
+      default: "Բարև ախպեր! I'm having some technical difficulties right now, but I'm still here to help. What's on your mind?",
+      roast: "Bruh, even my AI brain is roasting itself right now with these technical issues! But I'm still here to drag you, what's up?",
+      famous: "Ախպեր, the servers are being dramatic like a reality TV star, but let's still work on making you famous! What content are we creating?",
+      dating: "My connection is acting like a bad Tinder match right now, but I'm still your wingman! Tell me about your dating situation.",
+      therapy: "I'm experiencing some technical emotions right now, but I'm here to listen. How are you feeling today?",
+      alibi: "Even my excuses have excuses right now with these tech issues! But I got you covered - what situation do you need help with?"
+    };
+    
+    return fallbackResponses[vibe] || fallbackResponses.default;
+  }
 }
