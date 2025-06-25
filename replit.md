@@ -99,6 +99,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Replaced "Choose Your Vibe" heading with neumorphic "THE VIBEZ" dropdown button using custom gradient styling
 - June 25, 2025. Made sidebar fixed positioned with internal scrolling capability
 - June 25, 2025. Added Gallery and Recent Chats buttons below Vibez with matching neumorphic styling and icons
+- June 25, 2025. Removed subtitle "Your Armenian AI Hopar" from sidebar header for cleaner appearance
 
 ## User Preferences
 

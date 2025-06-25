@@ -35,7 +35,6 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         <div className="flex items-center space-x-3 mb-4">
           <div>
             <h1 className="text-xl font-bold text-neon-cyan">Your Hopar, The AI Overload</h1>
-            <p className="text-sm text-gray-400">Your Armenian AI Hopar</p>
           </div>
         </div>
         
