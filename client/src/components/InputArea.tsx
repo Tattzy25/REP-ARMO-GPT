@@ -22,10 +22,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
       setMessage("");
       autoResize();
       
-      // Force focus back to textarea immediately and repeatedly
-      setTimeout(() => textareaRef.current?.focus(), 0);
-      setTimeout(() => textareaRef.current?.focus(), 10);
-      setTimeout(() => textareaRef.current?.focus(), 50);
+      // Simple refocus after sending
       setTimeout(() => textareaRef.current?.focus(), 100);
     }
   };
@@ -83,22 +80,22 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     textareaRef.current?.focus();
   }, []);
 
-  // Prevent focus loss and maintain focus aggressively
+  // Simple focus management - only when truly needed
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (textareaRef.current && !disabled && document.activeElement !== textareaRef.current) {
-        // Only refocus if no other input is focused
-        const activeElement = document.activeElement;
-        if (!activeElement || 
-            activeElement === document.body ||
-            (!activeElement.closest('input') && !activeElement.closest('textarea') && !activeElement.closest('button'))) {
-          textareaRef.current.focus();
-        }
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // If clicking on message area but not on buttons, refocus textarea
+      if (target.closest('.chat-messages') && 
+          !target.closest('button') && 
+          !target.closest('[role="button"]') &&
+          !target.closest('.message-container button')) {
+        setTimeout(() => textareaRef.current?.focus(), 50);
       }
-    }, 100);
+    };
 
-    return () => clearInterval(interval);
-  }, [disabled]);
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, []);
 
   return (
     <motion.div
@@ -150,10 +147,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              onBlur={() => {
-                // Immediate refocus attempt
-                setTimeout(() => textareaRef.current?.focus(), 10);
-              }}
+
               rows={1}
               placeholder="Ask Armo Hopar anything... (Armenian/English)"
               className="w-full bg-transparent text-white placeholder-gray-300 resize-none outline-none"
