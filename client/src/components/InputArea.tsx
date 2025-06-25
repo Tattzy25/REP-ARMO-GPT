@@ -40,7 +40,18 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
   const handleVoiceToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsRecording(!isRecording);
+    
+    const newRecordingState = !isRecording;
+    setIsRecording(newRecordingState);
+    
+    if (newRecordingState) {
+      console.log('Starting voice recording...');
+      // TODO: Start actual voice recording here
+    } else {
+      console.log('Stopping voice recording...');
+      // TODO: Stop voice recording and process audio here
+    }
+    
     onVoiceToggle();
   };
 
@@ -104,11 +115,30 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         </div>
 
         {/* Voice Input Button */}
-        <div className="neumorphic-button" onClick={handleVoiceToggle} title="Click to start/stop recording">
+        <div 
+          className="neumorphic-button" 
+          onClick={handleVoiceToggle} 
+          title="Click to start/stop recording"
+          style={{
+            backgroundColor: isRecording ? '#ff4444' : 'transparent'
+          }}
+        >
           <div className="toggle">
             <input type="checkbox" checked={isRecording} disabled={disabled} readOnly />
-            <span className="button" />
-            <span className="label">🎤</span>
+            <span 
+              className="button"
+              style={{
+                background: isRecording ? '#ff4444' : '#3a3a3a'
+              }}
+            />
+            <span 
+              className="label"
+              style={{
+                color: isRecording ? '#ffffff' : 'rgba(255, 255, 255, 0.9)'
+              }}
+            >
+              🎤
+            </span>
           </div>
         </div>
 
