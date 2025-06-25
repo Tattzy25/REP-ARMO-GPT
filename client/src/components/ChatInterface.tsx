@@ -51,10 +51,9 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         },
         // onComplete - when AI finishes
         (completedMessage: ChatMessage) => {
-          setTimeout(() => {
-            setStreamingMessage(null);
-            queryClient.invalidateQueries({ queryKey: [`/api/chat/${currentVibe}/history`] });
-          }, 100);
+          setStreamingMessage(null);
+          setMessages(prev => [...prev, completedMessage]);
+          queryClient.invalidateQueries({ queryKey: [`/api/chat/${currentVibe}/history`] });
         },
         // onUserMessage - add user message immediately
         (userMessage: ChatMessage) => {

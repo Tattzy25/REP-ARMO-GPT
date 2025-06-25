@@ -127,6 +127,9 @@ The application features multiple AI personality modes:
 - June 25, 2025. Repositioned "+" button below file upload button to prevent interference with chat input area
 - June 25, 2025. Fixed WebSocket database connection issue preventing chat bubbles from displaying
 - June 25, 2025. Added extra bottom padding (pb-40) to chat messages area to prevent AI responses from being hidden behind fixed input field
+- June 25, 2025. Fixed AI message bubble visibility issues with explicit styling and z-index positioning
+- June 25, 2025. Fixed input field focus problem - textarea now maintains focus after sending messages and auto-focuses on load
+- June 25, 2025. Fixed AI response display by immediately adding completed messages to state instead of relying only on cache invalidation
 
 ## User Preferences
 
