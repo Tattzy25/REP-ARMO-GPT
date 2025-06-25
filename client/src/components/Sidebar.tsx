@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { vibeConfigs } from "@/lib/vibes";
+import logoImage from "@/assets/logo.png";
 
 interface SidebarProps {
   currentVibe: string;
@@ -17,6 +18,18 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         animate={{ x: 0, opacity: 1 }}
         className="p-6 border-b border-armo-accent/20"
       >
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <img 
+            src={logoImage} 
+            alt="Armo GPT Logo" 
+            className="w-20 h-20 rounded-lg"
+            style={{
+              filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))'
+            }}
+          />
+        </div>
+        
         <div className="flex items-center space-x-3 mb-4">
           <div>
             <h1 className="text-xl font-bold text-neon-cyan">Armo-GPT</h1>
