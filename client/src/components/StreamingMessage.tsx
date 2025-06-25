@@ -136,7 +136,7 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="group flex items-start space-x-3 message-container"
+      className="flex items-start space-x-3 message-container"
     >
       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-armo-red via-blue-500 to-orange-400 flex items-center justify-center flex-shrink-0">
         <span className="text-sm font-bold">Հ</span>
@@ -156,27 +156,27 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
             Just now
           </div>
           {sender === 'armo' && !isStreaming && (
-            <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="flex items-center space-x-1">
               <button
                 onClick={handleCopy}
-                className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200"
+                className="p-1 rounded-full hover:bg-gray-600 transition-colors duration-200"
                 title="Copy message"
               >
-                <Copy size={12} className="text-gray-400 hover:text-white" />
+                <Copy size={14} className="text-gray-400 hover:text-white" />
               </button>
               <button
                 onClick={handleReadAloud}
-                className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200"
+                className="p-1 rounded-full hover:bg-gray-600 transition-colors duration-200"
                 title="Read aloud"
               >
-                <Volume2 size={12} className="text-gray-400 hover:text-white" />
+                <Volume2 size={14} className="text-gray-400 hover:text-white" />
               </button>
               <button
                 onClick={handleShare}
-                className="p-1.5 rounded-full hover:bg-gray-600 transition-colors duration-200"
+                className="p-1 rounded-full hover:bg-gray-600 transition-colors duration-200"
                 title="Share message"
               >
-                <Share2 size={12} className="text-gray-400 hover:text-white" />
+                <Share2 size={14} className="text-gray-400 hover:text-white" />
               </button>
             </div>
           )}
