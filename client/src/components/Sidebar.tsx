@@ -57,11 +57,11 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             borderColor: '#292929',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#ffffff';
-            e.currentTarget.style.color = '#2e2e2e';
+            e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            e.currentTarget.style.color = '#ffffff';
             e.currentTarget.style.boxShadow = 'none';
             const svg = e.currentTarget.querySelector('svg path');
-            if (svg) svg.style.fill = '#2e2e2e';
+            if (svg) svg.style.fill = '#ffffff';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
@@ -113,11 +113,11 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
           }}
           onMouseEnter={(e) => {
             if (!isDropdownOpen) {
-              e.currentTarget.style.background = '#ffffff';
-              e.currentTarget.style.color = '#2e2e2e';
+              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+              e.currentTarget.style.color = '#ffffff';
               e.currentTarget.style.boxShadow = 'none';
               const svg = e.currentTarget.querySelector('svg path');
-              if (svg) svg.style.fill = '#2e2e2e';
+              if (svg) svg.style.fill = '#ffffff';
             }
           }}
           onMouseLeave={(e) => {
@@ -174,11 +174,11 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             borderColor: '#292929',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#ffffff';
-            e.currentTarget.style.color = '#2e2e2e';
+            e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            e.currentTarget.style.color = '#ffffff';
             e.currentTarget.style.boxShadow = 'none';
             const svg = e.currentTarget.querySelector('svg path');
-            if (svg) svg.style.fill = '#2e2e2e';
+            if (svg) svg.style.fill = '#ffffff';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
@@ -231,11 +231,11 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             borderColor: '#292929',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#ffffff';
-            e.currentTarget.style.color = '#2e2e2e';
+            e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            e.currentTarget.style.color = '#ffffff';
             e.currentTarget.style.boxShadow = 'none';
             const svg = e.currentTarget.querySelector('svg path');
-            if (svg) svg.style.fill = '#2e2e2e';
+            if (svg) svg.style.fill = '#ffffff';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
@@ -370,10 +370,10 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             }}
             onMouseEnter={(e) => {
               e.target.style.boxShadow = 'none';
-              e.target.style.background = '#ffffff';
-              e.target.style.color = '#2e2e2e';
+              e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+              e.target.style.color = '#ffffff';
               const svg = e.target.querySelector('svg');
-              if (svg) svg.style.fill = '#2e2e2e';
+              if (svg) svg.style.fill = '#ffffff';
             }}
             onMouseLeave={(e) => {
               e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
@@ -403,10 +403,10 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             }}
             onMouseEnter={(e) => {
               e.target.style.boxShadow = 'none';
-              e.target.style.background = '#ffffff';
-              e.target.style.color = '#2e2e2e';
+              e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+              e.target.style.color = '#ffffff';
               const svg = e.target.querySelector('svg');
-              if (svg) svg.style.fill = '#2e2e2e';
+              if (svg) svg.style.fill = '#ffffff';
             }}
             onMouseLeave={(e) => {
               e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
