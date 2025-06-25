@@ -74,7 +74,7 @@ function App() {
         >
           {/* Mobile Header */}
           <div
-            className="mobile-header fixed top-0 left-0 right-0 z-50 h-16 px-4 hidden items-center justify-between"
+            className="mobile-header fixed top-0 left-0 right-0 z-50 h-16 px-4 hidden items-center justify-center relative"
             style={{
               background: "#3a3a3a",
               boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
@@ -83,7 +83,7 @@ function App() {
             <div className="text-white font-bold text-lg">Armo-GPT</div>
             <button
               onClick={handleSidebarToggle}
-              className="p-2 rounded-lg text-white"
+              className="absolute right-4 p-2 rounded-lg text-white"
               style={{ background: "#2e2e2e" }}
             >
               {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
