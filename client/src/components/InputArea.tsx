@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Paperclip, Mic, Send, MicOff, Image, FileText } from "lucide-react";
 
 interface InputAreaProps {
   onSendMessage: (message: string) => void;
@@ -14,26 +13,14 @@ interface InputAreaProps {
 export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false, isSidebarCollapsed = false, isMobile = false }: InputAreaProps) {
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
-    if ((message.trim() || uploadedFiles.length > 0) && !disabled) {
-      let messageToSend = message.trim();
-      
-      // If there are files, add file information to the message
-      if (uploadedFiles.length > 0) {
-        const fileInfo = uploadedFiles.map(file => `[File: ${file.name}]`).join(' ');
-        messageToSend = messageToSend ? `${messageToSend}\n\n${fileInfo}` : fileInfo;
-      }
-      
-      console.log('Sending message:', messageToSend);
-      onSendMessage(messageToSend);
+    if (message.trim() && !disabled) {
+      console.log('Sending message:', message.trim());
+      onSendMessage(message.trim());
       setMessage("");
-      setUploadedFiles([]);
       autoResize();
       
       // Simple refocus after sending
@@ -75,32 +62,14 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     onVoiceToggle();
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const fileArray = Array.from(files);
-      setUploadedFiles(prev => [...prev, ...fileArray]);
-      
-      // Process each file
-      fileArray.forEach(file => {
-        console.log('File selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
-        
-        // Validate file size (10MB limit)
-        if (file.size > 10 * 1024 * 1024) {
-          alert(`File ${file.name} is too large. Maximum size is 10MB.`);
-          return;
-        }
-        
-        onFileUpload(file);
-      });
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      console.log('File selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
+      onFileUpload(file);
+      // Reset input to allow same file selection again
+      e.target.value = '';
     }
-    
-    // Reset input
-    e.target.value = '';
-  };
-
-  const removeFile = (indexToRemove: number) => {
-    setUploadedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   useEffect(() => {
@@ -140,39 +109,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         boxShadow: '0 -4px 8px #323232'
       }}
     >
-      <div className="flex flex-col max-w-4xl mx-auto">
-        {/* File Upload Preview */}
-        {uploadedFiles.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-2">
-            {uploadedFiles.map((file, index) => (
-              <div 
-                key={index}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                style={{
-                  background: '#404040',
-                  boxShadow: 'inset 2px 2px 4px #323232, inset -2px -2px 4px #484848'
-                }}
-              >
-                {file.type.startsWith('image/') ? (
-                  <Image size={16} className="text-blue-400" />
-                ) : (
-                  <FileText size={16} className="text-green-400" />
-                )}
-                <span className="text-white text-sm truncate max-w-32">
-                  {file.name}
-                </span>
-                <button
-                  onClick={() => removeFile(index)}
-                  className="text-red-400 hover:text-red-300 ml-1"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className={`flex items-end ${isMobile ? 'space-x-2' : 'space-x-3'}`}>
+      <div className={`flex items-end max-w-4xl mx-auto ${isMobile ? 'space-x-2' : 'space-x-3'}`}>
         {/* File Upload Button */}
         <div 
           className="neumorphic-button" 
@@ -194,10 +131,9 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         <input
           ref={fileInputRef}
           type="file"
-          onChange={handleFileSelect}
+          onChange={handleFileUpload}
           className="hidden"
-          accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt,.json,.csv,.xml"
-          multiple
+          accept="image/*,audio/*,video/*,.pdf,.doc,.docx"
         />
 
         {/* Input Field */}
