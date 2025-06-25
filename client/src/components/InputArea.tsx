@@ -42,6 +42,8 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     e.preventDefault();
     e.stopPropagation();
     
+    if (disabled) return;
+    
     const newRecordingState = !isRecording;
     setIsRecording(newRecordingState);
     
@@ -95,8 +97,8 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         >
           <div className="toggle">
             <input type="checkbox" disabled={disabled} />
-            <span className="button" />
-            <span className="label">📎</span>
+            <span className="button" style={{ background: '#3a3a3a' }} />
+            <span className="label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>📎</span>
           </div>
         </div>
         <input
@@ -164,8 +166,8 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         >
           <div className="toggle">
             <input type="checkbox" disabled={!message.trim() || disabled} />
-            <span className="button" />
-            <span className="label">✈️</span>
+            <span className="button" style={{ background: '#3a3a3a' }} />
+            <span className="label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>✈️</span>
           </div>
         </div>
       </div>

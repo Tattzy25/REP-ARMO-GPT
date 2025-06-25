@@ -102,9 +102,7 @@ html, body {
   color: rgba(255, 0, 0, 0.9);
 }
 
-.neumorphic-button .toggle input:checked ~ .button {
-  background: #ff4444 !important;
-}
+/* Remove global checked styling - handle individually per button */
 
 .neumorphic-button.disabled {
   opacity: 0.5;
