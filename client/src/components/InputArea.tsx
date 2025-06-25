@@ -19,7 +19,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
-    if (message.trim() && !disabled) {
+    if ((message.trim() || hasStagedFiles) && !disabled) {
       console.log('Sending message:', message.trim());
       onSendMessage(message.trim());
       setMessage("");
