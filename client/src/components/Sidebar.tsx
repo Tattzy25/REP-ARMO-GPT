@@ -39,11 +39,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
           </div>
         </div>
         
-        {/* Status Indicator */}
-        <div className="flex items-center space-x-2 p-3 rounded-xl neumorphic" style={{background: '#2e2e2e', boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535'}}>
-          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-          <span className="text-sm">Armo Hopar is online</span>
-        </div>
+        
       </motion.div>
 
       {/* Vibez Dropdown */}
