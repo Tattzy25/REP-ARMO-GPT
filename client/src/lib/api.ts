@@ -40,7 +40,8 @@ export const chatApi = {
     content: string, 
     onDelta?: (content: string) => void,
     onComplete?: (message: ChatMessage) => void,
-    onUserMessage?: (message: ChatMessage) => void
+    onUserMessage?: (message: ChatMessage) => void,
+    attachments?: any[]
   ) => {
     const response = await fetch('/api/chat/message', {
       method: 'POST',
@@ -51,7 +52,7 @@ export const chatApi = {
         sessionId,
         sender: 'user',
         content,
-        metadata: null
+        metadata: attachments ? { attachments } : null
       })
     });
 

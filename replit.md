@@ -136,6 +136,10 @@ The application features multiple AI personality modes:
 - June 25, 2025. Fixed file upload auto-send behavior - uploads no longer automatically create chat messages
 - June 25, 2025. Improved AI chat bubble animation smoothness with better transitions and timing
 - June 25, 2025. Enhanced streaming message rendering to reduce jerky motion effects
+- June 25, 2025. Implemented ChatGPT-style file staging system - files are held in chat interface before sending
+- June 25, 2025. Added database table for attachments with proper schema and types
+- June 25, 2025. Created file staging area UI with remove functionality and file icons
+- June 25, 2025. Updated send logic to handle multiple attachments per message
 
 ## User Preferences
 

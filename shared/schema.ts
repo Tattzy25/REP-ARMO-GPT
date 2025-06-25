@@ -24,6 +24,17 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const attachments = pgTable("attachments", {
+  id: serial("id").primaryKey(),
+  messageId: integer("message_id").references(() => messages.id),
+  originalName: text("original_name").notNull(),
+  filename: text("filename").notNull(),
+  mimetype: text("mimetype").notNull(),
+  size: integer("size").notNull(),
+  path: text("path").notNull(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -39,9 +50,16 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   createdAt: true,
 });
 
+export const insertAttachmentSchema = createInsertSchema(attachments).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
 export type ChatSession = typeof chatSessions.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Message = typeof messages.$inferSelect;
+export type InsertAttachment = z.infer<typeof insertAttachmentSchema>;
+export type Attachment = typeof attachments.$inferSelect;

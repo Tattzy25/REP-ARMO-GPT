@@ -8,9 +8,10 @@ interface InputAreaProps {
   disabled?: boolean;
   isSidebarCollapsed?: boolean;
   isMobile?: boolean;
+  hasStagedFiles?: boolean;
 }
 
-export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false, isSidebarCollapsed = false, isMobile = false }: InputAreaProps) {
+export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false, isSidebarCollapsed = false, isMobile = false, hasStagedFiles = false }: InputAreaProps) {
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);

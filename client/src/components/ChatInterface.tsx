@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Copy, Volume2, Share2, ArrowLeft } from "lucide-react";
+import { ArrowLeft, X, FileText, Image, Music, Video } from "lucide-react";
 import { chatApi, type ChatMessage } from "@/lib/api";
 import { vibeConfigs } from "@/lib/vibes";
 import StreamingMessage from "./StreamingMessage";
@@ -14,10 +14,35 @@ interface ChatInterfaceProps {
   isMobile?: boolean;
 }
 
+interface StagedFile {
+  id: string;
+  file: File;
+  uploadedData?: {
+    filename: string;
+    originalName: string;
+    mimetype: string;
+    size: number;
+    url: string;
+  };
+}
+
+interface StagedFile {
+  id: string;
+  file: File;
+  uploadedData?: {
+    filename: string;
+    originalName: string;
+    mimetype: string;
+    size: number;
+    url: string;
+  };
+}
+
 export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCollapsed = false, isMobile = false }: ChatInterfaceProps) {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [streamingMessage, setStreamingMessage] = useState<string | null>(null);
+  const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -39,7 +64,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
   // Send message mutation
   const sendMessageMutation = useMutation({
-    mutationFn: ({ sessionId, content, metadata }: { sessionId: number; content: string; metadata?: any }) => {
+    mutationFn: ({ sessionId, content, attachments }: { sessionId: number; content: string; attachments?: StagedFile[] }) => {
       setStreamingMessage(""); // Initialize streaming
       
       return chatApi.sendMessage(
@@ -55,12 +80,15 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
             setStreamingMessage(null);
             setMessages(prev => [...prev, completedMessage]);
             queryClient.invalidateQueries({ queryKey: [`/api/chat/${currentVibe}/history`] });
+            // Clear staged files after successful send
+            setStagedFiles([]);
           }, 500); // Small delay to let streaming animation finish smoothly
         },
         // onUserMessage - add user message immediately
         (userMessage: ChatMessage) => {
           setMessages(prev => [...prev, userMessage]);
-        }
+        },
+
       );
     },
   });
@@ -94,8 +122,11 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
   }, [messages, streamingMessage]);
 
   const handleSendMessage = (content: string) => {
-    if (sessionId) {
-      sendMessageMutation.mutate({ sessionId, content });
+    if (sessionId && (content.trim() || stagedFiles.length > 0)) {
+      sendMessageMutation.mutate({ 
+        sessionId, 
+        content: content || "📎 Shared files"
+      });
     }
   };
 
@@ -106,6 +137,16 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
   const handleFileUpload = async (file: File) => {
     try {
+      // Add file to staging area immediately
+      const fileId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+      const stagedFile: StagedFile = {
+        id: fileId,
+        file: file
+      };
+      
+      setStagedFiles(prev => [...prev, stagedFile]);
+
+      // Upload file in background
       const formData = new FormData();
       formData.append('file', file);
 
@@ -123,15 +164,42 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
       if (result.success) {
         console.log('File uploaded successfully:', result.file);
         
-        // Just log the successful upload, don't automatically send a message
-        console.log(`File "${result.file.originalName}" ready for sharing in chat`);
-        // User can manually mention the file in their next message if needed
+        // Update the staged file with upload data
+        setStagedFiles(prev => 
+          prev.map(f => 
+            f.id === fileId 
+              ? { 
+                  ...f, 
+                  uploadedData: {
+                    filename: result.file.filename,
+                    originalName: result.file.originalName,
+                    mimetype: result.file.mimetype,
+                    size: result.file.size,
+                    url: `/api/files/${result.file.filename}`
+                  }
+                }
+              : f
+          )
+        );
       } else {
         console.error('File upload failed:', result.error);
+        // Remove failed file from staging
+        setStagedFiles(prev => prev.filter(f => f.id !== fileId));
       }
     } catch (error) {
       console.error('File upload error:', error);
     }
+  };
+
+  const removeStagedFile = (fileId: string) => {
+    setStagedFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  const getFileIcon = (file: File) => {
+    if (file.type.startsWith('image/')) return <Image size={16} />;
+    if (file.type.startsWith('audio/')) return <Music size={16} />;
+    if (file.type.startsWith('video/')) return <Video size={16} />;
+    return <FileText size={16} />;
   };
 
   return (
@@ -230,6 +298,38 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
           padding: '0'
         }}
       >
+        {/* Staged Files Area */}
+        {stagedFiles.length > 0 && (
+          <div className="px-4 py-2 border-t border-gray-600">
+            <div className="flex flex-wrap gap-2">
+              {stagedFiles.map((stagedFile) => (
+                <div
+                  key={stagedFile.id}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg"
+                  style={{
+                    background: '#404040',
+                    boxShadow: '2px 2px 4px #323232, -2px -2px 4px #484848'
+                  }}
+                >
+                  {getFileIcon(stagedFile.file)}
+                  <span className="text-sm text-white max-w-32 truncate">
+                    {stagedFile.file.name}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    ({(stagedFile.file.size / 1024).toFixed(1)} KB)
+                  </span>
+                  <button
+                    onClick={() => removeStagedFile(stagedFile.id)}
+                    className="p-1 rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <X size={12} className="text-white" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <InputArea
           onSendMessage={handleSendMessage}
           onVoiceToggle={handleVoiceToggle}
@@ -237,6 +337,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
           disabled={sendMessageMutation.isPending}
           isSidebarCollapsed={isSidebarCollapsed}
           isMobile={isMobile}
+          hasStagedFiles={stagedFiles.length > 0}
         />
       </div>
     </div>
