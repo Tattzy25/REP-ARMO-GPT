@@ -119,8 +119,9 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               border: '1px solid #555'
             }}
           >
-            {/* Left Side Button - File Upload */}
-            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+            {/* Left Side Buttons */}
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2 z-10">
+              {/* File Upload Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={disabled}
@@ -131,6 +132,44 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
                   <path d="M21.44 11.05L12.25 20.24C11.12 21.37 9.59 22 7.99 22C6.39 22 4.86 21.37 3.73 20.24C2.6 19.11 1.97 17.58 1.97 15.98C1.97 14.38 2.6 12.85 3.73 11.72L12.92 2.53C13.69 1.76 14.76 1.33 15.88 1.33C17 1.33 18.07 1.76 18.84 2.53C19.61 3.3 20.04 4.37 20.04 5.49C20.04 6.61 19.61 7.68 18.84 8.45L10.15 17.14C9.76 17.53 9.24 17.75 8.7 17.75C8.16 17.75 7.64 17.53 7.25 17.14C6.86 16.75 6.64 16.23 6.64 15.69C6.64 15.15 6.86 14.63 7.25 14.24L15.54 5.95" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
+
+              {/* Plus Button with Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsToolsOpen(!isToolsOpen)}
+                  disabled={disabled}
+                  className="p-2 rounded-full transition-all duration-200 hover:bg-gray-600"
+                  title="More tools"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5V19M5 12H19" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+
+                {/* Tools Dropdown */}
+                {isToolsOpen && (
+                  <div 
+                    className="absolute bottom-full left-0 mb-2 bg-gray-800 rounded-lg shadow-lg border border-gray-600 min-w-[150px] z-20"
+                    style={{
+                      boxShadow: '4px 4px 12px #1a1a1a, -2px -2px 8px #4a4a4a'
+                    }}
+                  >
+                    <button
+                      onClick={() => {
+                        setIsToolsOpen(false);
+                        // TODO: Implement Deep Search functionality
+                        console.log('Deep Search clicked');
+                      }}
+                      className="w-full px-4 py-3 text-left text-white hover:bg-gray-700 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 21L16.514 16.506M19 10.5C19 15.194 15.194 19 10.5 19S2 15.194 2 10.5 5.806 2 10.5 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>Deep Search</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Text Input */}
@@ -144,7 +183,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               onKeyDown={handleKeyPress}
               placeholder="Ask Armo Hopar anything... (Armenian/English)"
               disabled={disabled}
-              className="w-full min-h-[60px] max-h-32 py-4 pl-16 pr-28 bg-transparent resize-none outline-none text-white placeholder-gray-400 transition-all duration-200"
+              className="w-full min-h-[60px] max-h-32 py-4 pl-20 pr-28 bg-transparent resize-none outline-none text-white placeholder-gray-400 transition-all duration-200"
               style={{
                 fontSize: '16px',
                 lineHeight: '1.5'

@@ -120,6 +120,9 @@ The application features multiple AI personality modes:
 - June 25, 2025. Fixed chat input field positioning to be locked at bottom with proper z-index and responsive margins to prevent messages from hiding behind input area
 - June 25, 2025. Integrated Supabase database as primary database provider with fallback to existing DATABASE_URL for backward compatibility
 - June 25, 2025. Redesigned input area to match ChatGPT style with integrated buttons inside the input field while maintaining neumorphic design and send button functionality
+- June 25, 2025. Removed unauthorized "Online" status indicator from chat header
+- June 25, 2025. Centered chat header title and subtitle for better visual balance
+- June 25, 2025. Added "+" button with Deep Search dropdown in input area as requested (functionality not yet connected)
 
 ## User Preferences
 

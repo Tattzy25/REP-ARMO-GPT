@@ -137,17 +137,11 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
           >
             <ArrowLeft size={isMobile ? 16 : 20} className="text-white" />
           </button>
-          <div className="min-w-0 flex-1">
+          <div className="flex-1 text-center">
             <h1 className={`font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent ${isMobile ? 'text-lg' : 'text-xl'}`}>
               {vibeConfig.title}
             </h1>
-            <p className={`text-gray-300 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>{vibeConfig.subtitle}</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2 flex-shrink-0">
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className={`text-green-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>Online</span>
+            <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>{vibeConfig.subtitle}</p>
           </div>
         </div>
       </motion.div>
