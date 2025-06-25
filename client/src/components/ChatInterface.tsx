@@ -102,9 +102,35 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
     console.log('Voice toggle');
   };
 
-  const handleFileUpload = (file: File) => {
-    // TODO: Implement file upload
-    console.log('File upload:', file);
+  const handleFileUpload = async (file: File) => {
+    try {
+      console.log('Uploading file:', file.name);
+      const result = await chatApi.uploadFiles([file]);
+      console.log('File uploaded successfully:', result);
+      
+      // Add file upload notification to chat
+      const fileMessage: ChatMessage = {
+        id: Date.now(),
+        sessionId: sessionId || 0,
+        sender: 'user',
+        content: `📎 Uploaded: ${file.name} (${Math.round(file.size / 1024)}KB)`,
+        createdAt: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, fileMessage]);
+    } catch (error) {
+      console.error('File upload failed:', error);
+      // Show error message
+      const errorMessage: ChatMessage = {
+        id: Date.now(),
+        sessionId: sessionId || 0,
+        sender: 'armo',
+        content: `❌ Failed to upload ${file.name}. Please try again.`,
+        createdAt: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    }
   };
 
   return (
