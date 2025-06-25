@@ -45,7 +45,7 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
           background: 'linear-gradient(135deg, #20b2aa, #40e0d0, #48d1cc)',
           boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
         }}>
-          <i className="fas fa-user text-sm text-white"></i>
+          <i className="fas fa-user text-sm" style={{ color: 'white' }}></i>
         </div>
       </motion.div>
     );

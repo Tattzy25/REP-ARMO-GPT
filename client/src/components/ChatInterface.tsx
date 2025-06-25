@@ -124,7 +124,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterf
               e.currentTarget.style.background = '#404040';
             }}
           >
-            <i className="fas fa-arrow-left"></i>
+            <i className="fas fa-arrow-left" style={{ color: 'white' }}></i>
           </button>
           <div>
             <h2 className="font-bold text-lg text-white">{vibeConfig.title}</h2>
