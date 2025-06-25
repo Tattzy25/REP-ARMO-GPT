@@ -34,14 +34,13 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         
         <div className="flex items-center space-x-3 mb-4">
           <div>
-            <h1 className="text-xl font-bold text-neon-cyan">Armo-GPT</h1>
+            <h1 className="text-xl font-bold text-neon-cyan">Your Hopar, The AI Overload</h1>
             <p className="text-sm text-gray-400">Your Armenian AI Hopar</p>
           </div>
         </div>
         
         
       </motion.div>
-
       {/* Vibez Dropdown */}
       <div className="flex-1 p-4 overflow-y-auto relative">
         {/* Dropdown Button */}
@@ -150,7 +149,6 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
           />
         )}
       </div>
-
       {/* User Profile */}
       <motion.div
         initial={{ x: -100, opacity: 0 }}
