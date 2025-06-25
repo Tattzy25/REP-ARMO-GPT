@@ -67,24 +67,13 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     >
       <div className="flex items-end space-x-3 max-w-4xl mx-auto">
         {/* File Upload Button */}
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="p-4 rounded-xl transition-all duration-200 flex-shrink-0"
-          style={{
-            background: '#404040',
-            boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#404040';
-          }}
-          disabled={disabled}
-          title="Upload files (images, documents, audio, video)"
-        >
-          <i className="fas fa-paperclip text-lg" style={{ color: 'white !important' }}></i>
-        </button>
+        <div className="neumorphic-button" onClick={() => fileInputRef.current?.click()} title="Upload files">
+          <div className="toggle">
+            <input type="checkbox" disabled={disabled} />
+            <span className="button" />
+            <span className="label">📎</span>
+          </div>
+        </div>
         <input
           ref={fileInputRef}
           type="file"
@@ -113,50 +102,26 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         </div>
 
         {/* Voice Input Button */}
-        <button
-          onClick={handleVoiceToggle}
-          className="p-4 rounded-xl transition-all duration-200 flex-shrink-0"
-          style={{
-            background: isRecording ? 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)' : '#404040',
-            boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
-          }}
-          onMouseEnter={(e) => {
-            if (!isRecording) {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isRecording) {
-              e.currentTarget.style.background = '#404040';
-            }
-          }}
-          disabled={disabled}
-          title="Voice input - speak your message"
-        >
-          <i className={`fas fa-microphone text-lg ${isRecording ? 'animate-pulse' : ''}`} style={{ color: '#ff0000 !important' }}></i>
-        </button>
+        <div className="neumorphic-button" onClick={handleVoiceToggle} title="Voice input">
+          <div className="toggle">
+            <input type="checkbox" checked={isRecording} disabled={disabled} readOnly />
+            <span className="button" />
+            <span className="label">🎤</span>
+          </div>
+        </div>
 
         {/* Send Message Button */}
-        <button
-          onClick={handleSend}
-          disabled={!message.trim() || disabled}
-          className="p-4 rounded-xl transition-all duration-200 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{
-            background: !message.trim() || disabled ? '#404040' : 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
-            boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
-          }}
-          onMouseEnter={(e) => {
-            if (message.trim() && !disabled) {
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-          title="Send message (Enter)"
+        <div 
+          className={`neumorphic-button ${!message.trim() || disabled ? 'disabled' : ''}`} 
+          onClick={handleSend} 
+          title="Send message"
         >
-          <i className="fas fa-paper-plane text-lg" style={{ color: 'white !important' }}></i>
-        </button>
+          <div className="toggle">
+            <input type="checkbox" disabled={!message.trim() || disabled} />
+            <span className="button" />
+            <span className="label">✈️</span>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
