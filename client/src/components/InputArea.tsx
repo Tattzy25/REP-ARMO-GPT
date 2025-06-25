@@ -6,9 +6,10 @@ interface InputAreaProps {
   onVoiceToggle: () => void;
   onFileUpload: (file: File) => void;
   disabled?: boolean;
+  isSidebarCollapsed?: boolean;
 }
 
-export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false }: InputAreaProps) {
+export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false, isSidebarCollapsed = false }: InputAreaProps) {
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -56,7 +57,9 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed bottom-0 left-0 right-0 p-4 border-t border-gray-600/20 backdrop-blur z-50"
+      className={`fixed bottom-0 right-0 p-4 border-t border-gray-600/20 backdrop-blur z-50 transition-all duration-300 ${
+        isSidebarCollapsed ? 'left-0' : 'left-80'
+      }`}
       style={{
         background: '#3a3a3a',
         boxShadow: '0 -4px 8px #323232'

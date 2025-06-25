@@ -9,9 +9,10 @@ import InputArea from "./InputArea";
 interface ChatInterfaceProps {
   currentVibe: string;
   onBackToLobby: () => void;
+  isSidebarCollapsed?: boolean;
 }
 
-export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterfaceProps) {
+export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCollapsed = false }: ChatInterfaceProps) {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [streamingMessage, setStreamingMessage] = useState<string | null>(null);
@@ -189,6 +190,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterf
         onVoiceToggle={handleVoiceToggle}
         onFileUpload={handleFileUpload}
         disabled={sendMessageMutation.isPending}
+        isSidebarCollapsed={isSidebarCollapsed}
       />
     </div>
   );

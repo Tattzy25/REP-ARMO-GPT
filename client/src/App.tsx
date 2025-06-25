@@ -66,6 +66,7 @@ function App() {
               <ChatInterface
                 currentVibe={currentVibe}
                 onBackToLobby={handleBackToLobby}
+                isSidebarCollapsed={isSidebarCollapsed}
               />
             )}
             
