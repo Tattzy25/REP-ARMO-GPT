@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 
 interface InputAreaProps {
@@ -21,10 +21,12 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
       onSendMessage(message.trim());
       setMessage("");
       autoResize();
-      // Refocus the input after sending
-      setTimeout(() => {
-        textareaRef.current?.focus();
-      }, 10);
+      
+      // Force focus back to textarea immediately and repeatedly
+      setTimeout(() => textareaRef.current?.focus(), 0);
+      setTimeout(() => textareaRef.current?.focus(), 10);
+      setTimeout(() => textareaRef.current?.focus(), 50);
+      setTimeout(() => textareaRef.current?.focus(), 100);
     }
   };
 
@@ -76,6 +78,28 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     autoResize();
   }, [message]);
 
+  // Focus textarea on mount
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
+  // Prevent focus loss and maintain focus aggressively
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (textareaRef.current && !disabled && document.activeElement !== textareaRef.current) {
+        // Only refocus if no other input is focused
+        const activeElement = document.activeElement;
+        if (!activeElement || 
+            activeElement === document.body ||
+            (!activeElement.closest('input') && !activeElement.closest('textarea') && !activeElement.closest('button'))) {
+          textareaRef.current.focus();
+        }
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [disabled]);
+
   return (
     <motion.div
       initial={{ y: 100, opacity: 0 }}
@@ -126,6 +150,10 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
+              onBlur={() => {
+                // Immediate refocus attempt
+                setTimeout(() => textareaRef.current?.focus(), 10);
+              }}
               rows={1}
               placeholder="Ask Armo Hopar anything... (Armenian/English)"
               className="w-full bg-transparent text-white placeholder-gray-300 resize-none outline-none"
