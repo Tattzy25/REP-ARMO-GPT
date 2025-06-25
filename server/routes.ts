@@ -14,18 +14,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/chat/:vibe/history", async (req, res) => {
     try {
       const { vibe } = req.params;
+      console.log('Fetching chat history for vibe:', vibe);
+      
       const sessions = await storage.getChatSessionsByUserAndVibe(null, vibe);
+      console.log('Found sessions:', sessions.length);
       
       if (sessions.length === 0) {
         return res.json({ messages: [] });
       }
       
       const latestSession = sessions[sessions.length - 1];
+      console.log('Latest session ID:', latestSession.id);
+      
       const messages = await storage.getMessagesBySession(latestSession.id);
+      console.log('Found messages:', messages.length);
       
       res.json({ sessionId: latestSession.id, messages });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch chat history" });
+    } catch (error: any) {
+      console.error('Chat history error:', error);
+      console.error('Error stack:', error.stack);
+      res.status(500).json({ error: "Failed to fetch chat history", details: error.message });
     }
   });
 
