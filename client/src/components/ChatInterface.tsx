@@ -201,9 +201,10 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
       {/* LOCKED INPUT AREA - DO NOT MODIFY POSITIONING */}
       <div 
-        className="fixed bottom-0 left-0 right-0 z-50"
+        className="fixed bottom-0 z-50"
         style={{
-          marginLeft: isMobile ? '0' : isSidebarCollapsed ? '0' : '320px',
+          left: isMobile ? '0' : isSidebarCollapsed ? '0' : '320px',
+          right: '0',
           background: '#3a3a3a',
           borderTop: '1px solid #555',
           padding: '0'
