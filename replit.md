@@ -101,6 +101,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Added Gallery and Recent Chats buttons below Vibez with matching neumorphic styling and icons
 - June 25, 2025. Removed subtitle "Your Armenian AI Hopar" from sidebar header for cleaner appearance
 - June 25, 2025. Made navigation buttons section scrollable with invisible scrollbars
+- June 25, 2025. Replaced user profile with neumorphic Account and Settings buttons using black color scheme
 
 ## User Preferences
 
