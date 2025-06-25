@@ -153,7 +153,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
       </motion.div>
 
       {/* Messages Area */}
-      <div className={`flex-1 overflow-y-auto space-y-4 pb-24 chat-messages ${isMobile ? 'p-3' : 'p-6'}`} style={{ background: '#3a3a3a' }}>
+      <div className={`flex-1 overflow-y-auto space-y-4 pb-32 chat-messages ${isMobile ? 'p-3' : 'p-6'}`} style={{ background: '#3a3a3a' }}>
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan"></div>
@@ -199,15 +199,25 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <InputArea
-        onSendMessage={handleSendMessage}
-        onVoiceToggle={handleVoiceToggle}
-        onFileUpload={handleFileUpload}
-        disabled={sendMessageMutation.isPending}
-        isSidebarCollapsed={isSidebarCollapsed}
-        isMobile={isMobile}
-      />
+      {/* LOCKED INPUT AREA - DO NOT MODIFY POSITIONING */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          marginLeft: isMobile ? '0' : isSidebarCollapsed ? '0' : '320px',
+          background: '#3a3a3a',
+          borderTop: '1px solid #555',
+          padding: '0'
+        }}
+      >
+        <InputArea
+          onSendMessage={handleSendMessage}
+          onVoiceToggle={handleVoiceToggle}
+          onFileUpload={handleFileUpload}
+          disabled={sendMessageMutation.isPending}
+          isSidebarCollapsed={isSidebarCollapsed}
+          isMobile={isMobile}
+        />
+      </div>
     </div>
   );
 }
