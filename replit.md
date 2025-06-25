@@ -119,6 +119,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Repositioned action buttons (copy, voice, share) to appear next to timestamp below chat messages with enhanced neumorphic styling and gradient hover effects
 - June 25, 2025. Fixed chat input field positioning to be locked at bottom with proper z-index and responsive margins to prevent messages from hiding behind input area
 - June 25, 2025. Integrated Supabase database as primary database provider with fallback to existing DATABASE_URL for backward compatibility
+- June 25, 2025. Redesigned input area to match ChatGPT style with integrated buttons inside the input field while maintaining neumorphic design and send button functionality
 
 ## User Preferences
 
