@@ -64,7 +64,7 @@
 
   body {
     @apply font-sans antialiased;
-    background: linear-gradient(135deg, var(--armo-navy), var(--armo-blue), var(--armo-accent));
+    background: #bbbbbb;
     color: white;
     min-height: 100vh;
     overflow-x: hidden;
@@ -73,11 +73,11 @@
 
 @layer utilities {
   .neumorphic {
-    box-shadow: 8px 8px 16px hsl(220, 58%, 8%), -8px -8px 16px hsl(220, 58%, 28%);
+    box-shadow: 8px 8px 16px #9f9f9f, -8px -8px 16px #d7d7d7;
   }
   
   .neumorphic-inset {
-    box-shadow: inset 8px 8px 16px hsl(220, 58%, 8%), inset -8px -8px 16px hsl(220, 58%, 28%);
+    box-shadow: inset 8px 8px 16px #9f9f9f, inset -8px -8px 16px #d7d7d7;
   }
   
   .neon-cyan-glow {
