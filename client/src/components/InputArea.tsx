@@ -17,6 +17,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
+      console.log('Sending message:', message.trim());
       onSendMessage(message.trim());
       setMessage("");
       autoResize();
@@ -58,7 +59,10 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('File selected:', file.name, 'Size:', Math.round(file.size / 1024), 'KB');
       onFileUpload(file);
+      // Reset input to allow same file selection again
+      e.target.value = '';
     }
   };
 
@@ -80,7 +84,15 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     >
       <div className="flex items-end space-x-3 max-w-4xl mx-auto">
         {/* File Upload Button */}
-        <div className="neumorphic-button" onClick={() => fileInputRef.current?.click()} title="Upload files">
+        <div 
+          className="neumorphic-button" 
+          onClick={() => {
+            if (!disabled) {
+              fileInputRef.current?.click();
+            }
+          }} 
+          title="Upload files (images, documents, audio, video)"
+        >
           <div className="toggle">
             <input type="checkbox" disabled={disabled} />
             <span className="button" />
@@ -119,16 +131,14 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
           className="neumorphic-button" 
           onClick={handleVoiceToggle} 
           title="Click to start/stop recording"
-          style={{
-            backgroundColor: isRecording ? '#ff4444' : 'transparent'
-          }}
         >
           <div className="toggle">
             <input type="checkbox" checked={isRecording} disabled={disabled} readOnly />
             <span 
               className="button"
               style={{
-                background: isRecording ? '#ff4444' : '#3a3a3a'
+                background: isRecording ? '#ff4444' : '#3a3a3a',
+                borderRadius: '50px'
               }}
             />
             <span 
@@ -145,8 +155,12 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         {/* Send Message Button */}
         <div 
           className={`neumorphic-button ${!message.trim() || disabled ? 'disabled' : ''}`} 
-          onClick={handleSend} 
-          title="Send message"
+          onClick={() => {
+            if (message.trim() && !disabled) {
+              handleSend();
+            }
+          }} 
+          title="Send message (Enter to send)"
         >
           <div className="toggle">
             <input type="checkbox" disabled={!message.trim() || disabled} />

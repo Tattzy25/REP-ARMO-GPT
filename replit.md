@@ -106,6 +106,8 @@ The application features multiple AI personality modes:
 - June 25, 2025. Added sidebar toggle functionality with neumorphic switch and minimized spacing
 - June 25, 2025. Made main content area responsive to sidebar state - expands to full width when sidebar is collapsed
 - June 25, 2025. Applied dark black color scheme throughout site components using slightly lighter shade (#3a3a3a) than sidebar (#2e2e2e)
+- June 25, 2025. Implemented neumorphic button design for input controls with production-ready functionality
+- June 25, 2025. Fixed microphone button visual feedback with proper red recording state contained within circular button
 
 ## User Preferences
 
