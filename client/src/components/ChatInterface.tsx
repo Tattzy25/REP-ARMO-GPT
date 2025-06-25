@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { chatApi, type ChatMessage } from "@/lib/api";
 import { vibeConfigs } from "@/lib/vibes";
@@ -153,7 +152,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
       </motion.div>
 
       {/* Messages Area */}
-      <div className={`flex-1 overflow-y-auto space-y-4 chat-messages ${isMobile ? 'p-3 pb-32' : 'p-6 pb-24'}`} style={{ background: '#3a3a3a' }}>
+      <div className={`flex-1 overflow-y-auto space-y-4 pb-24 chat-messages ${isMobile ? 'p-3' : 'p-6'}`} style={{ background: '#3a3a3a' }}>
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan"></div>

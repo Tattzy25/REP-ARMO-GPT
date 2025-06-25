@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertChatSessionSchema, insertMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.GROQ_API_KEY_ENV_VAR || "default_key";
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY_ENV_VAR || "default_key";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY || process.env.TAVILY_API_KEY_ENV_VAR || "default_key";
 
@@ -43,32 +43,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Send message and get AI response with streaming
   app.post("/api/chat/message", async (req, res) => {
     try {
-      console.log('Received chat request:', req.body);
+      const messageData = insertMessageSchema.parse(req.body);
       
-      // Validate and parse the request body
-      const requestData = z.object({
-        sessionId: z.number().optional(),
-        content: z.string(),
-        vibe: z.string().optional(),
-        metadata: z.any().nullable().optional()
-      }).parse(req.body);
-      
-      // Get or create session
-      let session = await storage.getChatSession(requestData.sessionId || 0);
-      if (!session) {
-        session = await storage.createChatSession({
-          userId: null,
-          vibe: requestData.vibe || 'default'
-        });
-      }
-
       // Save user message
-      const userMessage = await storage.createMessage({
-        sessionId: session.id,
-        sender: 'user',
-        content: requestData.content,
-        metadata: requestData.metadata || null
-      });
+      const userMessage = await storage.createMessage(messageData);
+      
+      // Get AI response based on vibe
+      const session = await storage.getChatSession(messageData.sessionId!);
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
       
       // Set up server-sent events
       res.setHeader('Content-Type', 'text/event-stream');
@@ -81,7 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Generate streaming AI response
-        const stream = await generateAIResponseStream(requestData.content, session.vibe);
+        const stream = await generateAIResponseStream(messageData.content, session.vibe);
         let fullResponse = '';
 
         for await (const chunk of stream) {
@@ -94,7 +78,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Save final AI message
         const armoMessage = await storage.createMessage({
-          sessionId: session.id,
+          sessionId: messageData.sessionId!,
           sender: "armo",
           content: fullResponse,
           metadata: null
@@ -107,9 +91,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (streamError) {
         console.error('Streaming error:', streamError);
         // Fallback to non-streaming
-        const aiResponse = await generateAIResponseFallback(requestData.content, session.vibe);
+        const aiResponse = await generateAIResponseFallback(messageData.content, session.vibe);
         const armoMessage = await storage.createMessage({
-          sessionId: session.id,
+          sessionId: messageData.sessionId!,
           sender: "armo",
           content: aiResponse,
           metadata: null
@@ -220,11 +204,7 @@ async function generateAIResponseStream(userMessage: string, vibe: string) {
   const systemPrompt = vibePrompts[vibe] || vibePrompts.default;
 
   try {
-    console.log(`Generating AI response for vibe: ${vibe}, API key available: ${!!apiKey}`);
-    
-    if (!apiKey) {
-      throw new Error('GROQ_API_KEY is not set');
-    }
+    console.log(`Generating AI response for vibe: ${vibe}`);
     
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',

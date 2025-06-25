@@ -37,8 +37,7 @@ export const chatApi = {
 
   sendMessage: async (
     sessionId: number, 
-    content: string,
-    vibe: string,
+    content: string, 
     onDelta?: (content: string) => void,
     onComplete?: (message: ChatMessage) => void,
     onUserMessage?: (message: ChatMessage) => void
@@ -50,8 +49,8 @@ export const chatApi = {
       },
       body: JSON.stringify({
         sessionId,
+        sender: 'user',
         content,
-        vibe,
         metadata: null
       })
     });
