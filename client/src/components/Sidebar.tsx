@@ -91,8 +91,10 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-20 left-0 right-0 z-50 rounded-xl overflow-hidden mx-4"
+            className="fixed left-4 right-4 z-50 rounded-xl overflow-hidden"
             style={{
+              top: '180px',
+              width: '272px',
               background: '#2e2e2e',
               boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535',
             }}
