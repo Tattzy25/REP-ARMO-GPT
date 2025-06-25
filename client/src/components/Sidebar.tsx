@@ -13,7 +13,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
-    <div className="w-80 border-r border-armo-accent/20 flex flex-col relative z-10" style={{background: '#2e2e2e'}}>
+    <div className="fixed left-0 top-0 w-80 h-screen border-r border-armo-accent/20 flex flex-col z-10 overflow-hidden" style={{background: '#2e2e2e'}}>
       {/* Header */}
       <motion.div
         initial={{ x: -100, opacity: 0 }}
@@ -42,7 +42,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         
       </motion.div>
       {/* Vibez Dropdown */}
-      <div className="flex-1 p-4 overflow-y-auto relative">
+      <div className="flex-1 p-4 relative overflow-hidden flex flex-col">
         {/* Dropdown Button */}
         <motion.button
           initial={{ opacity: 0, y: -20 }}
@@ -97,7 +97,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
               boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535',
             }}
           >
-            <div className="p-2 space-y-2 max-h-96 overflow-y-auto">
+            <div className="p-2 space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
               {features.map((feature, index) => (
                 <motion.button
                   key={feature.id}

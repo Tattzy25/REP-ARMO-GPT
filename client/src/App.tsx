@@ -37,7 +37,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <div className="flex h-screen bg-gradient-to-br from-armo-navy via-armo-blue to-armo-accent">
+        <div className="h-screen bg-gradient-to-br from-armo-navy via-armo-blue to-armo-accent">
           
           {/* Sidebar */}
           <Sidebar
@@ -46,7 +46,7 @@ function App() {
           />
 
           {/* Main Content Area */}
-          <div className="flex-1 flex flex-col relative">
+          <div className="ml-80 flex flex-col relative h-full">
             {appState === 'lobby' && (
               <ArmoLobby onSelectVibe={handleVibeSelect} />
             )}
