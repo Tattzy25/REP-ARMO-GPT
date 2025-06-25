@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { vibeConfigs } from "@/lib/vibes";
 import logoImage from "@/assets/logo.png";
+import { useState } from "react";
 
 interface SidebarProps {
   currentVibe: string;
@@ -9,6 +10,7 @@ interface SidebarProps {
 
 export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
   const features = Object.values(vibeConfigs);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <div className="w-80 border-r border-armo-accent/20 flex flex-col relative z-10" style={{background: '#2e2e2e'}}>
@@ -44,43 +46,113 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         </div>
       </motion.div>
 
-      {/* Vibez Menu */}
-      <div className="flex-1 p-4 overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4 text-neon-teal">Choose Your Vibe</h2>
-        
-        <div className="space-y-3">
-          {features.map((feature, index) => (
-            <motion.button
-              key={feature.id}
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onVibeSelect(feature.id)}
-              className={`w-full p-4 rounded-xl transition-all duration-300 text-left group ${
-                currentVibe === feature.id ? 'active' : ''
-              } ${
-                feature.glowColor === 'cyan' ? 'hover:neon-cyan-glow' : 
-                feature.glowColor === 'coral' ? 'hover:neon-coral-glow' : 
-                'hover:neon-teal-glow'
-              }`}
-              style={{background: '#2e2e2e', boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535'}}
+      {/* Vibez Dropdown */}
+      <div className="flex-1 p-4 overflow-y-auto relative">
+        {/* Dropdown Button */}
+        <motion.button
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="w-full mb-4 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border"
+          style={{
+            background: 'linear-gradient(to bottom, #171717, #242424)',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)',
+            borderColor: '#292929',
+            transform: isDropdownOpen ? 'translateY(2px)' : 'translateY(0)',
+          }}
+        >
+          THE VIBEZ
+          <div 
+            className="ml-3 flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200"
+            style={{
+              background: 'linear-gradient(to bottom, #171717, #242424)',
+              boxShadow: '0 0 1px rgba(0, 0, 0, 1)',
+              borderColor: '#252525',
+            }}
+          >
+            <svg 
+              viewBox="0 0 32 32" 
+              className="w-6 h-6 transition-transform duration-400"
+              style={{
+                filter: 'drop-shadow(0 10px 20px rgba(26, 25, 25, 0.9)) drop-shadow(0 0 4px rgba(0, 0, 0, 1))',
+                transform: isDropdownOpen ? 'rotate(90deg)' : 'rotate(0deg)'
+              }}
             >
-              <div className="flex items-center space-x-3">
-                <i className={`${feature.icon} ${
-                  feature.glowColor === 'cyan' ? 'text-neon-cyan' : 
-                  feature.glowColor === 'coral' ? 'text-neon-coral' : 
-                  'text-neon-teal'
-                } text-xl group-hover:bounce-slow`}></i>
-                <div>
-                  <h3 className="font-semibold">{feature.title}</h3>
-                  <p className="text-xs text-gray-400">{feature.subtitle}</p>
-                </div>
-              </div>
-            </motion.button>
-          ))}
-        </div>
+              <defs>
+                <linearGradient y2="100%" x2="100%" y1="0%" x1="0%" id="iconGradient">
+                  <stop style={{stopColor: '#FFFFFF', stopOpacity: 1}} offset="0%" />
+                  <stop style={{stopColor: '#AAAAAA', stopOpacity: 1}} offset="100%" />
+                </linearGradient>
+              </defs>
+              <path fill="url(#iconGradient)" d="M4 15a1 1 0 0 0 1 1h19.586l-4.292 4.292a1 1 0 0 0 1.414 1.414l6-6a.99.99 0 0 0 .292-.702V15c0-.13-.026-.26-.078-.382a.99.99 0 0 0-.216-.324l-6-6a1 1 0 0 0-1.414 1.414L24.586 14H5a1 1 0 0 0-1 1z" />
+            </svg>
+          </div>
+        </motion.button>
+
+        {/* Dropdown Menu */}
+        {isDropdownOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-20 left-4 right-4 z-50 rounded-xl overflow-hidden"
+            style={{
+              background: '#2e2e2e',
+              boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535',
+            }}
+          >
+            <div className="p-2 space-y-2 max-h-96 overflow-y-auto">
+              {features.map((feature, index) => (
+                <motion.button
+                  key={feature.id}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    onVibeSelect(feature.id);
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full p-3 rounded-lg transition-all duration-300 text-left group ${
+                    currentVibe === feature.id ? 'active' : ''
+                  } ${
+                    feature.glowColor === 'cyan' ? 'hover:neon-cyan-glow' : 
+                    feature.glowColor === 'coral' ? 'hover:neon-coral-glow' : 
+                    'hover:neon-teal-glow'
+                  }`}
+                  style={{
+                    background: currentVibe === feature.id ? '#3a3a3a' : '#2a2a2a', 
+                    boxShadow: currentVibe === feature.id 
+                      ? 'inset 4px 4px 8px #1f1f1f, inset -4px -4px 8px #3b3b3b'
+                      : '4px 4px 8px #232323, -4px -4px 8px #333333'
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <i className={`${feature.icon} ${
+                      feature.glowColor === 'cyan' ? 'text-neon-cyan' : 
+                      feature.glowColor === 'coral' ? 'text-neon-coral' : 
+                      'text-neon-teal'
+                    } text-lg group-hover:bounce-slow`}></i>
+                    <div>
+                      <h3 className="font-semibold text-sm">{feature.title}</h3>
+                      <p className="text-xs text-gray-400">{feature.subtitle}</p>
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Overlay to close dropdown */}
+        {isDropdownOpen && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setIsDropdownOpen(false)}
+          />
+        )}
       </div>
 
       {/* User Profile */}
