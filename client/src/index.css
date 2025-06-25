@@ -13,6 +13,10 @@ html, body {
   overflow-x: hidden;
 }
 
+.fas {
+  color: inherit !important;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);

@@ -138,7 +138,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby }: ChatInterf
       </motion.div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan"></div>

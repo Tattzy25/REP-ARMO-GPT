@@ -56,7 +56,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky bottom-0 p-4 border-t border-gray-600/20 backdrop-blur mt-auto"
+      className="fixed bottom-0 left-0 right-0 p-4 border-t border-gray-600/20 backdrop-blur z-50"
       style={{
         background: '#3a3a3a',
         boxShadow: '0 -4px 8px #323232'
@@ -80,7 +80,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
           disabled={disabled}
           title="Upload files (images, documents, audio, video)"
         >
-          <i className="fas fa-paperclip text-lg" style={{ color: 'white' }}></i>
+          <i className="fas fa-paperclip text-lg" style={{ color: 'white !important' }}></i>
         </button>
         <input
           ref={fileInputRef}
@@ -130,7 +130,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
           disabled={disabled}
           title="Voice input - speak your message"
         >
-          <i className={`fas fa-microphone text-lg ${isRecording ? 'animate-pulse' : ''}`} style={{ color: '#ff0000' }}></i>
+          <i className={`fas fa-microphone text-lg ${isRecording ? 'animate-pulse' : ''}`} style={{ color: '#ff0000 !important' }}></i>
         </button>
 
         {/* Send Message Button */}
@@ -152,7 +152,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
           }}
           title="Send message (Enter)"
         >
-          <i className="fas fa-paper-plane text-lg" style={{ color: 'white' }}></i>
+          <i className="fas fa-paper-plane text-lg" style={{ color: 'white !important' }}></i>
         </button>
       </div>
     </motion.div>
