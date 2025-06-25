@@ -21,6 +21,10 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
       onSendMessage(message.trim());
       setMessage("");
       autoResize();
+      // Refocus the input after sending
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 10);
     }
   };
 
@@ -88,7 +92,9 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         {/* File Upload Button */}
         <div 
           className="neumorphic-button" 
-          onClick={() => {
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => {
+            e.preventDefault();
             if (!disabled) {
               fileInputRef.current?.click();
             }
@@ -124,6 +130,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               placeholder="Ask Armo Hopar anything... (Armenian/English)"
               className="w-full bg-transparent text-white placeholder-gray-300 resize-none outline-none"
               disabled={disabled}
+              autoFocus
             />
           </div>
         </div>
@@ -131,6 +138,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         {/* Voice Input Button */}
         <div 
           className="neumorphic-button" 
+          onMouseDown={(e) => e.preventDefault()}
           onClick={handleVoiceToggle} 
           title="Click to start/stop recording"
         >
@@ -157,7 +165,9 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
         {/* Send Message Button */}
         <div 
           className={`neumorphic-button ${!message.trim() || disabled ? 'disabled' : ''}`} 
-          onClick={() => {
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => {
+            e.preventDefault();
             if (message.trim() && !disabled) {
               handleSend();
             }
