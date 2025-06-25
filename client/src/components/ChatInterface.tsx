@@ -88,7 +88,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         (userMessage: ChatMessage) => {
           setMessages(prev => [...prev, userMessage]);
         },
-
+        attachments
       );
     },
   });
@@ -125,7 +125,8 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
     if (sessionId && (content.trim() || stagedFiles.length > 0)) {
       sendMessageMutation.mutate({ 
         sessionId, 
-        content: content || "📎 Shared files"
+        content: content || "What do you see in this image?",
+        attachments: stagedFiles.length > 0 ? stagedFiles : undefined
       });
     }
   };
