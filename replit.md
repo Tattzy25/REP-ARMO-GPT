@@ -92,8 +92,12 @@ The application features multiple AI personality modes:
 - June 25, 2025. Initial setup
 - June 25, 2025. Added PostgreSQL database with persistent chat storage
 - June 25, 2025. Updated color scheme to gray (#bbbbbb background, #9f9f9f/#d7d7d7 shadows)
+- June 25, 2025. Added red-blue-orange gradient to main content headers and cards
+- June 25, 2025. Updated sidebar to dark theme (#2e2e2e background, #272727/#353535 shadows)
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 Color scheme preference: Gray backgrounds (#bbbbbb) with neumorphic shadows (#9f9f9f, #d7d7d7).
+Main content styling: Red-blue-orange gradients for headers and cards.
+Sidebar styling: Dark theme (#2e2e2e background, #272727/#353535 shadows).

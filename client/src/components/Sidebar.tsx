@@ -10,7 +10,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
   const features = Object.values(vibeConfigs);
 
   return (
-    <div className="w-80 bg-armo-navy border-r border-armo-accent/20 flex flex-col relative z-10">
+    <div className="w-80 border-r border-armo-accent/20 flex flex-col relative z-10" style={{background: '#2e2e2e'}}>
       {/* Header */}
       <motion.div
         initial={{ x: -100, opacity: 0 }}
@@ -29,7 +29,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         </div>
         
         {/* Status Indicator */}
-        <div className="flex items-center space-x-2 p-3 rounded-xl bg-armo-blue/50 neumorphic">
+        <div className="flex items-center space-x-2 p-3 rounded-xl neumorphic" style={{background: '#2e2e2e', boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535'}}>
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
           <span className="text-sm">Armo Hopar is online</span>
         </div>
@@ -49,13 +49,14 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onVibeSelect(feature.id)}
-              className={`w-full p-4 rounded-xl bg-armo-blue neumorphic transition-all duration-300 text-left group ${
+              className={`w-full p-4 rounded-xl transition-all duration-300 text-left group ${
                 currentVibe === feature.id ? 'active' : ''
               } ${
                 feature.glowColor === 'cyan' ? 'hover:neon-cyan-glow' : 
                 feature.glowColor === 'coral' ? 'hover:neon-coral-glow' : 
                 'hover:neon-teal-glow'
               }`}
+              style={{background: '#2e2e2e', boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535'}}
             >
               <div className="flex items-center space-x-3">
                 <i className={`${feature.icon} ${
@@ -80,7 +81,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         transition={{ delay: 0.5 }}
         className="p-4 border-t border-armo-accent/20"
       >
-        <div className="flex items-center space-x-3 p-3 rounded-xl bg-armo-blue/50 neumorphic-inset">
+        <div className="flex items-center space-x-3 p-3 rounded-xl" style={{background: '#2e2e2e', boxShadow: 'inset 8px 8px 16px #272727, inset -8px -8px 16px #353535'}}>
           <div className="w-8 h-8 bg-gradient-to-r from-neon-cyan to-neon-teal rounded-full flex items-center justify-center">
             <i className="fas fa-user text-xs"></i>
           </div>
