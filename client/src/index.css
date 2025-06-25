@@ -154,3 +154,13 @@
   from { width: 0; }
   to { width: 100%; }
 }
+
+/* Hide scrollbar completely for dropdown content */
+.dropdown-content::-webkit-scrollbar {
+  display: none;
+}
+
+.dropdown-content {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

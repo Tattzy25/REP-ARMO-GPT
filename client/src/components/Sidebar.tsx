@@ -91,13 +91,18 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-20 left-4 right-4 z-50 rounded-xl overflow-hidden"
+            className="absolute top-20 left-0 right-0 z-50 rounded-xl overflow-hidden mx-4"
             style={{
               background: '#2e2e2e',
               boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535',
             }}
           >
-            <div className="p-2 space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
+            <div 
+              className="p-2 space-y-2 overflow-y-auto dropdown-content"
+              style={{
+                maxHeight: 'calc(100vh - 300px)'
+              }}
+            >
               {features.map((feature, index) => (
                 <motion.button
                   key={feature.id}
@@ -144,7 +149,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         {/* Overlay to close dropdown */}
         {isDropdownOpen && (
           <div 
-            className="fixed inset-0 z-40" 
+            className="fixed inset-0 z-30" 
             onClick={() => setIsDropdownOpen(false)}
           />
         )}
