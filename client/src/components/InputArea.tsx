@@ -100,108 +100,102 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
 
   return (
     <motion.div
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className={`fixed bottom-0 left-0 right-0 transition-all duration-300 ${isMobile ? 'p-3' : 'p-6'}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`input-area p-4 ${isMobile ? 'pb-6' : ''}`}
       style={{
         background: '#3a3a3a',
-        borderTop: '1px solid #404040',
-        boxShadow: '0 -4px 8px #323232'
+        borderTop: '1px solid #555'
       }}
     >
-      <div className={`flex items-end max-w-4xl mx-auto ${isMobile ? 'space-x-2' : 'space-x-3'}`}>
-        {/* File Upload Button */}
-        <div 
-          className="neumorphic-button" 
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={(e) => {
-            e.preventDefault();
-            if (!disabled) {
-              fileInputRef.current?.click();
-            }
-          }} 
-          title="Upload files (images, documents, audio, video)"
-        >
-          <div className="toggle">
-            <input type="checkbox" disabled={disabled} />
-            <span className="button" style={{ background: '#3a3a3a' }} />
-            <span className="label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>📎</span>
+      <div className="max-w-4xl mx-auto">
+        {/* ChatGPT-style Input Container */}
+        <div className="relative flex items-center">
+          <div 
+            className="flex-1 relative rounded-3xl transition-all duration-200"
+            style={{
+              background: '#404040',
+              boxShadow: 'inset 3px 3px 8px #323232, inset -3px -3px 8px #484848',
+              border: '1px solid #555'
+            }}
+          >
+            {/* Left Side Button - File Upload */}
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={disabled}
+                className="p-2 rounded-full transition-all duration-200 hover:bg-gray-600"
+                title="Attach file"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M21.44 11.05L12.25 20.24C11.12 21.37 9.59 22 7.99 22C6.39 22 4.86 21.37 3.73 20.24C2.6 19.11 1.97 17.58 1.97 15.98C1.97 14.38 2.6 12.85 3.73 11.72L12.92 2.53C13.69 1.76 14.76 1.33 15.88 1.33C17 1.33 18.07 1.76 18.84 2.53C19.61 3.3 20.04 4.37 20.04 5.49C20.04 6.61 19.61 7.68 18.84 8.45L10.15 17.14C9.76 17.53 9.24 17.75 8.7 17.75C8.16 17.75 7.64 17.53 7.25 17.14C6.86 16.75 6.64 16.23 6.64 15.69C6.64 15.15 6.86 14.63 7.25 14.24L15.54 5.95" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Text Input */}
+            <textarea
+              ref={textareaRef}
+              value={message}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                autoResize();
+              }}
+              onKeyDown={handleKeyPress}
+              placeholder="Ask Armo Hopar anything... (Armenian/English)"
+              disabled={disabled}
+              className="w-full min-h-[60px] max-h-32 py-4 pl-16 pr-28 bg-transparent resize-none outline-none text-white placeholder-gray-400 transition-all duration-200"
+              style={{
+                fontSize: '16px',
+                lineHeight: '1.5'
+              }}
+            />
+
+            {/* Right Side Buttons Container */}
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2 z-10">
+              {/* Voice Toggle Button */}
+              <button
+                onMouseDown={handleVoiceToggle}
+                disabled={disabled}
+                className="p-2 rounded-full transition-all duration-200 hover:bg-gray-600"
+                style={{
+                  background: isRecording ? '#ff4444' : 'transparent'
+                }}
+                title="Voice input"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={isRecording ? "white" : "#9ca3af"}>
+                  <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
+                  <path d="M19 10V12C19 16.42 15.42 20 11 20H9V22H11C16.52 22 21 17.52 21 12V10H19Z"/>
+                  <path d="M5 10V12C5 13.66 6.34 15 8 15V13C6.34 13 5 11.66 5 10Z"/>
+                </svg>
+              </button>
+
+              {/* Send Button */}
+              <button
+                onClick={handleSend}
+                disabled={disabled || !message.trim()}
+                className="p-2 rounded-full transition-all duration-200"
+                style={{
+                  background: (!disabled && message.trim()) ? 'linear-gradient(45deg, #ff4444, #4444ff, #ff8844)' : 'transparent',
+                  opacity: (!disabled && message.trim()) ? 1 : 0.5
+                }}
+                title="Send message"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={(!disabled && message.trim()) ? "white" : "#9ca3af"}>
+                  <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
+
         <input
           ref={fileInputRef}
           type="file"
           onChange={handleFileUpload}
           className="hidden"
-          accept="image/*,audio/*,video/*,.pdf,.doc,.docx"
+          accept="image/*,audio/*,video/*,.pdf,.txt,.doc,.docx"
         />
-
-        {/* Input Field */}
-        <div className="flex-1 relative">
-          <div className="rounded-2xl p-4" style={{
-            background: '#404040',
-            boxShadow: 'inset 6px 6px 12px #323232, inset -6px -6px 12px #484848'
-          }}>
-            <textarea
-              ref={textareaRef}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-
-              rows={1}
-              placeholder="Ask Armo Hopar anything... (Armenian/English)"
-              className="w-full bg-transparent text-white placeholder-gray-300 resize-none outline-none"
-              disabled={disabled}
-              autoFocus
-            />
-          </div>
-        </div>
-
-        {/* Voice Input Button */}
-        <div 
-          className="neumorphic-button" 
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={handleVoiceToggle} 
-          title="Click to start/stop recording"
-        >
-          <div className="toggle">
-            <input type="checkbox" checked={isRecording} disabled={disabled} readOnly />
-            <span 
-              className="button"
-              style={{
-                background: isRecording ? '#ff4444' : '#3a3a3a',
-                borderRadius: '50px'
-              }}
-            />
-            <span 
-              className="label"
-              style={{
-                color: isRecording ? '#ffffff' : 'rgba(255, 255, 255, 0.9)'
-              }}
-            >
-              🎤
-            </span>
-          </div>
-        </div>
-
-        {/* Send Message Button */}
-        <div 
-          className={`neumorphic-button ${!message.trim() || disabled ? 'disabled' : ''}`} 
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={(e) => {
-            e.preventDefault();
-            if (message.trim() && !disabled) {
-              handleSend();
-            }
-          }} 
-          title="Send message (Enter to send)"
-        >
-          <div className="toggle">
-            <input type="checkbox" disabled={!message.trim() || disabled} />
-            <span className="button" style={{ background: '#3a3a3a' }} />
-            <span className="label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>✈️</span>
-          </div>
-        </div>
       </div>
     </motion.div>
   );
