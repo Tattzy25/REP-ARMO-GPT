@@ -281,6 +281,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
           <div 
             className="fixed inset-0 z-30" 
             onClick={() => setIsDropdownOpen(false)}
+            style={{ pointerEvents: 'auto' }}
           />
         )}
       </div>
@@ -289,7 +290,8 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="p-4 border-t border-armo-accent/20"
+        className="p-4 border-t border-armo-accent/20 relative z-50"
+        style={{ pointerEvents: 'auto' }}
       >
         <div className="flex items-center space-x-3 p-3 rounded-xl" style={{background: '#2e2e2e', boxShadow: 'inset 8px 8px 16px #272727, inset -8px -8px 16px #353535'}}>
           <div className="w-8 h-8 bg-gradient-to-r from-neon-cyan to-neon-teal rounded-full flex items-center justify-center">
