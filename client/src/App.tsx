@@ -16,7 +16,9 @@ function App() {
 
   const handleVibeSelect = (vibe: string) => {
     setCurrentVibe(vibe);
-    if (vibe === 'call') {
+    if (vibe === 'lobby') {
+      setAppState('lobby');
+    } else if (vibe === 'call') {
       setAppState('call');
     } else {
       setAppState('chat');

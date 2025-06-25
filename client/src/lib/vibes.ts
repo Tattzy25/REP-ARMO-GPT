@@ -10,6 +10,16 @@ export interface VibeConfig {
 }
 
 export const vibeConfigs: Record<string, VibeConfig> = {
+  lobby: {
+    id: 'lobby',
+    title: 'Armo Lobby',
+    subtitle: 'Welcome home',
+    personality: 'Friendly and welcoming',
+    icon: 'fas fa-home',
+    emoji: '🏠',
+    glowColor: 'cyan',
+    welcomeMessage: 'Welcome back to the Armo Lobby! Choose your vibe and let\'s get started.'
+  },
   default: {
     id: 'default',
     title: 'Armo-GPT',

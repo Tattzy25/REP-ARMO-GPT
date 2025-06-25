@@ -41,12 +41,55 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
         
         
       </motion.div>
-      {/* Vibez Dropdown */}
+      {/* Navigation Buttons */}
       <div className="flex-1 p-4 relative overflow-hidden flex flex-col">
+        {/* Home Button */}
+        <motion.button
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => {
+            setIsDropdownOpen(false);
+            onVibeSelect('lobby');
+          }}
+          className="w-full mb-3 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border hover:scale-105"
+          style={{
+            background: 'linear-gradient(to bottom, #171717, #242424)',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)',
+            borderColor: '#292929',
+          }}
+        >
+          ARMO LOBBY
+          <div 
+            className="ml-3 flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200"
+            style={{
+              background: 'linear-gradient(to bottom, #171717, #242424)',
+              boxShadow: '0 0 1px rgba(0, 0, 0, 1)',
+              borderColor: '#252525',
+            }}
+          >
+            <svg 
+              viewBox="0 0 24 24" 
+              className="w-5 h-5"
+              style={{
+                filter: 'drop-shadow(0 10px 20px rgba(26, 25, 25, 0.9)) drop-shadow(0 0 4px rgba(0, 0, 0, 1))',
+              }}
+            >
+              <defs>
+                <linearGradient y2="100%" x2="100%" y1="0%" x1="0%" id="homeIconGradient">
+                  <stop style={{stopColor: '#FFFFFF', stopOpacity: 1}} offset="0%" />
+                  <stop style={{stopColor: '#AAAAAA', stopOpacity: 1}} offset="100%" />
+                </linearGradient>
+              </defs>
+              <path fill="url(#homeIconGradient)" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+            </svg>
+          </div>
+        </motion.button>
+
         {/* Dropdown Button */}
         <motion.button
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-full mb-4 relative px-6 py-4 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border"
           style={{
@@ -93,7 +136,7 @@ export default function Sidebar({ currentVibe, onVibeSelect }: SidebarProps) {
             transition={{ duration: 0.2 }}
             className="fixed left-4 right-4 z-50 rounded-xl overflow-hidden"
             style={{
-              top: '180px',
+              top: '240px',
               width: '272px',
               background: '#2e2e2e',
               boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535',
