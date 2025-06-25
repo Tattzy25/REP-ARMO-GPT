@@ -20,17 +20,54 @@ export default function StreamingMessage({ content, sender, isStreaming = false 
     }
   };
 
-  const handleReadAloud = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(content);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      window.speechSynthesis.speak(utterance);
-      console.log('Reading message aloud');
-    } else {
-      console.error('Speech synthesis not supported');
+  const handleReadAloud = async () => {
+    try {
+      console.log('Requesting ElevenLabs voice synthesis...');
+      
+      const response = await fetch('/api/voice/synthesize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: content })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Voice synthesis failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.audioUrl) {
+        // Stop any currently playing audio
+        const existingAudio = document.querySelector('audio[data-elevenlabs]');
+        if (existingAudio) {
+          existingAudio.remove();
+        }
+
+        // Create and play the audio
+        const audio = new Audio(data.audioUrl);
+        audio.setAttribute('data-elevenlabs', 'true');
+        audio.volume = 0.8;
+        
+        await audio.play();
+        console.log('Playing ElevenLabs voice synthesis');
+      } else {
+        throw new Error('Invalid response from voice synthesis API');
+      }
+    } catch (error) {
+      console.error('ElevenLabs voice synthesis failed:', error);
+      
+      // Fallback to browser speech synthesis
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(content);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 0.8;
+        window.speechSynthesis.speak(utterance);
+        console.log('Using fallback browser speech synthesis');
+      }
     }
   };
 

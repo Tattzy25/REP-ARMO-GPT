@@ -108,6 +108,8 @@ The application features multiple AI personality modes:
 - June 25, 2025. Applied dark black color scheme throughout site components using slightly lighter shade (#3a3a3a) than sidebar (#2e2e2e)
 - June 25, 2025. Implemented neumorphic button design for input controls with production-ready functionality
 - June 25, 2025. Fixed microphone button visual feedback with proper red recording state contained within circular button
+- June 25, 2025. Added copy, read aloud, and share action buttons to AI messages with hover animation
+- June 25, 2025. Integrated ElevenLabs voice synthesis API for high-quality text-to-speech with fallback to browser speech
 
 ## User Preferences
 

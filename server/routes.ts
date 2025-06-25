@@ -93,9 +93,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { text } = req.body;
       
-      // Mock voice synthesis - in production, integrate with ElevenLabs
-      res.json({ audioUrl: "mock-audio-url", success: true });
+      if (!text) {
+        return res.status(400).json({ error: "Text is required" });
+      }
+
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      const voiceId = process.env.ELEVENLABS_VOICE_ID;
+
+      if (!apiKey || !voiceId) {
+        return res.status(500).json({ error: "ElevenLabs API key or voice ID not configured" });
+      }
+
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75,
+            style: 0.0,
+            use_speaker_boost: true
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      const audioBuffer = await response.arrayBuffer();
+      const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+      const audioDataUrl = `data:audio/mpeg;base64,${audioBase64}`;
+
+      res.json({ 
+        audioUrl: audioDataUrl, 
+        success: true,
+        voiceId: voiceId
+      });
     } catch (error) {
+      console.error('Voice synthesis error:', error);
       res.status(500).json({ error: "Voice synthesis failed" });
     }
   });
