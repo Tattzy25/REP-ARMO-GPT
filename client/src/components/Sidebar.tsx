@@ -7,9 +7,10 @@ interface SidebarProps {
   currentVibe: string;
   onVibeSelect: (vibe: string) => void;
   onSidebarToggle?: (isCollapsed: boolean) => void;
+  isMobile?: boolean;
 }
 
-export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle }: SidebarProps) {
+export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false }: SidebarProps) {
   const features = Object.values(vibeConfigs);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);

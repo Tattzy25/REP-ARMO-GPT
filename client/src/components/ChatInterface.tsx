@@ -10,9 +10,10 @@ interface ChatInterfaceProps {
   currentVibe: string;
   onBackToLobby: () => void;
   isSidebarCollapsed?: boolean;
+  isMobile?: boolean;
 }
 
-export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCollapsed = false }: ChatInterfaceProps) {
+export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCollapsed = false, isMobile = false }: ChatInterfaceProps) {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [streamingMessage, setStreamingMessage] = useState<string | null>(null);
@@ -112,16 +113,16 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="flex items-center justify-between p-4 border-b border-gray-600/20 backdrop-blur"
+        className={`flex items-center justify-between border-b border-gray-600/20 backdrop-blur ${isMobile ? 'p-3' : 'p-4'}`}
         style={{ 
           background: '#3a3a3a',
           boxShadow: '0 4px 8px #323232'
         }}
       >
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
           <button
             onClick={onBackToLobby}
-            className="p-2 rounded-lg transition-all duration-200"
+            className={`rounded-lg transition-all duration-200 ${isMobile ? 'p-1.5' : 'p-2'}`}
             style={{
               background: '#404040',
               boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
@@ -133,21 +134,25 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
               e.currentTarget.style.background = '#404040';
             }}
           >
-            <i className="fas fa-arrow-left" style={{ color: 'white' }}></i>
+            <ArrowLeft size={isMobile ? 16 : 20} className="text-white" />
           </button>
-          <div>
-            <h2 className="font-bold text-lg text-white">{vibeConfig.title}</h2>
-            <p className="text-sm text-gray-300">{vibeConfig.subtitle}</p>
+          <div className="min-w-0 flex-1">
+            <h1 className={`font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent ${isMobile ? 'text-lg' : 'text-xl'}`}>
+              {vibeConfig.title}
+            </h1>
+            <p className={`text-gray-300 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>{vibeConfig.subtitle}</p>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-          <span className="text-sm text-white">Online</span>
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className={`text-green-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>Online</span>
+          </div>
         </div>
       </motion.div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+      <div className={`flex-1 overflow-y-auto space-y-4 pb-24 chat-messages ${isMobile ? 'p-3' : 'p-6'}`} style={{ background: '#3a3a3a' }}>
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan"></div>
@@ -200,6 +205,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         onFileUpload={handleFileUpload}
         disabled={sendMessageMutation.isPending}
         isSidebarCollapsed={isSidebarCollapsed}
+        isMobile={isMobile}
       />
     </div>
   );

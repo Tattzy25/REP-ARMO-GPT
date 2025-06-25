@@ -7,9 +7,10 @@ interface InputAreaProps {
   onFileUpload: (file: File) => void;
   disabled?: boolean;
   isSidebarCollapsed?: boolean;
+  isMobile?: boolean;
 }
 
-export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false, isSidebarCollapsed = false }: InputAreaProps) {
+export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, disabled = false, isSidebarCollapsed = false, isMobile = false }: InputAreaProps) {
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -101,15 +102,14 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className={`fixed bottom-0 right-0 p-4 border-t border-gray-600/20 backdrop-blur z-50 transition-all duration-300 ${
-        isSidebarCollapsed ? 'left-0' : 'left-80'
-      }`}
+      className={`fixed bottom-0 left-0 right-0 transition-all duration-300 ${isMobile ? 'p-3' : 'p-6'}`}
       style={{
         background: '#3a3a3a',
+        borderTop: '1px solid #404040',
         boxShadow: '0 -4px 8px #323232'
       }}
     >
-      <div className="flex items-end space-x-3 max-w-4xl mx-auto">
+      <div className={`flex items-end max-w-4xl mx-auto ${isMobile ? 'space-x-2' : 'space-x-3'}`}>
         {/* File Upload Button */}
         <div 
           className="neumorphic-button" 
