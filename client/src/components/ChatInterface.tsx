@@ -80,7 +80,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
             sessionId: 0,
             sender: 'armo',
             content: vibeConfig.welcomeMessage,
-            createdAt: new Date()
+            createdAt: new Date().toISOString()
           }]);
         }
       }
