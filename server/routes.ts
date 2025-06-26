@@ -6,10 +6,14 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { GoogleGenAI } from "@google/genai";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.GROQ_API_KEY_ENV_VAR || "default_key";
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY_ENV_VAR || "default_key";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY || process.env.TAVILY_API_KEY_ENV_VAR || "default_key";
+
+// Initialize Gemini AI
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 // Configure multer for file uploads
 const upload = multer({
@@ -21,7 +25,7 @@ const upload = multer({
     // Accept images, audio, video, and documents
     const allowedMimes = [
       'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-      'audio/mpeg', 'audio/wav', 'audio/ogg',
+      'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm',
       'video/mp4', 'video/webm', 'video/ogg',
       'application/pdf', 'text/plain',
       'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -204,6 +208,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ results: searchResults });
     } catch (error) {
       res.status(500).json({ error: "Search failed" });
+    }
+  });
+
+  // Speech-to-text endpoint using Gemini
+  app.post("/api/voice/transcribe", upload.single('audio'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No audio file provided' });
+      }
+
+      console.log('Transcribing audio file:', req.file.filename, 'Size:', req.file.size, 'Type:', req.file.mimetype);
+      
+      // Read the audio file
+      const audioPath = req.file.path;
+      const audioData = fs.readFileSync(audioPath);
+      
+      // Use Gemini for speech-to-text
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [
+          {
+            inlineData: {
+              data: audioData.toString("base64"),
+              mimeType: req.file.mimetype || "audio/webm"
+            }
+          },
+          "Please transcribe this audio file. Return only the transcribed text, no additional commentary."
+        ]
+      });
+
+      const transcription = response.text || "";
+      console.log('Gemini transcription result:', transcription);
+
+      // Clean up the uploaded file
+      fs.unlinkSync(audioPath);
+
+      res.json({ 
+        success: true, 
+        transcription: transcription.trim()
+      });
+
+    } catch (error) {
+      console.error('Gemini STT error:', error);
+      
+      // Clean up file if it exists
+      if (req.file?.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error('File cleanup error:', cleanupError);
+        }
+      }
+      
+      res.status(500).json({ 
+        success: false, 
+        error: 'Speech transcription failed' 
+      });
     }
   });
 
