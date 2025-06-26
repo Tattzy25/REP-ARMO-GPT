@@ -239,6 +239,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get recent chat sessions
+  app.get("/api/chat/recent", async (req, res) => {
+    try {
+      const sessions = await storage.getRecentChatSessions(null, 10);
+      console.log('Recent sessions API called, found:', sessions.length);
+      res.json(sessions);
+    } catch (error) {
+      console.error('Error fetching recent sessions:', error);
+      res.status(500).json({ error: "Failed to fetch recent sessions" });
+    }
+  });
+
   // Search endpoint using Tavily API
   app.post("/api/search", async (req, res) => {
     try {

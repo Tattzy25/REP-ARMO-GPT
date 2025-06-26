@@ -5,7 +5,7 @@ import {
   type InsertErrorLog, type ErrorLog, type InsertTempStorage, type TempStorage
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, isNull, desc, lt } from "drizzle-orm";
+import { eq, and, isNull, desc, lt, sql } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -59,25 +59,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentChatSessions(userId: number | null, limit = 10): Promise<ChatSession[]> {
-    // Only return sessions that have messages
-    const sessionsWithMessages = await db
-      .select({
-        id: chatSessions.id,
-        userId: chatSessions.userId,
-        vibe: chatSessions.vibe,
-        createdAt: chatSessions.createdAt
-      })
-      .from(chatSessions)
-      .innerJoin(messages, eq(chatSessions.id, messages.sessionId))
-      .where(
-        userId ? eq(chatSessions.userId, userId) : isNull(chatSessions.userId)
-      )
-      .groupBy(chatSessions.id, chatSessions.userId, chatSessions.vibe, chatSessions.createdAt)
-      .orderBy(desc(chatSessions.createdAt))
-      .limit(limit);
-    
-    console.log('Sessions with messages found:', sessionsWithMessages.length);
-    return sessionsWithMessages;
+    try {
+      // Get sessions that have messages
+      const sessions = await db
+        .select()
+        .from(chatSessions)
+        .where(
+          userId ? eq(chatSessions.userId, userId) : isNull(chatSessions.userId)
+        )
+        .orderBy(desc(chatSessions.createdAt))
+        .limit(limit);
+      
+      // Filter sessions that have messages
+      const sessionsWithMessages = [];
+      for (const session of sessions) {
+        const messageCount = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(messages)
+          .where(eq(messages.sessionId, session.id));
+        
+        if (messageCount[0].count > 0) {
+          sessionsWithMessages.push(session);
+        }
+      }
+      
+      console.log('Total sessions:', sessions.length, 'With messages:', sessionsWithMessages.length);
+      return sessionsWithMessages;
+    } catch (error) {
+      console.error('Error in getRecentChatSessions:', error);
+      return [];
+    }
   }
 
   async getChatSession(id: number): Promise<ChatSession | undefined> {

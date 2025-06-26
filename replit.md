@@ -161,6 +161,11 @@ The application features multiple AI personality modes:
 - June 26, 2025. Added production-ready database logging system with activity logs, error logs, and temporary storage
 - June 26, 2025. Implemented proper session management with database tracking for New Chat functionality
 - June 26, 2025. Fixed missing currentSessionId state variable causing application crashes
+- June 26, 2025. FIXED: Recent Chats functionality with comprehensive investigation and bulletproof solution
+- June 26, 2025. Added missing /api/chat/recent route endpoint that was causing HTML responses
+- June 26, 2025. Fixed database query to properly filter sessions with messages using sql import
+- June 26, 2025. Enhanced error handling in RecentChatsList with detailed logging and retry functionality
+- June 26, 2025. Added personalized welcome message for new chat sessions: "Hi hopar is listening, How is Armo Hopar helping you destroy your ego today?"
 
 ## User Preferences
 
