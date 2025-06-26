@@ -76,11 +76,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new chat session
   app.post("/api/chat/session", async (req, res) => {
     try {
-      const sessionData = insertChatSessionSchema.parse(req.body);
-      const session = await storage.createChatSession(sessionData);
+      const { vibe } = insertChatSessionSchema.parse(req.body);
+      console.log('Creating new session for vibe:', vibe);
+      
+      const session = await storage.createChatSession({
+        userId: null, // For now, no user auth
+        vibe: vibe
+      });
+      
+      console.log('Created session:', session);
       res.json(session);
     } catch (error) {
-      res.status(400).json({ error: "Invalid session data" });
+      console.error('Error creating session:', error);
+      res.status(500).json({ error: "Failed to create session" });
+    }
+  });
+
+  // Get messages for a specific session
+  app.get("/api/chat/session/:sessionId/messages", async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.sessionId);
+      console.log('Fetching messages for session:', sessionId);
+      
+      const messages = await storage.getMessagesBySession(sessionId);
+      console.log('Found messages:', messages.length);
+      
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching session messages:', error);
+      res.status(500).json({ error: "Failed to fetch session messages" });
     }
   });
 

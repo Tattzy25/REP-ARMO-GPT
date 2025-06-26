@@ -13,6 +13,7 @@ interface ChatInterfaceProps {
   onBackToLobby: () => void;
   isSidebarCollapsed?: boolean;
   isMobile?: boolean;
+  currentSessionId?: number | null;
 }
 
 interface StagedFile {
@@ -39,7 +40,7 @@ interface StagedFile {
   };
 }
 
-export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCollapsed = false, isMobile = false }: ChatInterfaceProps) {
+export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCollapsed = false, isMobile = false, currentSessionId }: ChatInterfaceProps) {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [streamingMessage, setStreamingMessage] = useState<string | null>(null);
