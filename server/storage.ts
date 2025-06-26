@@ -18,6 +18,7 @@ export interface IStorage {
   getRecentChatSessions(userId: number | null, limit?: number): Promise<ChatSession[]>;
   deleteChatSession(id: number): Promise<void>;
   extendChatSession(id: number): Promise<void>;
+  updateChatSessionTitle(id: number, title: string): Promise<void>;
   
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesBySession(sessionId: number): Promise<Message[]>;

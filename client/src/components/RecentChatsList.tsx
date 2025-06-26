@@ -4,6 +4,7 @@ import { Clock, MoreVertical, Trash2, Calendar } from 'lucide-react';
 interface ChatSession {
   id: number;
   vibe: string;
+  title?: string;
   createdAt: string;
 }
 
@@ -115,8 +116,13 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
     }
   };
 
-  const generateChatTitle = (vibe: string, createdAt: string) => {
-    const date = new Date(createdAt);
+  const getChatDisplayTitle = (chat: ChatSession) => {
+    // Use auto-generated title if available, otherwise fall back to time-based title
+    if (chat.title) {
+      return chat.title;
+    }
+    
+    const date = new Date(chat.createdAt);
     const timeStr = date.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
@@ -130,7 +136,7 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
       'call': 'Voice Call',
     };
     
-    const baseName = vibeNames[vibe] || 'Chat';
+    const baseName = vibeNames[chat.vibe] || 'Chat';
     return `${baseName} ${timeStr}`;
   };
 
@@ -167,16 +173,21 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
   }
 
   return (
-    <div className="space-y-2 max-h-64 p-4" style={{ 
-      overflowY: 'auto',
-      scrollbarWidth: 'none', // Firefox
-      msOverflowStyle: 'none', // IE/Edge
-    }}>
-      <style jsx>{`
-        div::-webkit-scrollbar {
-          display: none; /* Chrome/Safari */
-        }
-      `}</style>
+    <div 
+      className="space-y-2 max-h-64 p-4 scrollbar-hidden" 
+      style={{ 
+        overflowY: 'auto',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}
+    >
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .scrollbar-hidden::-webkit-scrollbar {
+            display: none;
+          }
+        `
+      }} />
       <h3 className="text-white font-semibold text-sm mb-3">Recent Chats</h3>
       {recentChats.map((chat) => (
         <div key={chat.id} className="relative">
@@ -201,7 +212,7 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="text-white font-medium text-sm">
-                  {generateChatTitle(chat.vibe, chat.createdAt)}
+                  {getChatDisplayTitle(chat)}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
                   {formatDate(chat.createdAt)}

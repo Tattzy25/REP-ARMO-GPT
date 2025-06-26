@@ -453,6 +453,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
+function generateChatTitle(userMessage: string): string {
+  // Clean and truncate the message
+  const cleaned = userMessage.trim().toLowerCase();
+  
+  // Extract key words, filter out common words
+  const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'when', 'where', 'why', 'who', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'about', 'up', 'out', 'if', 'so', 'than', 'very', 'just', 'now', 'then', 'here', 'there', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them']);
+  
+  const words = cleaned
+    .replace(/[^\w\s]/g, ' ') // Remove punctuation
+    .split(/\s+/)
+    .filter(word => word.length > 2 && !stopWords.has(word))
+    .slice(0, 3); // Take up to 3 meaningful words
+  
+  if (words.length === 0) {
+    return 'New Chat';
+  }
+  
+  // Capitalize first letter of each word
+  const title = words
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  
+  // Limit to 20 characters
+  return title.length > 20 ? title.substring(0, 17) + '...' : title;
+}
+
 async function generateAIResponseWithVision(userMessage: string, vibe: string, attachments: any[]) {
   const apiKey = process.env.GROQ_API_KEY;
   
