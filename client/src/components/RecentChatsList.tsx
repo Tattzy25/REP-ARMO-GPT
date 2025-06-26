@@ -5,9 +5,7 @@ import { Clock } from 'lucide-react';
 interface ChatSession {
   id: number;
   vibe: string;
-  title?: string;
   createdAt: string;
-  lastActiveAt: string;
 }
 
 interface RecentChatsListProps {
@@ -45,6 +43,18 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
     return date.toLocaleDateString();
+  };
+
+  const generateChatTitle = (vibe: string) => {
+    const titles = {
+      default: ['General Chat', 'Casual Talk', 'Daily Chat'],
+      roast: ['Roast Session', 'Savage Mode', 'No Mercy Chat'],
+      call: ['Voice Call', 'Phone Chat', 'Audio Session'],
+      famous: ['Fame Talk', 'Celebrity Mode', 'Star Chat']
+    };
+    
+    const vibeTitle = titles[vibe as keyof typeof titles] || titles.default;
+    return vibeTitle[Math.floor(Math.random() * vibeTitle.length)];
   };
 
   if (isLoading) {
@@ -92,7 +102,7 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-white text-sm truncate">
-                {chat.title || `${chat.vibe.charAt(0).toUpperCase() + chat.vibe.slice(1)} Chat`}
+                {generateChatTitle(chat.vibe)}
               </h4>
               <p className="text-xs text-gray-400 mt-1">
                 {chat.vibe.charAt(0).toUpperCase() + chat.vibe.slice(1)} mode
@@ -100,7 +110,7 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
             </div>
             <div className="text-xs text-gray-500 flex items-center">
               <Clock className="w-3 h-3 mr-1" />
-              {formatDate(chat.lastActiveAt || chat.createdAt)}
+              {formatDate(chat.createdAt)}
             </div>
           </div>
         </motion.button>

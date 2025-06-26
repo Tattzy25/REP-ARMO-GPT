@@ -11,11 +11,8 @@ export const users = pgTable("users", {
 export const chatSessions = pgTable("chat_sessions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
-  vibe: varchar("vibe", { length: 50 }).notNull(),
-  title: varchar("title", { length: 200 }),
-  isArchived: boolean("is_archived").default(false),
+  vibe: text("vibe").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-  lastActiveAt: timestamp("last_active_at").defaultNow(),
 });
 
 export const messages = pgTable("messages", {
@@ -46,8 +43,6 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertChatSessionSchema = createInsertSchema(chatSessions).omit({
   id: true,
   createdAt: true,
-  lastActiveAt: true,
-  isArchived: true,
 });
 
 export const insertMessageSchema = createInsertSchema(messages).omit({
