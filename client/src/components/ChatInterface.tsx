@@ -77,6 +77,18 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
     mutationFn: (vibe: string) => chatApi.createSession(vibe),
     onSuccess: (session) => {
       setSessionId(session.id);
+      // Show welcome message only for new sessions created from scratch
+      if (!currentSessionId && messages.length === 0) {
+        const welcomeMessage: ChatMessage = {
+          id: -1,
+          sessionId: session.id,
+          sender: 'armo',
+          content: "Hi hopar is listening, How is Armo Hopar helping you destroy your ego today?",
+          createdAt: new Date().toISOString(),
+          metadata: { isWelcome: true }
+        };
+        setMessages([welcomeMessage]);
+      }
     },
   });
 
@@ -118,21 +130,23 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
         setSessionId(chatHistory.sessionId);
         setMessages(chatHistory.messages);
       } else {
-        // Create new session
-        createSessionMutation.mutate(currentVibe);
-        // Add welcome message
-        if (vibeConfig.welcomeMessage) {
-          setMessages([{
-            id: 0,
+        // Show welcome message for new sessions without a specific sessionId
+        if (!currentSessionId) {
+          const welcomeMessage: ChatMessage = {
+            id: -1,
             sessionId: 0,
             sender: 'armo',
-            content: vibeConfig.welcomeMessage,
-            createdAt: new Date().toISOString()
-          }]);
+            content: "Hi hopar is listening, How is Armo Hopar helping you destroy your ego today?",
+            createdAt: new Date().toISOString(),
+            metadata: { isWelcome: true }
+          };
+          setMessages([welcomeMessage]);
         }
+        // Create new session
+        createSessionMutation.mutate(currentVibe);
       }
     }
-  }, [chatHistory, currentVibe]);
+  }, [chatHistory, currentVibe, currentSessionId]);
 
   // Auto-scroll to bottom
   useEffect(() => {
