@@ -313,9 +313,34 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
               </button>
               
               <button 
-                onClick={() => {
-                  setIsDropdownOpen(false);
-                  onVibeSelect('default'); // Start new chat with default vibe
+                onClick={async () => {
+                  try {
+                    setIsDropdownOpen(false);
+                    console.log('Creating new chat for vibe:', currentVibe);
+                    
+                    const response = await fetch('/api/chat/session', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ vibe: currentVibe }),
+                    });
+                    
+                    if (!response.ok) {
+                      const errorText = await response.text();
+                      throw new Error(`Failed to create session: ${response.status} ${errorText}`);
+                    }
+                    
+                    const newSession = await response.json();
+                    console.log('Created new session:', newSession);
+                    
+                    if (onSelectChat && newSession.id) {
+                      onSelectChat(newSession.id, currentVibe);
+                    }
+                  } catch (error) {
+                    console.error('Error creating new chat:', error);
+                    alert('Failed to create new chat. Please try again.');
+                  }
                 }}
                 className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl border-none cursor-pointer font-bold text-xs uppercase transition-all duration-200"
                 style={{

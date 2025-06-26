@@ -14,6 +14,7 @@ type AppState = "lobby" | "chat" | "call";
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
   const [currentVibe, setCurrentVibe] = useState<string>("default");
+  const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -139,6 +140,7 @@ function App() {
                 onBackToLobby={handleBackToLobby}
                 isSidebarCollapsed={isSidebarCollapsed}
                 isMobile={isMobile}
+                currentSessionId={currentSessionId}
                 currentSessionId={currentSessionId}
               />
             )}

@@ -1,6 +1,11 @@
-import { users, chatSessions, messages, type User, type InsertUser, type ChatSession, type InsertChatSession, type Message, type InsertMessage } from "@shared/schema";
+import { 
+  users, chatSessions, messages, activityLogs, errorLogs, tempStorage,
+  type User, type InsertUser, type ChatSession, type InsertChatSession, 
+  type Message, type InsertMessage, type InsertActivityLog, type ActivityLog,
+  type InsertErrorLog, type ErrorLog, type InsertTempStorage, type TempStorage
+} from "@shared/schema";
 import { db } from "./db";
-import { eq, and, isNull, desc } from "drizzle-orm";
+import { eq, and, isNull, desc, lt } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -14,6 +19,16 @@ export interface IStorage {
   
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesBySession(sessionId: number): Promise<Message[]>;
+  
+  // Logging methods
+  logActivity(log: InsertActivityLog): Promise<ActivityLog>;
+  logError(log: InsertErrorLog): Promise<ErrorLog>;
+  
+  // Temporary storage methods
+  setTempData(key: string, value: any, expiresInMinutes?: number): Promise<TempStorage>;
+  getTempData(key: string): Promise<any | null>;
+  deleteTempData(key: string): Promise<void>;
+  cleanupExpiredTempData(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -79,6 +94,70 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(messages)
       .where(eq(messages.sessionId, sessionId));
+  }
+
+  async logActivity(insertLog: InsertActivityLog): Promise<ActivityLog> {
+    const [log] = await db
+      .insert(activityLogs)
+      .values(insertLog)
+      .returning();
+    return log;
+  }
+
+  async logError(insertLog: InsertErrorLog): Promise<ErrorLog> {
+    const [log] = await db
+      .insert(errorLogs)
+      .values(insertLog)
+      .returning();
+    return log;
+  }
+
+  async setTempData(key: string, value: any, expiresInMinutes = 60): Promise<TempStorage> {
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + expiresInMinutes);
+
+    await db.delete(tempStorage).where(eq(tempStorage.key, key));
+
+    const [data] = await db
+      .insert(tempStorage)
+      .values({
+        key,
+        value: JSON.stringify(value),
+        expiresAt,
+      })
+      .returning();
+    return data;
+  }
+
+  async getTempData(key: string): Promise<any | null> {
+    const [data] = await db
+      .select()
+      .from(tempStorage)
+      .where(eq(tempStorage.key, key))
+      .limit(1);
+
+    if (!data) return null;
+
+    if (data.expiresAt && new Date() > data.expiresAt) {
+      await db.delete(tempStorage).where(eq(tempStorage.id, data.id));
+      return null;
+    }
+
+    try {
+      return JSON.parse(data.value);
+    } catch {
+      return data.value;
+    }
+  }
+
+  async deleteTempData(key: string): Promise<void> {
+    await db.delete(tempStorage).where(eq(tempStorage.key, key));
+  }
+
+  async cleanupExpiredTempData(): Promise<void> {
+    await db
+      .delete(tempStorage)
+      .where(lt(tempStorage.expiresAt, new Date()));
   }
 }
 

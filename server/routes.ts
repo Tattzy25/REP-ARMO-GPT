@@ -84,10 +84,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         vibe: vibe
       });
       
+      // Log activity
+      await storage.logActivity({
+        userId: null,
+        sessionId: session.id,
+        action: 'session_created',
+        details: JSON.stringify({ vibe }),
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent') || null,
+      });
+      
       console.log('Created session:', session);
       res.json(session);
     } catch (error) {
       console.error('Error creating session:', error);
+      
+      // Log error
+      await storage.logError({
+        userId: null,
+        sessionId: null,
+        errorType: 'api_error',
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        stackTrace: error instanceof Error ? error.stack : null,
+        requestData: JSON.stringify(req.body),
+      });
+      
       res.status(500).json({ error: "Failed to create session" });
     }
   });
