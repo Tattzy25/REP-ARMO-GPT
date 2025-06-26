@@ -155,6 +155,9 @@ The application features multiple AI personality modes:
 - June 26, 2025. Replaced Web Speech API with Google Gemini STT for more accurate transcription
 - June 26, 2025. Implemented audio recording with MediaRecorder API and Gemini audio processing
 - June 26, 2025. Added visual feedback for recording and transcription states with different colors
+- June 26, 2025. Created full-screen VoiceCallInterface component with phone call-like immersive experience
+- June 26, 2025. Implemented touchless voice interaction with visual audio waveform and status indicators
+- June 26, 2025. Added back button for returning to chat and integrated voice interface popup trigger
 
 ## User Preferences
 

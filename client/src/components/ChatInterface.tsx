@@ -340,6 +340,14 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
           hasStagedFiles={stagedFiles.length > 0}
         />
       </div>
+
+      {/* Voice Call Interface Overlay */}
+      {showVoiceInterface && (
+        <VoiceCallInterface 
+          onClose={() => setShowVoiceInterface(false)}
+          currentVibe={currentVibe}
+        />
+      )}
     </div>
   );
 }
