@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -167,6 +167,18 @@ export const userBehaviorTracking = pgTable("user_behavior_tracking", {
   conversationTopic: varchar("conversation_topic", { length: 100 }),
   responseTime: integer("response_time"), // seconds between messages
   messageLength: integer("message_length"), // character count
+  detectedMood: varchar("detected_mood", { length: 50 }), // "flirty", "savage", "emotional", "annoyed"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const moodTriggers = pgTable("mood_triggers", {
+  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "trigger_flirty_1", "trigger_savage_2"
+  moodType: varchar("mood_type", { length: 50 }).notNull(), // "flirty", "savage", "emotional", "annoyed"
+  language: varchar("language", { length: 20 }).notNull(), // "english", "armenian"
+  triggerWord: varchar("trigger_word", { length: 100 }).notNull(),
+  translation: varchar("translation", { length: 100 }), // English translation for Armenian words
+  weight: real("weight").default(1.0).notNull(), // How strong this trigger is (0.1 to 2.0)
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -189,6 +201,11 @@ export const insertUserPersonaSettingsSchema = createInsertSchema(userPersonaSet
 });
 
 export const insertUserBehaviorTrackingSchema = createInsertSchema(userBehaviorTracking).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertMoodTriggerSchema = createInsertSchema(moodTriggers).omit({
   createdAt: true,
 });
 
@@ -203,3 +220,5 @@ export type InsertUserPersonaSettings = z.infer<typeof insertUserPersonaSettings
 export type UserPersonaSettings = typeof userPersonaSettings.$inferSelect;
 export type InsertUserBehaviorTracking = z.infer<typeof insertUserBehaviorTrackingSchema>;
 export type UserBehaviorTracking = typeof userBehaviorTracking.$inferSelect;
+export type InsertMoodTrigger = z.infer<typeof insertMoodTriggerSchema>;
+export type MoodTrigger = typeof moodTriggers.$inferSelect;
