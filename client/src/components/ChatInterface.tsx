@@ -6,6 +6,7 @@ import { chatApi, type ChatMessage } from "@/lib/api";
 import { vibeConfigs } from "@/lib/vibes";
 import StreamingMessage from "./StreamingMessage";
 import InputArea from "./InputArea";
+import VoiceCallInterface from "./VoiceCallInterface";
 
 interface ChatInterfaceProps {
   currentVibe: string;
@@ -43,6 +44,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [streamingMessage, setStreamingMessage] = useState<string | null>(null);
   const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([]);
+  const [showVoiceInterface, setShowVoiceInterface] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
