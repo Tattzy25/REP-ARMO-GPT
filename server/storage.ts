@@ -16,6 +16,8 @@ export interface IStorage {
   getChatSession(id: number): Promise<ChatSession | undefined>;
   getChatSessionsByUserAndVibe(userId: number | null, vibe: string): Promise<ChatSession[]>;
   getRecentChatSessions(userId: number | null, limit?: number): Promise<ChatSession[]>;
+  deleteChatSession(id: number): Promise<void>;
+  extendChatSession(id: number): Promise<void>;
   
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesBySession(sessionId: number): Promise<Message[]>;

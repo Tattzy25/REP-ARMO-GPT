@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, MoreVertical, Trash2, Calendar } from 'lucide-react';
 
 interface ChatSession {
   id: number;
@@ -15,6 +15,7 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
   const [recentChats, setRecentChats] = useState<ChatSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<number | null>(null);
 
   useEffect(() => {
     fetchRecentChats();
@@ -55,33 +56,82 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
     }
   };
 
+  const deleteChat = async (chatId: number) => {
+    try {
+      const response = await fetch(`/api/chat/session/${chatId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        setRecentChats(prev => prev.filter(chat => chat.id !== chatId));
+        setActiveMenu(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete chat:', error);
+    }
+  };
+
+  const extendChat = async (chatId: number) => {
+    try {
+      const response = await fetch(`/api/chat/session/${chatId}/extend`, {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        setActiveMenu(null);
+        // Could show a success message here
+      }
+    } catch (error) {
+      console.error('Failed to extend chat:', error);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
       const now = new Date();
       const diffInMs = now.getTime() - date.getTime();
+      const diffInMinutes = diffInMs / (1000 * 60);
       const diffInHours = diffInMs / (1000 * 60 * 60);
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
       
-      if (diffInHours < 1) {
+      if (diffInMinutes < 1) {
         return 'Just now';
+      } else if (diffInMinutes < 60) {
+        return `${Math.floor(diffInMinutes)}m ago`;
       } else if (diffInHours < 24) {
         return `${Math.floor(diffInHours)}h ago`;
+      } else if (diffInDays < 7) {
+        return `${Math.floor(diffInDays)}d ago`;
       } else {
-        return date.toLocaleDateString();
+        return date.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+        });
       }
     } catch {
       return 'Unknown';
     }
   };
 
-  const getVibeDisplayName = (vibe: string) => {
+  const generateChatTitle = (vibe: string, createdAt: string) => {
+    const date = new Date(createdAt);
+    const timeStr = date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    
     const vibeNames: Record<string, string> = {
-      'default': 'Default Chat',
-      'roast': 'Roast Mode',
-      'famous': 'Famous Mode',
+      'default': 'Chat',
+      'roast': 'Roast Session',
+      'famous': 'Fame Strategy',
       'call': 'Voice Call',
     };
-    return vibeNames[vibe] || vibe.charAt(0).toUpperCase() + vibe.slice(1);
+    
+    const baseName = vibeNames[vibe] || 'Chat';
+    return `${baseName} ${timeStr}`;
   };
 
   if (isLoading) {
@@ -117,35 +167,84 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
   }
 
   return (
-    <div className="space-y-2 max-h-64 overflow-y-auto p-4">
+    <div className="space-y-2 max-h-64 p-4" style={{ 
+      overflowY: 'auto',
+      scrollbarWidth: 'none', // Firefox
+      msOverflowStyle: 'none', // IE/Edge
+    }}>
+      <style jsx>{`
+        div::-webkit-scrollbar {
+          display: none; /* Chrome/Safari */
+        }
+      `}</style>
       <h3 className="text-white font-semibold text-sm mb-3">Recent Chats</h3>
       {recentChats.map((chat) => (
-        <button
-          key={chat.id}
-          onClick={() => onSelectChat(chat.id, chat.vibe)}
-          className="w-full text-left p-3 rounded-lg transition-all duration-200"
-          style={{
-            background: '#2e2e2e',
-            boxShadow: '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d',
-          }}
-          onMouseEnter={(e) => {
-            const target = e.currentTarget;
-            target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-            target.style.boxShadow = 'none';
-          }}
-          onMouseLeave={(e) => {
-            const target = e.currentTarget;
-            target.style.background = '#2e2e2e';
-            target.style.boxShadow = '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d';
-          }}
-        >
-          <div className="text-white font-medium text-sm">
-            {getVibeDisplayName(chat.vibe)}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">
-            {formatDate(chat.createdAt)}
-          </div>
-        </button>
+        <div key={chat.id} className="relative">
+          <button
+            onClick={() => onSelectChat(chat.id, chat.vibe)}
+            className="w-full text-left p-3 rounded-lg transition-all duration-200 relative group"
+            style={{
+              background: '#2e2e2e',
+              boxShadow: '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d',
+            }}
+            onMouseEnter={(e) => {
+              const target = e.currentTarget;
+              target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+              target.style.boxShadow = 'none';
+            }}
+            onMouseLeave={(e) => {
+              const target = e.currentTarget;
+              target.style.background = '#2e2e2e';
+              target.style.boxShadow = '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d';
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="text-white font-medium text-sm">
+                  {generateChatTitle(chat.vibe, chat.createdAt)}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {formatDate(chat.createdAt)}
+                </div>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveMenu(activeMenu === chat.id ? null : chat.id);
+                }}
+                className="opacity-0 group-hover:opacity-100 p-1 rounded transition-opacity"
+                style={{ background: 'rgba(255,255,255,0.1)' }}
+              >
+                <MoreVertical className="w-3 h-3 text-white" />
+              </button>
+            </div>
+          </button>
+          
+          {activeMenu === chat.id && (
+            <div 
+              className="absolute right-0 top-full mt-1 z-50 rounded-lg overflow-hidden"
+              style={{
+                background: '#2e2e2e',
+                boxShadow: '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d',
+              }}
+            >
+              <button
+                onClick={() => extendChat(chat.id)}
+                className="w-full px-3 py-2 text-left text-xs text-white hover:bg-gray-600 flex items-center"
+              >
+                <Calendar className="w-3 h-3 mr-2" />
+                Extend 30 days
+              </button>
+              <button
+                onClick={() => deleteChat(chat.id)}
+                className="w-full px-3 py-2 text-left text-xs text-red-400 hover:bg-gray-600 flex items-center"
+              >
+                <Trash2 className="w-3 h-3 mr-2" />
+                Delete chat
+              </button>
+            </div>
+          )}
+        </div>
       ))}
     </div>
   );

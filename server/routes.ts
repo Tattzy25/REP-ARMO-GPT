@@ -113,6 +113,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete a chat session
+  app.delete("/api/chat/session/:id", async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      await storage.deleteChatSession(sessionId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      res.status(500).json({ error: "Failed to delete session" });
+    }
+  });
+
+  // Extend a chat session
+  app.post("/api/chat/session/:id/extend", async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      await storage.extendChatSession(sessionId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error extending session:', error);
+      res.status(500).json({ error: "Failed to extend session" });
+    }
+  });
+
   // Get messages for a specific session
   app.get("/api/chat/session/:sessionId/messages", async (req, res) => {
     try {
