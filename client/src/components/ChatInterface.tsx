@@ -53,8 +53,23 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
   // Load chat history
   const { data: chatHistory, isLoading } = useQuery({
-    queryKey: ['/api/chat', currentVibe, 'history'],
-    queryFn: () => chatApi.getChatHistory(currentVibe),
+    queryKey: ['/api/chat', currentVibe, 'history', currentSessionId],
+    queryFn: async () => {
+      console.log('Fetching chat history for vibe:', currentVibe, 'sessionId:', currentSessionId);
+      
+      // If we have a specific session ID, fetch that session's messages
+      if (currentSessionId) {
+        const response = await fetch(`/api/chat/session/${currentSessionId}/messages`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch session messages');
+        }
+        const messages = await response.json();
+        return { sessionId: currentSessionId, messages };
+      }
+      
+      // Otherwise, fetch or create a session for this vibe
+      return chatApi.getChatHistory(currentVibe);
+    },
   });
 
   // Create session mutation
@@ -135,8 +150,7 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
   };
 
   const handleVoiceToggle = () => {
-    // TODO: Implement voice functionality
-    console.log('Voice toggle');
+    setShowVoiceInterface(true);
   };
 
   const handleFileUpload = async (file: File) => {

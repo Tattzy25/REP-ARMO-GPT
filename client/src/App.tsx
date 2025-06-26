@@ -31,6 +31,7 @@ function App() {
 
   const handleVibeSelect = (vibe: string) => {
     setCurrentVibe(vibe);
+    setCurrentSessionId(null); // Clear session when switching vibes
     if (vibe === "lobby") {
       setAppState("lobby");
     } else if (vibe === "call") {
@@ -38,6 +39,15 @@ function App() {
     } else if (vibe === "gallery" || vibe === "recent") {
       setAppState("chat"); // For now, these will use the chat interface
     } else {
+      setAppState("chat");
+    }
+  };
+
+  const handleSelectChat = (sessionId: number, vibe: string) => {
+    console.log('Selecting chat session:', { sessionId, vibe });
+    setCurrentVibe(vibe);
+    setCurrentSessionId(sessionId);
+    if (appState === "lobby") {
       setAppState("chat");
     }
   };
@@ -108,6 +118,7 @@ function App() {
               }}
               onSidebarToggle={setIsSidebarCollapsed}
               isMobile={isMobile}
+              onSelectChat={handleSelectChat}
             />
           </div>
 
@@ -128,6 +139,7 @@ function App() {
                 onBackToLobby={handleBackToLobby}
                 isSidebarCollapsed={isSidebarCollapsed}
                 isMobile={isMobile}
+                currentSessionId={currentSessionId}
               />
             )}
 
