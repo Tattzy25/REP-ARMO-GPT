@@ -336,11 +336,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                     
                     if (onSelectChat && newSession.id) {
                       onSelectChat(newSession.id, currentVibe);
-                      // Refresh recent chats list to show the new session
-                      setTimeout(() => {
-                        setShowRecentChats(false);
-                        setShowRecentChats(true);
-                      }, 100);
+                      // Show recent chats automatically after creating new session
+                      setShowRecentChats(true);
                     }
                   } catch (error) {
                     console.error('Error creating new chat:', error);

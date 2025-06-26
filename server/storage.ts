@@ -58,16 +58,26 @@ export class DatabaseStorage implements IStorage {
     return session;
   }
 
-  async getRecentChatSessions(userId: number | null, limit = 5): Promise<ChatSession[]> {
-    const sessions = await db
-      .select()
+  async getRecentChatSessions(userId: number | null, limit = 10): Promise<ChatSession[]> {
+    // Only return sessions that have messages
+    const sessionsWithMessages = await db
+      .select({
+        id: chatSessions.id,
+        userId: chatSessions.userId,
+        vibe: chatSessions.vibe,
+        createdAt: chatSessions.createdAt
+      })
       .from(chatSessions)
+      .innerJoin(messages, eq(chatSessions.id, messages.sessionId))
       .where(
         userId ? eq(chatSessions.userId, userId) : isNull(chatSessions.userId)
       )
+      .groupBy(chatSessions.id, chatSessions.userId, chatSessions.vibe, chatSessions.createdAt)
       .orderBy(desc(chatSessions.createdAt))
       .limit(limit);
-    return sessions;
+    
+    console.log('Sessions with messages found:', sessionsWithMessages.length);
+    return sessionsWithMessages;
   }
 
   async getChatSession(id: number): Promise<ChatSession | undefined> {

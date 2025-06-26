@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 
 interface ChatSession {
@@ -42,83 +41,76 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = diffInMs / (1000 * 60 * 60);
     
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-    return date.toLocaleDateString();
+    if (diffInHours < 1) {
+      return 'Just now';
+    } else if (diffInHours < 24) {
+      return `${Math.floor(diffInHours)}h ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
   };
 
-  const generateChatTitle = (vibe: string) => {
-    const titles = {
-      default: ['General Chat', 'Casual Talk', 'Daily Chat'],
-      roast: ['Roast Session', 'Savage Mode', 'No Mercy Chat'],
-      call: ['Voice Call', 'Phone Chat', 'Audio Session'],
-      famous: ['Fame Talk', 'Celebrity Mode', 'Star Chat']
+  const getVibeDisplayName = (vibe: string) => {
+    const vibeNames: Record<string, string> = {
+      'default': 'Default Chat',
+      'roast': 'Roast Mode',
+      'famous': 'Famous Mode',
+      'call': 'Voice Call',
     };
-    
-    const vibeTitle = titles[vibe as keyof typeof titles] || titles.default;
-    return vibeTitle[Math.floor(Math.random() * vibeTitle.length)];
+    return vibeNames[vibe] || vibe.charAt(0).toUpperCase() + vibe.slice(1);
   };
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      <div className="p-4">
+        <div className="text-sm text-gray-400">Loading recent chats...</div>
       </div>
     );
   }
 
   if (recentChats.length === 0) {
     return (
-      <div className="text-center p-8 text-gray-400">
-        <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <p>No recent chats</p>
-        <p className="text-sm mt-2">Start a new conversation to see your chat history here</p>
+      <div className="p-4">
+        <Clock className="w-8 h-8 mx-auto mb-2 text-gray-500" />
+        <div className="text-sm text-gray-400 text-center">No recent chats</div>
+        <div className="text-xs text-gray-500 mt-1 text-center">Start chatting to see history here!</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3 p-4">
-      <h3 className="text-lg font-bold text-white mb-4 text-center">Recent Chats</h3>
-      {recentChats.map((chat, index) => (
-        <motion.button
+    <div className="space-y-2 max-h-64 overflow-y-auto p-4">
+      <h3 className="text-white font-semibold text-sm mb-3">Recent Chats</h3>
+      {recentChats.map((chat) => (
+        <button
           key={chat.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
           onClick={() => onSelectChat(chat.id, chat.vibe)}
-          className="w-full p-4 rounded-xl text-left transition-all duration-200 group"
+          className="w-full text-left p-3 rounded-lg transition-all duration-200"
           style={{
-            background: '#3a3a3a',
-            boxShadow: '4px 4px 8px #2e2e2e, -4px -4px 8px #464646'
+            background: '#2e2e2e',
+            boxShadow: '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
+            const target = e.target as HTMLButtonElement;
+            target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            target.style.boxShadow = 'none';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#3a3a3a';
-            e.currentTarget.style.transform = 'translateY(0)';
+            const target = e.target as HTMLButtonElement;
+            target.style.background = '#2e2e2e';
+            target.style.boxShadow = '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d';
           }}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-white text-sm truncate">
-                {generateChatTitle(chat.vibe)}
-              </h4>
-              <p className="text-xs text-gray-400 mt-1">
-                {chat.vibe.charAt(0).toUpperCase() + chat.vibe.slice(1)} mode
-              </p>
-            </div>
-            <div className="text-xs text-gray-500 flex items-center">
-              <Clock className="w-3 h-3 mr-1" />
-              {formatDate(chat.createdAt)}
-            </div>
+          <div className="text-white font-medium text-sm">
+            {getVibeDisplayName(chat.vibe)}
           </div>
-        </motion.button>
+          <div className="text-xs text-gray-400 mt-1">
+            {formatDate(chat.createdAt)}
+          </div>
+        </button>
       ))}
     </div>
   );
