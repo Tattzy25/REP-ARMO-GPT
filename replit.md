@@ -64,10 +64,12 @@ The application features multiple AI personality modes:
 - **Validation**: Zod for schema validation
 - **Animation**: Framer Motion for interactive animations
 
-### Planned Integrations
-- **AI Services**: GROQ API for chat completions
-- **Voice**: ElevenLabs API for text-to-speech
-- **Search**: Tavily API for web search capabilities
+### AI Integration (ACTIVE)
+- **Chat AI**: Groq API with meta-llama/llama-4-scout-17b-16e-instruct model for all text conversations
+- **Vision Analysis**: Groq API with meta-llama/llama-4-scout-17b-16e-instruct for image analysis  
+- **Voice Transcription**: Google Gemini API for speech-to-text conversion
+- **Text-to-Speech**: ElevenLabs API for high-quality voice synthesis
+- **Search**: Tavily API for web search capabilities (configured but not active)
 
 ## Deployment Strategy
 
