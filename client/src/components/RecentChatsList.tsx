@@ -22,10 +22,15 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
 
   const fetchRecentChats = async () => {
     try {
+      console.log('Fetching recent chats...');
       const response = await fetch('/api/chat/recent');
+      
       if (response.ok) {
         const chats = await response.json();
+        console.log('Recent chats received:', chats);
         setRecentChats(chats);
+      } else {
+        console.error('Failed to fetch recent chats - Response not OK:', response.status);
       }
     } catch (error) {
       console.error('Failed to fetch recent chats:', error);
