@@ -7,14 +7,16 @@ import { Menu, X } from "lucide-react";
 import ArmoLobby from "@/components/ArmoLobby";
 import ChatInterface from "@/components/ChatInterface";
 import CallInterface from "@/components/CallInterface";
+import FormFeatureInterface from "@/components/FormFeatureInterface";
 import Sidebar from "@/components/Sidebar";
 
-type AppState = "lobby" | "chat" | "call";
+type AppState = "lobby" | "chat" | "call" | "form";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
   const [currentVibe, setCurrentVibe] = useState<string>("default");
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
+  const [currentFeatureId, setCurrentFeatureId] = useState<'alibi' | 'famous' | 'hired' | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -33,12 +35,17 @@ function App() {
   const handleVibeSelect = (vibe: string) => {
     setCurrentVibe(vibe);
     setCurrentSessionId(null); // Clear session when switching vibes
+    
     if (vibe === "lobby") {
       setAppState("lobby");
     } else if (vibe === "call") {
       setAppState("call");
     } else if (vibe === "gallery" || vibe === "recent") {
       setAppState("chat"); // For now, these will use the chat interface
+    } else if (vibe === "alibi" || vibe === "famous" || vibe === "hired") {
+      // Form-based features
+      setCurrentFeatureId(vibe as 'alibi' | 'famous' | 'hired');
+      setAppState("form");
     } else {
       setAppState("chat");
     }
@@ -56,6 +63,7 @@ function App() {
   const handleBackToLobby = () => {
     setAppState("lobby");
     setCurrentVibe("default");
+    setCurrentFeatureId(null);
   };
 
   const handleEndCall = () => {
@@ -145,6 +153,13 @@ function App() {
             )}
 
             {appState === "call" && <CallInterface onEndCall={handleEndCall} />}
+
+            {appState === "form" && currentFeatureId && (
+              <FormFeatureInterface
+                featureId={currentFeatureId}
+                onBack={handleBackToLobby}
+              />
+            )}
           </div>
         </div>
       </TooltipProvider>
