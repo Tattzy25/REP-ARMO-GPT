@@ -1,0 +1,69 @@
+Armo Hopar System Prompts, Language Rules, Seed Content, and API Design
+
+Persona Content Population and Management API Design
+Content Population: System Prompts, Language Rules, and Seed Content
+To create rich, consistent AI personas, we should expand each persona profile with three key elements: a system prompt, defined language rules, and seed content/context. These elements will be stored in the persona’s definition and injected into the AI’s context to guide its behavior and knowledge.
+System Prompts: A system prompt is an initial instruction that defines the AI’s role or persona and how it should behave
+cloud.google.com
+. For example, a system prompt might say “You are a friendly, straight-talking financial advisor who provides no-nonsense investment advice.” This guides the model’s tone and focus from the start. Assigning a clear persona via the system prompt helps align the style and tone of responses with that character
+learnprompting.org
+. In practice, system prompts are processed before user messages, ensuring the model consistently behaves according to the persona’s identity and goals
+cloud.google.com
+. We will create a specific system prompt for each persona in our system (e.g. Therapist persona, On-Call Friend persona, etc.), encapsulating how that character should speak, what perspective they have, and any primary objective or restriction they should follow.
+Language Rules and Style Guidelines: In addition to a general persona definition, we will include explicit rules or guidelines about the persona’s language and style. This can include the tone of voice, formality level, use of slang or technical jargon, and any phrases they should or should not use. For instance, a persona’s rules might specify that it “speaks in a playful, Gen-Z slang style” or “avoids profanity unless the user uses it first.” These rules further refine consistency. Such style instructions can be part of the system prompt or a structured profile — e.g. specifying desired tone, personality traits, and vocabulary
+github.com
+. By defining language rules, we ensure the AI’s responses remain on-brand for the persona across all interactions
+cloud.google.com
+. (For example, our Therapist Kyartu persona might always respond with a mix of empathy and sarcasm as defined by its style rules, whereas an Encouraging Coach persona would use upbeat, motivating language.)
+Seed Content (Contextual Knowledge): Seed content refers to any background information or domain knowledge we provide to the AI to “ground” the persona in facts or context. This could be a brief bio of the persona, key facts they should know, or example Q&A exchanges demonstrating their expertise. Including this content as part of the persona ensures the AI has relevant information to draw upon, reducing hallucinations and making responses more concrete. System instructions can incorporate such additional context for the prompt
+cloud.google.com
+. For example, for a Finance Guru persona, we might include a few bullet points about current market trends or the persona’s credentials, and for a fictional persona, we might include their backstory. In the persona profiles, we can have fields for knowledge domains or background info; for instance, an AI persona inspired by Albert Einstein might have entries for physics and philosophy knowledge domains
+github.com
+. This seed content will be loaded into the conversation (e.g. as part of the system prompt or initial messages) so the model can use it when responding. It acts as the persona’s "memory" or grounding data.
+All these components will be added to our persona definition files (which are currently simple persona.js objects). We will extend the persona schema to include fields for the system prompt text, the language/style rules, and the seed content. Storing these details in a structured format (e.g. JSON or YAML) allows us to easily load and update persona profiles
+github.com
+. For example, a persona’s JSON might include sections for personal background, communication style, and knowledge areas, as seen in an illustrative persona config below:
+json
+Copy
+Edit
+{
+  "name": "Example Persona",
+  "description": "Brief description of the persona’s role.",
+  "language_style": {
+    "tone": "Thoughtful, inquisitive",
+    "common_phrases": ["Let me think about that.", "Here's an idea:"]
+  },
+  "knowledge_domains": {
+    "finance": ["stocks", "real estate", "retirement planning"],
+    "philosophy": ["stoicism", "ethics"]
+  }
+  /* ...other fields like system_prompt, initial_message... */
+}
+(The above structure is inspired by known persona configuration examples
+github.com
+.) We will populate each persona profile with appropriate content in these fields. This means writing a tailored system prompt per persona, defining their speech style rules, and providing any seed info that persona should know. Once this content population is done, our AI personas will have a much more grounded, distinctive, and consistent voice, leading to responses that are accurate and on-point with their intended character
+learnprompting.org
+.
+Exposing Persona Management via REST API for Configuration
+After enriching the persona definitions, we need a convenient way to manage them. Exposing persona management through a REST API means creating backend endpoints that allow creation, retrieval, updating, and deletion of persona profiles. This will enable a configuration interface (for example, an admin web UI or developer tool) to interact with personas without directly modifying files or code. In simpler terms, we’ll build a set of CRUD (Create, Read, Update, Delete) API endpoints for personas, so that personas can be treated as data managed via HTTP requests. Why an API? By having a RESTful API for persona management, non-developers or UI components can easily view all available personas, add new ones, tweak existing ones, or remove ones that are no longer needed – all through standard web calls. This decouples the persona configuration from the application’s internal code. A product manager or content designer could use a web interface to update a persona’s prompt or rules, and the changes would take effect via the API without a full redeploy. It also helps to integrate with front-end interfaces where you might list personas in a dashboard, allow editing in a form, etc. The API will be the bridge between that UI and the underlying persona data store. API Design: We will implement a set of endpoints (e.g., using a framework like FastAPI or Express) that follow REST conventions for persona resources. Common endpoints will include:
+List Personas – e.g. GET /api/v1/personas: Returns a list of all persona profiles with their basic details
+github.com
+. This allows the configuration UI to display all available personas in the system.
+Get Persona Details – e.g. GET /api/v1/personas/{id}: Returns the full details of a specific persona (including its system prompt, rules, seed content, etc.)
+github.com
+. This is used when viewing or editing a particular persona’s configuration.
+Create Persona – e.g. POST /api/v1/personas: Allows adding a new persona by sending a JSON payload with all necessary fields
+github.com
+ (name, description, prompt, rules, etc.). The API would validate and store this new persona (in a database or file).
+Update Persona – e.g. PUT /api/v1/personas/{id}: Allows modifying an existing persona’s data
+github.com
+. For example, if we want to change the language style or update the seed content for a persona, the UI would send a PUT request with the revised fields.
+Delete Persona – e.g. DELETE /api/v1/personas/{id}: Removes a persona from the system
+github.com
+. This would typically be restricted to authorized users in a real setup.
+Each of these endpoints will interface with our persona storage. For instance, if we store personas in JSON/YAML files or a database table, the API layer will load or update those. The design is similar to what an existing persona management framework might do – for example, one open-source project provides a comprehensive REST API for managing personas (alongside agents and sessions)
+github.com
+. In our case, we focus on the persona aspect for configuration. The API will likely use an internal Persona Manager component to handle the actual reading/writing of persona data, ensuring consistency. Integration with Configuration Interfaces: With these endpoints in place, a front-end configuration interface can be built (or an existing admin tool can be used) to manage personas. The interface would call the API to get the list of personas and display them. When a user adds or edits a persona via the UI form, the form submission would trigger a POST/PUT request to the API. Changes made through the API propagate to the stored persona definitions (for example, updating the JSON/YAML file or database record). This real-time update mechanism allows for quick iteration on persona content. Importantly, by using a secure API, we can also enforce authentication/authorization (so only permitted users can change personas). The separation via REST API means the persona configuration could even be managed remotely or integrated with other tools. In summary, exposing persona management through a REST API will make our system much more powerful and flexible. We’ll be able to add specific system prompts, rules, and content for each persona easily (thanks to the structured profile format) and modify personas on the fly via a friendly interface. This design follows best practices seen in similar AI persona frameworks – for example, loading persona profiles from config files and offering endpoints to list or modify them
+github.com
+github.com
+. By implementing this, we ensure our personas are not only well-defined and grounded, but also easy to maintain and evolve as our needs change. Each persona becomes a configurable entity that can be tuned or expanded without diving into code, which aligns with the goal of a robust, configuration-driven persona management system.

@@ -7,6 +7,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
+import personaApiRouter from "./persona-api";
+import { personaAI } from "./ai-persona-integration";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.GROQ_API_KEY_ENV_VAR || "default_key";
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY_ENV_VAR || "default_key";
@@ -45,6 +47,19 @@ if (!fs.existsSync('uploads')) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register persona management API routes
+  app.use("/api", personaApiRouter);
+
+  // Seed endpoint for initial persona data
+  app.post("/api/seed-personas", async (req: Request, res: Response) => {
+    try {
+      const { seedPersonaData } = await import("./seed-personas");
+      const result = await seedPersonaData();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ success: false, error: "Failed to seed persona data" });
+    }
+  });
   
   // Get chat history for a specific vibe
   app.get("/api/chat/:vibe/history", async (req, res) => {
