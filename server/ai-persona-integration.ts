@@ -312,7 +312,7 @@ export class PersonaAIIntegration {
 
   private detectEngagement(message: string, length: number, responseTime: number): { level: string; questionCount: number; emojiCount: number; enthusiasmScore: number } | null {
     const questionCount = (message.match(/\?/g) || []).length;
-    const emojiCount = (message.match(/[😀-🿿]|:\)|:\(|:D|:P/g) || []).length;
+    const emojiCount = (message.match(/😀|😁|😂|😃|😄|😅|😆|😇|😈|😉|😊|😋|😌|😍|😎|😏|😐|😑|😒|😓|😔|😕|😖|😗|😘|😙|😚|😛|😜|😝|😞|😟|😠|😡|😢|😣|😤|😥|😦|😧|😨|😩|😪|😫|😬|😭|😮|😯|😰|😱|😲|😳|😴|😵|😶|😷|😸|😹|😺|😻|😼|😽|😾|😿|🙀|🙁|🙂|🙃|🙄|🙅|🙆|🙇|🙈|🙉|🙊|🙋|🙌|🙍|🙎|🙏|:\)|:\(|:D|:P/g) || []).length;
     const exclamationCount = (message.match(/!/g) || []).length;
     
     const enthusiasmScore = (exclamationCount * 0.2) + (emojiCount * 0.3) + (questionCount * 0.1);

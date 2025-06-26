@@ -208,15 +208,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         console.log('Has images:', hasImages);
 
+        // Analyze user message and get persona context
+        const userId = session.userId || 1; // Default user ID if not set
+        const analysis = await personaAI.analyzeUserMessage(
+          messageData.content, 
+          userId, 
+          messageData.sessionId!, 
+          Date.now(),
+          messageData.content.length
+        );
+        
+        // Get enhanced persona context
+        const personaContext = await personaAI.getPersonaContext(
+          userId, 
+          messageData.sessionId!, 
+          session.vibe
+        );
+        
+        console.log('Persona analysis:', analysis);
+        console.log('Persona level:', personaContext.currentPersonaLevel);
+
         let stream;
         if (hasImages && messageData.metadata && 'attachments' in messageData.metadata) {
-          // Use vision-enabled AI response
-          console.log('Using vision API for image analysis');
-          stream = await generateAIResponseWithVision(messageData.content, session.vibe, messageData.metadata.attachments as any[]);
+          // Use vision-enabled AI response with persona enhancement
+          console.log('Using enhanced vision API for image analysis');
+          stream = await generateAIResponseWithVisionPersona(
+            messageData.content, 
+            session.vibe, 
+            messageData.metadata.attachments as any[],
+            personaContext
+          );
         } else {
-          // Use regular text-only AI response
-          console.log('Using regular text API');
-          stream = await generateAIResponseStream(messageData.content, session.vibe);
+          // Use regular text-only AI response with persona enhancement
+          console.log('Using enhanced persona API');
+          stream = await generateAIResponseStreamPersona(
+            messageData.content, 
+            session.vibe, 
+            personaContext
+          );
         }
         
         let fullResponse = '';
@@ -466,6 +495,210 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// Enhanced AI response with persona integration
+async function generateAIResponseStreamPersona(userMessage: string, vibe: string, personaContext: any) {
+  const apiKey = process.env.GROQ_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY not configured");
+  }
+
+  // Use enhanced system prompt with persona context
+  const systemPrompt = personaAI.buildEnhancedSystemPrompt(personaContext);
+
+  try {
+    console.log(`Generating enhanced AI response for vibe: ${vibe}, persona level: ${personaContext.currentPersonaLevel}`);
+    
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        max_completion_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Groq API error: ${response.status}`);
+    }
+
+    // Parse streaming response
+    if (!response.body) {
+      throw new Error('No response body from Groq API');
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    return {
+      async *[Symbol.asyncIterator]() {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') return;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  yield parsed;
+                } catch (e) {
+                  // Skip invalid JSON
+                }
+              }
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Enhanced Groq API error:', error);
+    // Fall back to regular response
+    return await generateAIResponseStream(userMessage, vibe);
+  }
+}
+
+// Enhanced vision response with persona integration
+async function generateAIResponseWithVisionPersona(userMessage: string, vibe: string, attachments: any[], personaContext: any) {
+  const apiKey = process.env.GROQ_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY not configured");
+  }
+
+  // Use enhanced system prompt with persona context
+  const systemPrompt = personaAI.buildEnhancedSystemPrompt(personaContext);
+
+  try {
+    console.log(`Generating enhanced vision AI response for vibe: ${vibe}, persona level: ${personaContext.currentPersonaLevel}`);
+    
+    // Build messages array with image content using base64 encoding
+    const imageContent = [];
+    
+    for (const att of attachments.filter(att => att.type?.startsWith('image/') && att.uploadedData)) {
+      try {
+        // Read and encode image as base64
+        const imagePath = path.join(process.cwd(), 'uploads', att.uploadedData.filename);
+        if (fs.existsSync(imagePath)) {
+          const imageBuffer = fs.readFileSync(imagePath);
+          const base64Image = imageBuffer.toString('base64');
+          const mimeType = att.type || 'image/jpeg';
+          
+          imageContent.push({
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${base64Image}`
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error reading image file:', error);
+      }
+    }
+
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: userMessage || "What do you see in this image?"
+          },
+          ...imageContent
+        ]
+      }
+    ];
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages,
+        max_completion_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Groq Vision API error: ${response.status}`);
+    }
+
+    // Parse streaming response
+    if (!response.body) {
+      throw new Error('No response body from Groq API');
+    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    
+    return {
+      async *[Symbol.asyncIterator]() {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') continue;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  yield parsed;
+                } catch (e) {
+                  // Skip invalid JSON
+                }
+              }
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Enhanced Vision API error:', error);
+    // Fall back to regular vision response
+    return await generateAIResponseWithVision(userMessage, vibe, attachments);
+  }
 }
 
 function generateChatTitle(userMessage: string): string {
