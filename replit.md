@@ -148,6 +148,10 @@ The application features multiple AI personality modes:
 - June 25, 2025. Fixed image attachment data flow from frontend to backend for vision API processing
 - June 25, 2025. Added image thumbnail display in chat messages with proper metadata handling
 - June 25, 2025. Enhanced StreamingMessage component to show image attachments with neumorphic styling
+- June 26, 2025. Implemented speech-to-text (STT) functionality using Web Speech API for voice input
+- June 26, 2025. Added real-time voice transcription with interim results display in chat input
+- June 26, 2025. Created visual feedback with pulse animation for recording state
+- June 26, 2025. Added browser compatibility checks and error handling for speech recognition
 
 ## User Preferences
 

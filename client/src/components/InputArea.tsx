@@ -17,6 +17,7 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const handleSend = () => {
     if ((message.trim() || hasStagedFiles) && !disabled) {
@@ -44,21 +45,85 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     }
   };
 
+  const initSpeechRecognition = useCallback(() => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      console.warn('Speech recognition not supported in this browser');
+      return null;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    
+    recognition.onstart = () => {
+      console.log('Speech recognition started');
+      setIsRecording(true);
+    };
+    
+    recognition.onresult = (event: any) => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      
+      // Update the message as user speaks
+      setMessage(prev => {
+        const words = prev.split(' ');
+        const lastWord = words[words.length - 1];
+        // If the last word was from speech recognition, replace it
+        if (event.results[event.resultIndex].isFinal) {
+          return prev + (prev ? ' ' : '') + transcript;
+        } else {
+          // Show interim results
+          const baseMessage = words.slice(0, -1).join(' ');
+          return baseMessage + (baseMessage ? ' ' : '') + transcript;
+        }
+      });
+    };
+    
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsRecording(false);
+    };
+    
+    recognition.onend = () => {
+      console.log('Speech recognition ended');
+      setIsRecording(false);
+    };
+    
+    return recognition;
+  }, []);
+
   const handleVoiceToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (disabled) return;
     
-    const newRecordingState = !isRecording;
-    setIsRecording(newRecordingState);
-    
-    if (newRecordingState) {
-      console.log('Starting voice recording...');
-      // TODO: Start actual voice recording here
+    if (!isRecording) {
+      // Start recording
+      const recognition = initSpeechRecognition();
+      if (recognition) {
+        recognitionRef.current = recognition;
+        try {
+          recognition.start();
+        } catch (error) {
+          console.error('Failed to start speech recognition:', error);
+          setIsRecording(false);
+        }
+      } else {
+        alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      }
     } else {
-      console.log('Stopping voice recording...');
-      // TODO: Stop voice recording and process audio here
+      // Stop recording
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+      setIsRecording(false);
     }
     
     onVoiceToggle();
@@ -81,6 +146,15 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
   // Focus textarea on mount
   useEffect(() => {
     textareaRef.current?.focus();
+  }, []);
+
+  // Cleanup speech recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, []);
 
   // Simple focus management - only when truly needed
@@ -206,13 +280,14 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-2 z-10">
               {/* Voice Toggle Button */}
               <button
-                onMouseDown={handleVoiceToggle}
+                onClick={handleVoiceToggle}
                 disabled={disabled}
                 className="p-2 rounded-full transition-all duration-200 hover:bg-gray-600"
                 style={{
-                  background: isRecording ? '#ff4444' : 'transparent'
+                  background: isRecording ? '#ff4444' : 'transparent',
+                  animation: isRecording ? 'pulse 1.5s infinite' : 'none'
                 }}
-                title="Voice input"
+                title={isRecording ? "Click to stop recording" : "Click to start voice input"}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill={isRecording ? "white" : "#9ca3af"}>
                   <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
