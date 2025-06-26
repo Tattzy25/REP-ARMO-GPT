@@ -152,6 +152,12 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
     }
   }, [content, isStreaming]);
 
+  // Check if message has image attachments
+  const hasImageAttachments = metadata && 
+    metadata.attachments && 
+    Array.isArray(metadata.attachments) &&
+    metadata.attachments.some((att: any) => att.type?.startsWith('image/'));
+
   if (sender === 'user') {
     return (
       <motion.div
@@ -168,6 +174,41 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
             position: 'relative',
             zIndex: 2
           }}>
+            {/* Image attachments */}
+            {hasImageAttachments && (
+              <div className="mb-3">
+                <div className="flex flex-wrap gap-2">
+                  {metadata.attachments
+                    .filter((att: any) => att.type?.startsWith('image/'))
+                    .map((att: any, index: number) => (
+                      <div
+                        key={index}
+                        className="relative rounded-lg overflow-hidden"
+                        style={{
+                          background: '#404040',
+                          boxShadow: '2px 2px 4px #1a5a5a, -2px -2px 4px #2fffff'
+                        }}
+                      >
+                        <img
+                          src={att.uploadedData?.url || `/api/files/${att.uploadedData?.filename}`}
+                          alt={att.originalName}
+                          className="max-w-48 max-h-48 object-cover rounded-lg"
+                          onError={(e) => {
+                            console.error('Image load error:', e);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                          <div className="flex items-center text-white text-xs">
+                            <Image size={12} className="mr-1" />
+                            <span className="truncate">{att.originalName}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
             <p className="text-sm text-white" style={{ fontWeight: '500' }}>{displayedContent}</p>
           </div>
         </div>
@@ -203,6 +244,41 @@ export default function StreamingMessage({ content, sender, isStreaming = false,
           position: 'relative',
           zIndex: 2
         }}>
+          {/* Image attachments for Armo messages */}
+          {hasImageAttachments && (
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-2">
+                {metadata.attachments
+                  .filter((att: any) => att.type?.startsWith('image/'))
+                  .map((att: any, index: number) => (
+                    <div
+                      key={index}
+                      className="relative rounded-lg overflow-hidden"
+                      style={{
+                        background: '#404040',
+                        boxShadow: '2px 2px 4px #d0d0d0, -2px -2px 4px #ffffff'
+                      }}
+                    >
+                      <img
+                        src={att.uploadedData?.url || `/api/files/${att.uploadedData?.filename}`}
+                        alt={att.originalName}
+                        className="max-w-48 max-h-48 object-cover rounded-lg"
+                        onError={(e) => {
+                          console.error('Image load error:', e);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                        <div className="flex items-center text-white text-xs">
+                          <Image size={12} className="mr-1" />
+                          <span className="truncate">{att.originalName}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
           <div className="text-sm message-content" style={{ color: '#111111', fontWeight: '500' }}>
             {displayedContent}
             {/* Render file attachments if present */}
