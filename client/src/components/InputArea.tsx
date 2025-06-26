@@ -104,8 +104,15 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
       
       if (result.success && result.transcription) {
         console.log('Gemini transcription:', result.transcription);
-        setMessage(prev => prev + (prev ? ' ' : '') + result.transcription);
+        const transcribedText = result.transcription;
+        setMessage(transcribedText);
         autoResize();
+        
+        // Auto-send the transcribed message
+        setTimeout(() => {
+          onSendMessage(transcribedText);
+          setMessage('');
+        }, 500);
       } else {
         console.error('Transcription failed:', result.error);
       }
