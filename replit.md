@@ -85,10 +85,10 @@ The application features multiple AI personality modes:
 - **Start Command**: `npm run start` runs the production build
 
 ### Environment Variables
-- `SUPABASE_DATABASE_URL`: Supabase PostgreSQL connection string (primary)
-- `DATABASE_URL`: Fallback PostgreSQL connection string
-- `GROQ_API_KEY`: AI service authentication
-- `ELEVENLABS_API_KEY`: Voice service authentication
+- `DATABASE_URL`: PostgreSQL connection string
+- `GROQ_API_KEY`: Chat and vision AI service authentication (meta-llama/llama-4-scout-17b-16e-instruct)
+- `GEMINI_API_KEY`: Voice transcription service authentication (speech-to-text only)
+- `ELEVENLABS_API_KEY`: Voice synthesis service authentication
 - `TAVILY_API_KEY`: Search service authentication
 
 ## Changelog
