@@ -111,14 +111,10 @@ export class PersonaAIIntegration {
    * Get comprehensive persona context for AI response generation
    */
   async getPersonaContext(userId: number, sessionId: number, currentVibe: string): Promise<PersonaContext> {
-    // Determine persona level based on vibe
-    let personaLevel = 1; // Default to polite
-    switch (currentVibe) {
-      case "roast": personaLevel = 4; break; // Savage
-      case "call": personaLevel = 3; break;  // Edgy
-      case "famous": personaLevel = 2; break; // Mild
-      default: personaLevel = 1; // Polite
-    }
+    // Import vibe mapping dynamically to avoid circular imports
+    const { getPersonaLevelForVibe, getPersonaIdForVibe } = await import('./vibe-persona-mapping.js');
+    // Get persona level based on user's vibe mapping
+    const personaLevel = getPersonaLevelForVibe(currentVibe);
 
     const persona = getPersonaByLevel(personaLevel);
 

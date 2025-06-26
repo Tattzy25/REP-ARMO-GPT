@@ -9,6 +9,7 @@ import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
 import personaApiRouter from "./persona-api";
 import { personaAI } from "./ai-persona-integration";
+import { getPersonaLevelForVibe, getPersonaIdForVibe } from "./vibe-persona-mapping";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.GROQ_API_KEY_ENV_VAR || "default_key";
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || process.env.ELEVENLABS_API_KEY_ENV_VAR || "default_key";
@@ -211,11 +212,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Analyze user message and get persona context
         const userId = session.userId || 1; // Default user ID if not set
         const analysis = await personaAI.analyzeUserMessage(
-          messageData.content, 
           userId, 
-          messageData.sessionId!, 
-          Date.now(),
-          messageData.content.length
+          messageData.sessionId || 1, 
+          messageData.content, 
+          messageData.content.length,
+          Date.now()
         );
         
         // Get enhanced persona context
