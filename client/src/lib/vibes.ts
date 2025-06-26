@@ -61,7 +61,7 @@ export const vibeConfigs: Record<string, VibeConfig> = {
   },
   alibi: {
     id: 'alibi',
-    title: 'Give Me Alibi Ara',
+    title: 'Give Me an Alibi Ara',
     subtitle: 'Story Builder for Trouble',
     personality: 'sneaky',
     icon: 'fas fa-mask',
@@ -77,6 +77,16 @@ export const vibeConfigs: Record<string, VibeConfig> = {
     icon: 'fas fa-couch',
     emoji: '🛋️',
     welcomeMessage: 'Բարև, welcome to our safe space. I\'m here to listen and help you work through whatever is on your mind. How are you feeling today? 🛋️',
+    glowColor: 'teal'
+  },
+  hired: {
+    id: 'hired',
+    title: 'You Are Hired Ara',
+    subtitle: 'Resume Builder & Career Coach',
+    personality: 'career-focused',
+    icon: 'fas fa-briefcase',
+    emoji: '💼',
+    welcomeMessage: 'Ey ախպեր, ready to land that dream job? Tell me about your skills and I\'ll build you a killer resume that gets you hired! 💼',
     glowColor: 'teal'
   },
   dating: {

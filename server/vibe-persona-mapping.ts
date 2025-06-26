@@ -47,15 +47,21 @@ export const VIBE_PERSONA_MAPPINGS: VibePersonaMapping[] = [
   },
   {
     vibe: 'famous',
-    personaLevel: 2,
-    personaId: 'mild',
-    description: 'Creative social media personality'
+    personaLevel: 3,
+    personaId: 'edgy',
+    description: 'Savage fame creator with edgy humor'
   },
   {
     vibe: 'alibi',
     personaLevel: 3,
     personaId: 'edgy',
     description: 'Sneaky storyteller with attitude'
+  },
+  {
+    vibe: 'hired',
+    personaLevel: 3,
+    personaId: 'edgy',
+    description: 'Savage career coach with edgy humor'
   }
 ];
 
