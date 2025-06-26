@@ -1,0 +1,35 @@
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'ambient-light-sensor'.
+
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'battery'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'layout-animations'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'legacy-image-formats'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'navigation-override'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'oversized-images'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'publickey-credentials'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'speaker-selection'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'unoptimized-images'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'unsized-media'.
+framework-6ddd8cfef9dc8ebb.js:1 Unrecognized feature: 'pointer-lock'.
+framework-6ddd8cfef9dc8ebb.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+framework-6ddd8cfef9dc8ebb.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+6
+An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+5
+ cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+3
+_app-afcec104ddd4425c.js:38 WARN: A component changed from uncontrolled to controlled.
+_app-afcec104ddd4425c.js:38 onClick is deprecated, please use onPress
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 49ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 29ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 39ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 32ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 30ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 32ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 157ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 29ms
+_app-afcec104ddd4425c.js:38 task queue exceeded allotted deadline by 33ms
+2656-e8ded81dee2c6a13.js:1 WebSocket connection to 'wss://eval.picard.platform.replit.com/wsv2/v2.public.Q2dZSXNwWHh3Z1lTQmdqUn…dn5isnxrj5ijC5H6et-FlKlR9g0blr5Gqw0.Q2dad2NtOWtPak1pQ25KbGNHeHBkQzVqYjIwPQ' failed: WebSocket is closed before the connection is established.
+cleanupSocket	@	2656-e8ded81dee2c6a13.js:1
+
