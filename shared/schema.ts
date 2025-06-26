@@ -115,110 +115,230 @@ export type ErrorLog = typeof errorLogs.$inferSelect;
 export type InsertTempStorage = z.infer<typeof insertTempStorageSchema>;
 export type TempStorage = typeof tempStorage.$inferSelect;
 
-// Persona system tables
+// TABLE 1: Persona Levels - Core 4-level behavioral system
 export const personaLevels = pgTable("persona_levels", {
-  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "level_1_chill", "level_2_snarky", etc.
+  id: varchar("id", { length: 50 }).primaryKey(), // "level_1_polite", "level_2_mild", "level_3_edgy", "level_4_savage"
   levelNumber: integer("level_number").notNull(), // 1, 2, 3, 4
-  name: varchar("name", { length: 100 }).notNull(), // "On meds", "Meds wearing off", etc.
-  description: text("description").notNull(),
-  systemPrompt: text("system_prompt").notNull(),
+  name: varchar("name", { length: 100 }).notNull(), // "No Cursing (Polite)", "Mild Cursing (Casual)", etc.
+  description: text("description").notNull(), // Detailed behavioral description
+  systemPrompt: text("system_prompt").notNull(), // AI instructions for this level
+  attitudePersonality: text("attitude_personality").notNull(), // Personality traits
+  languageUsage: text("language_usage").notNull(), // Language constraints
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const welcomeMessages = pgTable("welcome_messages", {
-  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "wm_1_chill", "wm_1_alt", etc.
+// TABLE 2: Language Permissions - Granular profanity control per level
+export const languagePermissions = pgTable("language_permissions", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "perm_euphemisms_level_1", etc.
   personaLevelId: varchar("persona_level_id", { length: 50 }).notNull()
     .references(() => personaLevels.id),
-  message: text("message").notNull(),
-  isDefault: boolean("is_default").default(false).notNull(), // primary vs alt message
+  wordCategory: varchar("word_category", { length: 100 }).notNull(), // "harmless_euphemisms", "mild_swears", "strong_profanity", etc.
+  permissionLevel: varchar("permission_level", { length: 20 }).notNull(), // "allowed", "forbidden", "conditional"
+  conditions: text("conditions"), // Context when conditional permission applies
+  examples: text("examples").array(), // Example words for this category
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const wordLists = pgTable("word_lists", {
-  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "whitelist_level_1", "blacklist_level_4", etc.
-  personaLevelId: varchar("persona_level_id", { length: 50 }).notNull()
-    .references(() => personaLevels.id),
-  listType: varchar("list_type", { length: 20 }).notNull(), // "whitelist" or "blacklist"
-  language: varchar("language", { length: 10 }).notNull(), // "english" or "armenian"
-  words: text("words").array().notNull(), // Array of words
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const userPersonaSettings = pgTable("user_persona_settings", {
-  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "user_persona_123"
+// TABLE 3: User Gender Detection - Inference tracking
+export const userGenderDetection = pgTable("user_gender_detection", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "gender_detect_123"
   userId: integer("user_id").references(() => users.id),
   sessionId: integer("session_id").references(() => chatSessions.id),
-  currentPersonaLevel: varchar("current_persona_level", { length: 50 }).notNull()
-    .references(() => personaLevels.id),
-  languagePreference: varchar("language_preference", { length: 20 }).default("english").notNull(), // "english" or "armenian"
+  detectedGender: varchar("detected_gender", { length: 20 }).default("unknown").notNull(), // "male", "female", "unknown"
+  confidenceScore: real("confidence_score").default(0.0).notNull(), // 0.0 to 1.0
+  detectionMethod: varchar("detection_method", { length: 50 }).notNull(), // "explicit_mention", "username", "pronouns", "writing_style"
+  sourceData: text("source_data"), // The text that led to this inference
+  isUserConfirmed: boolean("is_user_confirmed").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const userBehaviorTracking = pgTable("user_behavior_tracking", {
-  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "behavior_track_456"
+// TABLE 4: User Mood Detection - Sentiment analysis
+export const userMoodDetection = pgTable("user_mood_detection", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "mood_detect_456"
   userId: integer("user_id").references(() => users.id),
   sessionId: integer("session_id").references(() => chatSessions.id),
   messageId: integer("message_id").references(() => messages.id),
-  sentimentScore: real("sentiment_score"), // -1.0 to 1.0
-  emotionalState: varchar("emotional_state", { length: 50 }), // "frustrated", "happy", "confused", etc.
-  engagementLevel: varchar("engagement_level", { length: 20 }), // "active", "passive", "disengaged"
-  conversationTopic: varchar("conversation_topic", { length: 100 }),
-  responseTime: integer("response_time"), // seconds between messages
-  messageLength: integer("message_length"), // character count
-  detectedMood: varchar("detected_mood", { length: 50 }), // "flirty", "savage", "emotional", "annoyed"
+  detectedMood: varchar("detected_mood", { length: 20 }).notNull(), // "positive", "neutral", "negative"
+  sentimentScore: real("sentiment_score").notNull(), // -1.0 to 1.0
+  indicators: text("indicators").array(), // Words/phrases that indicated this mood
+  aiResponseAdjustment: text("ai_response_adjustment"), // How AI should adjust
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const moodTriggers = pgTable("mood_triggers", {
-  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "trigger_flirty_1", "trigger_savage_2"
-  moodType: varchar("mood_type", { length: 50 }).notNull(), // "flirty", "savage", "emotional", "annoyed"
-  language: varchar("language", { length: 20 }).notNull(), // "english", "armenian"
-  triggerWord: varchar("trigger_word", { length: 100 }).notNull(),
-  translation: varchar("translation", { length: 100 }), // English translation for Armenian words
-  weight: real("weight").default(1.0).notNull(), // How strong this trigger is (0.1 to 2.0)
+// TABLE 5: User Emotion Detection - Fine-grained emotional states
+export const userEmotionDetection = pgTable("user_emotion_detection", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "emotion_detect_789"
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  messageId: integer("message_id").references(() => messages.id),
+  primaryEmotion: varchar("primary_emotion", { length: 30 }).notNull(), // "joy", "sadness", "anger", "fear", "surprise", "disgust"
+  secondaryEmotion: varchar("secondary_emotion", { length: 30 }), // Optional secondary emotion
+  emotionIntensity: real("emotion_intensity").notNull(), // 0.0 to 1.0
+  indicators: text("indicators").array(), // Specific text indicators
+  adaptationStrategy: text("adaptation_strategy"), // How AI should respond
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// TABLE 6: User Behavior/Tone Detection - Communication style analysis
+export const userBehaviorDetection = pgTable("user_behavior_detection", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "behavior_detect_101"
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  messageId: integer("message_id").references(() => messages.id),
+  behaviorStyle: varchar("behavior_style", { length: 30 }).notNull(), // "polite_formal", "casual_friendly", "sarcastic", "humorous", "rude_hostile", "flirtatious", "confused"
+  confidenceScore: real("confidence_score").notNull(), // 0.0 to 1.0
+  indicators: text("indicators").array(), // Text patterns that indicated this behavior
+  aiAdjustment: text("ai_adjustment"), // How AI should mirror or respond
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// TABLE 7: User Engagement Detection - Interaction involvement tracking
+export const userEngagementDetection = pgTable("user_engagement_detection", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "engagement_detect_202"
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  messageId: integer("message_id").references(() => messages.id),
+  engagementLevel: varchar("engagement_level", { length: 30 }).notNull(), // "high", "moderate", "low", "negative"
+  messageLength: integer("message_length").notNull(),
+  responseTime: integer("response_time"), // Seconds since last message
+  questionCount: integer("question_count").default(0).notNull(),
+  emojiCount: integer("emoji_count").default(0).notNull(),
+  enthusiasmScore: real("enthusiasm_score").default(0.0).notNull(), // 0.0 to 1.0
+  aiTactics: text("ai_tactics"), // Recommended AI response tactics
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// TABLE 8: User Intent Detection - Purpose classification
+export const userIntentDetection = pgTable("user_intent_detection", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "intent_detect_303"
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  messageId: integer("message_id").references(() => messages.id),
+  intentType: varchar("intent_type", { length: 30 }).notNull(), // "small_talk", "information_query", "instruction_task", "complaint_feedback", "emotional_support", "other"
+  confidenceScore: real("confidence_score").notNull(), // 0.0 to 1.0
+  intentDescription: text("intent_description"), // What user is trying to accomplish
+  responseApproach: text("response_approach"), // How AI should respond
+  requiresPersonaAdjustment: boolean("requires_persona_adjustment").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// TABLE 9: Reusable Content Repository - Learning system for community content
+export const reusableContentRepository = pgTable("reusable_content_repository", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "content_1001", "content_1002", etc.
+  contentText: text("content_text").notNull(), // The actual content to reuse
+  contentCategory: varchar("content_category", { length: 30 }).notNull(), // "joke_humor", "comeback_roast", "insight_fact", "advice", "story_anecdote", "qa_pair"
+  sourceUserId: integer("source_user_id").references(() => users.id), // Original contributor
+  sourceSessionId: integer("source_session_id").references(() => chatSessions.id),
+  sourceMessageId: integer("source_message_id").references(() => messages.id),
+  allowedPersonaLevel: integer("allowed_persona_level").notNull(), // Minimum level required (1, 2, 3, 4)
+  qualityScore: real("quality_score").default(0.0).notNull(), // 0.0 to 1.0 based on user reactions
+  usageCount: integer("usage_count").default(0).notNull(), // How many times it's been reused
+  usageNotes: text("usage_notes"), // Special instructions for usage
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Insert schemas for persona tables
+// TABLE 10: Content Reuse Rules - Usage policies and tracking
+export const contentReuseRules = pgTable("content_reuse_rules", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "rule_jokes", "rule_roasts", etc.
+  contentType: varchar("content_type", { length: 30 }).notNull(), // "jokes_witticisms", "roasts_insults", "advice_insights", "stories_anecdotes", "qa_pairs"
+  reusePolicy: text("reuse_policy").notNull(), // Detailed rules for this content type
+  specialRules: text("special_rules").array(), // Array of special conditions
+  personaLevelRestrictions: text("persona_level_restrictions"), // Which levels can use this
+  rotationStrategy: varchar("rotation_strategy", { length: 50 }).default("random").notNull(), // "random", "quality_based", "least_recent"
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Content Usage Tracking - Track what content is used with which users
+export const contentUsageTracking = pgTable("content_usage_tracking", {
+  id: varchar("id", { length: 50 }).primaryKey(), // "usage_track_404"
+  contentId: varchar("content_id", { length: 50 }).notNull()
+    .references(() => reusableContentRepository.id),
+  targetUserId: integer("target_user_id").references(() => users.id), // Who received the content
+  targetSessionId: integer("target_session_id").references(() => chatSessions.id),
+  targetMessageId: integer("target_message_id").references(() => messages.id),
+  usageContext: varchar("usage_context", { length: 50 }), // "joke_request", "roast_battle", "advice_giving", etc.
+  userReaction: varchar("user_reaction", { length: 30 }), // "positive", "negative", "neutral", "no_reaction"
+  usedAt: timestamp("used_at").defaultNow().notNull(),
+});
+
+// Insert schemas for all persona system tables
 export const insertPersonaLevelSchema = createInsertSchema(personaLevels).omit({
   createdAt: true,
 });
 
-export const insertWelcomeMessageSchema = createInsertSchema(welcomeMessages).omit({
+export const insertLanguagePermissionSchema = createInsertSchema(languagePermissions).omit({
   createdAt: true,
 });
 
-export const insertWordListSchema = createInsertSchema(wordLists).omit({
+export const insertUserGenderDetectionSchema = createInsertSchema(userGenderDetection).omit({
   createdAt: true,
 });
 
-export const insertUserPersonaSettingsSchema = createInsertSchema(userPersonaSettings).omit({
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertUserBehaviorTrackingSchema = createInsertSchema(userBehaviorTracking).omit({
-  id: true,
+export const insertUserMoodDetectionSchema = createInsertSchema(userMoodDetection).omit({
   createdAt: true,
 });
 
-export const insertMoodTriggerSchema = createInsertSchema(moodTriggers).omit({
+export const insertUserEmotionDetectionSchema = createInsertSchema(userEmotionDetection).omit({
   createdAt: true,
 });
 
-// Types for persona tables
+export const insertUserBehaviorDetectionSchema = createInsertSchema(userBehaviorDetection).omit({
+  createdAt: true,
+});
+
+export const insertUserEngagementDetectionSchema = createInsertSchema(userEngagementDetection).omit({
+  createdAt: true,
+});
+
+export const insertUserIntentDetectionSchema = createInsertSchema(userIntentDetection).omit({
+  createdAt: true,
+});
+
+export const insertReusableContentRepositorySchema = createInsertSchema(reusableContentRepository).omit({
+  createdAt: true,
+});
+
+export const insertContentReuseRulesSchema = createInsertSchema(contentReuseRules).omit({
+  createdAt: true,
+});
+
+export const insertContentUsageTrackingSchema = createInsertSchema(contentUsageTracking).omit({
+  usedAt: true,
+});
+
+// Types for all persona system tables
 export type InsertPersonaLevel = z.infer<typeof insertPersonaLevelSchema>;
 export type PersonaLevel = typeof personaLevels.$inferSelect;
-export type InsertWelcomeMessage = z.infer<typeof insertWelcomeMessageSchema>;
-export type WelcomeMessage = typeof welcomeMessages.$inferSelect;
-export type InsertWordList = z.infer<typeof insertWordListSchema>;
-export type WordList = typeof wordLists.$inferSelect;
-export type InsertUserPersonaSettings = z.infer<typeof insertUserPersonaSettingsSchema>;
-export type UserPersonaSettings = typeof userPersonaSettings.$inferSelect;
-export type InsertUserBehaviorTracking = z.infer<typeof insertUserBehaviorTrackingSchema>;
-export type UserBehaviorTracking = typeof userBehaviorTracking.$inferSelect;
-export type InsertMoodTrigger = z.infer<typeof insertMoodTriggerSchema>;
-export type MoodTrigger = typeof moodTriggers.$inferSelect;
+
+export type InsertLanguagePermission = z.infer<typeof insertLanguagePermissionSchema>;
+export type LanguagePermission = typeof languagePermissions.$inferSelect;
+
+export type InsertUserGenderDetection = z.infer<typeof insertUserGenderDetectionSchema>;
+export type UserGenderDetection = typeof userGenderDetection.$inferSelect;
+
+export type InsertUserMoodDetection = z.infer<typeof insertUserMoodDetectionSchema>;
+export type UserMoodDetection = typeof userMoodDetection.$inferSelect;
+
+export type InsertUserEmotionDetection = z.infer<typeof insertUserEmotionDetectionSchema>;
+export type UserEmotionDetection = typeof userEmotionDetection.$inferSelect;
+
+export type InsertUserBehaviorDetection = z.infer<typeof insertUserBehaviorDetectionSchema>;
+export type UserBehaviorDetection = typeof userBehaviorDetection.$inferSelect;
+
+export type InsertUserEngagementDetection = z.infer<typeof insertUserEngagementDetectionSchema>;
+export type UserEngagementDetection = typeof userEngagementDetection.$inferSelect;
+
+export type InsertUserIntentDetection = z.infer<typeof insertUserIntentDetectionSchema>;
+export type UserIntentDetection = typeof userIntentDetection.$inferSelect;
+
+export type InsertReusableContentRepository = z.infer<typeof insertReusableContentRepositorySchema>;
+export type ReusableContentRepository = typeof reusableContentRepository.$inferSelect;
+
+export type InsertContentReuseRules = z.infer<typeof insertContentReuseRulesSchema>;
+export type ContentReuseRules = typeof contentReuseRules.$inferSelect;
+
+export type InsertContentUsageTracking = z.infer<typeof insertContentUsageTrackingSchema>;
+export type ContentUsageTracking = typeof contentUsageTracking.$inferSelect;

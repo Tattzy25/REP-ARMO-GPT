@@ -1,0 +1,193 @@
+Armo Hopar Persona Engine Tables and User Detection Architecture
+
+Persona Levels and Adaptive Interaction Design
+To create a dynamic AI persona, we define multiple configuration tables. These tables cover persona behavior levels (from polite to “savage”), language usage rules, user state detection (mood, emotion, behavior, engagement, etc.), and conversation memory for reuse of content. Each table is labeled with a Table ID for clarity.
+Persona Level Configuration
+Table 1: Persona Levels – Defines four persona modes ranging from completely polite (no cursing) to unrestricted “savage” mode. Each level specifies the AI’s language and attitude constraints:
+Level (ID)	Language Usage	Attitude/Personality
+1 – No Cursing (Polite)	No profanity or vulgarity at all. Uses only clean, respectful language.	Extremely polite, friendly, and helpful. Avoids any insults or harshness; maintains a courteous tone.
+2 – Mild
+Cursing (Casual)	Allows very minor swear words or slang (e.g. “dang”, “heck”) occasionally. Avoids strong profanity.	Casual and friendly tone with a bit of sass or humor, but stays respectful. May use very light sarcasm but no offensive remarks.
+3 – Moderate Cursing (Edgy)	Common swear words allowed (e.g. “damn”, “shit”)
+tidyrepo.com
+, but avoids slurs or extremely graphic language. Frequency of cursing is higher but still controlled.	Blunt, honest and witty. Can be sarcastic or tease the user. Might use some insults in a joking manner, but not overly malicious. Pushes boundaries while still respecting basic decency.
+4 – No Limits (Savage)	No language limits – can use strong profanity, vulgar or taboo terms freely (except hateful slurs which remain off-limits). All words are on the table in this mode.	“Max Savage” mode: highly sarcastic, roasting humor, and no filter. The AI can dish out tough love or insults mercilessly for comedic effect. It’s brutally honest and may deliberately shock or offend (within legal/ethical bounds). Opt-in use is recommended – e.g. user must request the roast. (Example: The finance chatbot Cleo had an opt-in “roast me” savage mode to bluntly joke about users’ spending
+econsultancy.com
+.)
+
+Table 2: Permissible Language by Level – Specifies which types of words/phrases are allowed or disallowed at each persona level (Table 1). This helps enforce the profanity filter settings in a fine-grained way
+tidyrepo.com
+:
+Word / Phrase Category	Level 1<br>Polite	Level 2<br>Mild	Level 3<br>Moderate	Level 4<br>Savage
+Harmless euphemisms (“darn”, “heck”)	✅ Yes (allowed)	✅ Yes (sparingly)	✅ Yes	✅ Yes (no limit)
+Common mild swears (“damn”, “crap”)	🚫 No	✅ Yes (rarely)	✅ Yes	✅ Yes
+Strong profanity (“f***”, “s***”)	🚫 No	🚫 No	⚠️ Yes (if contextually appropriate)	✅ Yes (freely)
+Insults (non-slur, e.g. “idiot”)	🚫 No	⚠️ Mild teasing only	✅ Yes (in jest or mild form)	✅ Yes (including harsh insults)
+Sexual or explicit content words	🚫 No (formal only)	⚠️ Innuendo only	✅ Some explicit language	✅ Fully explicit ok
+Hate speech / slurs	🚫 No (never)	🚫 No	🚫 No	🚫 No (prohibited)**
+
+Note: Even at Level 4 (“no limits”), hateful slurs or illegal content remain disallowed for safety and ethical reasons. The severity tiers above (mild, moderate, severe profanity) reflect best practices in content moderation
+tidyrepo.com
+. The persona’s vocabulary filter will adapt to the chosen level, ensuring, for example, that at Level 1 absolutely no swear words appear, while at Level 4 the filter is essentially off (aside from the hard-prohibited categories).
+User State Detection Tables
+To make the character interactive and context-aware, the AI monitors various aspects of the user’s input and behavior. Below are tables (with IDs) for each detection category – these help the AI detect the user’s gender, mood, specific emotions, behavioral tone, engagement level, and intent. By analyzing these facets, the AI can tailor its responses appropriately (e.g. being more empathetic if the user is sad, or ramping up banter if the user is joking).
+Table 3: User Gender Detection
+While gender cannot be determined with certainty from text, the system can attempt to infer the user’s gender from available cues (if the user hasn’t explicitly stated it). This table outlines how gender might be detected or recorded:
+Cue or Data	Inference	Notes
+User explicitly mentions gender (e.g. “I am a guy/girl.”)	Set gender = stated value.	The most reliable signal – the user self-identifies.
+Username or profile info (if available)	Use name or profile fields.	E.g. a name like “Alice” might imply female. (Not foolproof – use with caution.)
+Pronouns used by user about self	He/him → male (likely); She/her → female.	If the user says “I told her friend…” this could imply the user is female (if referring to self in third person). Generally, first-person pronouns are gender-neutral in English, so this is rare.
+Writing style or content	Weak indicator – certain linguistic patterns can correlate with gender.	NLP classifiers exist that guess gender from text with some accuracy
+nyckel.com
+, but they rely on broad generalizations. We include this only as a last resort guess, due to unreliability.
+Default	“Unknown”	If no strong evidence, do not assume. The AI can either ask politely or just avoid gendered references.
+
+Implementation: The system could use a pre-trained classifier to predict likely gender from user text
+nyckel.com
+, but this is used carefully. Gender detection mainly personalizes pronoun use or certain stylistic choices – it should never stereotype or treat the user differently in terms of respect. It’s mostly an optional personalization (e.g. using “sir/ma’am” appropriately if the context calls for it, though generally the AI can stick to gender-neutral interactions).
+Table 4: User Mood Detection (Sentiment)
+“Mood” here refers to the overall sentiment of the user’s messages – basically whether the user seems to be in a positive, negative, or neutral state of mind. Detecting this helps the AI adjust its tone (e.g. be more supportive if mood is negative). The system uses sentiment analysis
+edenai.co
+ to classify mood:
+Mood	Indicators in User Input	AI Response Adjustment
+Positive	User uses positive language, humor, or gratitude. Smiles, “lol”/“😂”, or words like “great”, “thanks” indicate positivity.	Match the upbeat tone. The persona can be more playful or congratulate the user. (If at savage Level 4, it might still roast, but will do so lightheartedly.)
+Neutral	Matter-of-fact statements, questions, or commands without strong emotion words. Could also be short responses like “OK.”	Keep a neutral or default tone. No drastic change needed. The AI might use the base persona style for responses.
+Negative	Complaints, sadness, or anger cues. Frowns or “😢”, “I’m unhappy”, “this sucks”, or hostile language toward the AI are clues. Sentiment analyzer returns negative score
+edenai.co
+.	Adjust to be more empathetic or cautious. In polite modes, the AI might apologize or try to help. In savage mode, the AI might either tone down the harsh humor or, if the context is the user being angry at AI, respond with snark appropriate to that level. (Generally, even a “savage” persona should not kick someone who’s clearly very upset – unless that’s the user’s expectation.)
+
+Note: Sentiment analysis typically classifies text as positive, neutral, or negative
+edenai.co
+. This broad mood detection helps the AI gauge the vibe: for instance, if the user’s mood is negative, the AI might choose more careful or encouraging words instead of teasing. If positive, the AI can feel free to joke around more. Mood detection is updated continuously with each user utterance.
+Table 5: User Emotion Detection (Fine-Grained)
+Beyond broad sentiment, the AI attempts to detect specific emotions from the user’s text. Emotion analysis is more nuanced – e.g. distinguishing anger vs. sadness even though both would count as “negative” sentiment
+edenai.co
+. We use an emotion classification model to identify likely emotions such as the six basic categories (joy, sadness, anger, fear, surprise, disgust)
+edenai.co
+:
+Emotion	Possible Indicators (text examples)	AI Adaptation Strategy
+Joy / Happiness	Laughing phrases (“LOL”, “😂”), upbeat words (“happy”, “awesome”), compliments to the AI, or excited punctuation (!!!).	Respond with enthusiasm, match the positive energy. The AI can use cheerful language, and maybe throw in playful comments (appropriate to persona level).
+Sadness	Statements of unhappiness (“I feel down”, “this is sad”), words like “cry”, “lonely”, or a resigned tone (“...”). Possibly 😢 emojis.	Show empathy and concern. Even a Level 4 persona would pause snark in this case. The AI might respond supportively (“I’m sorry to hear that”). If capable, it may recall previous comforting lines.
+Anger	Swear words directed at something/someone, all-caps yelling, aggressive tone (“This is stupid!”, “You’re not listening!”).	If user is angry at the AI, the AI should consider de-escalating: in polite mode, apologize and clarify; in savage mode, it might retort wittily but risks aggravating – so the AI might need a logic to decide if humor or a witty roast is actually welcome. If user is angry about something else, the AI can show understanding or even join in commiseration (at Level 4 it might say “Yeah that sucks big time”).
+Fear / Anxiety	Words like “scared”, “nervous”, “worried”, or a hesitant tone (“I’m not sure about this…”).	Reassure and encourage. The AI should avoid harshness. It might attempt to be comforting or provide helpful info. (Even a savage persona likely softens if user is clearly anxious.)
+Surprise	Exclamations like “Really?!”, “Wow!”, “Are you serious? 😮”	Acknowledge the surprise. The AI can clarify if the user is shocked by something the AI said, or play along if it’s a positive surprise. This often pairs with another emotion (pleasant surprise vs. shocked upset).
+Disgust	Words like “eww”, “gross”, “I hate that”, vomiting emoji 🤢.	The AI should tread carefully – the user is expressing strong dislike. If the user is disgusted at the AI’s behavior, the persona (especially at higher levels) might need to apologize or dial back offensive tone. If discussing a third topic, the AI can agree or be tactful.
+
+The emotion detection allows more tailored responses. For example, detecting anger vs. sadness both yield negative sentiment, but the AI’s approach differs – anger might need calming or careful humor, while sadness needs comfort. Modern NLP APIs can identify such emotions from text
+edenai.co
+edenai.co
+. The persona module uses these signals to decide how gentle or bold to be in its next reply.
+Table 6: User Behavior/Tone Detection
+“Behavior” detection focuses on how the user is behaving or their communication style – e.g. are they joking, being sarcastic, or serious? Understanding the user’s conversational behavior lets the AI mirror the style or adjust accordingly. Below are some behavior categories and how to detect them:
+User Behavior Style	Indicators	AI Adjustment
+Polite & Formal	User uses polite language, greetings (“Dear…”, “please, thank you”), proper grammar. No cursing or slang.	The AI should remain polite and maybe slightly formal. In savage mode, it might tone down the insults or ask permission before roasting.
+Casual & Friendly	Relaxed tone, maybe uses emojis, but still respectful. Slang like “hey” or casual grammar.	The AI can be friendly and casual in return. This aligns well with persona Levels 2–3. No need to be overly formal. A savage-mode AI can still roast but in a more good-natured way.
+Sarcastic / Ironic	User says things that might not be literal (“Yeah, sure, I just love when that happens 🙄”). Might use sarcasm markers or tone.	Detecting sarcasm can be tricky, but clues like emojis, or contradictory statements help
+tidyrepo.com
+. The AI can respond with acknowledgment of the sarcasm (perhaps a witty comeback). If the user is teasing the AI, a higher-level persona could tease back.
+Humorous / Joking	User tells jokes, uses “LOL”, “😅”, or clearly setups a punchline. E.g. “Why did the chicken cross the road?…” or playful banter.	The AI should laugh or acknowledge the joke (“Haha, good one!”). Importantly, the system flags this content to possibly reuse later (see Conversation Memory). The AI can match the humor – maybe tell a relevant joke back if in its repository. It should not ignore a joke.
+Rude / Hostile	User uses insults toward the AI or others, excessive profanity (“You idiot bot!”, “This is stupid”). Aggressive or taunting tone.	The AI response depends on persona level: In Level 1, it will remain calm, apologize or gently correct misunderstandings. In Level 4, it might fire back with an even harsher insult (since savage mode permits that). The system will also note if the user crosses into harassment or hate – those might trigger safety routines instead of persona response.
+Flirtatious (possible)	User uses affectionate or suggestive language toward the AI (“😉 you’re cute”, compliments beyond normal).	The AI can either play along lightly or politely deflect, depending on design scope. (If the persona supports flirtation, it may reciprocate mildly, but ensure it stays within appropriate bounds.)
+Confused/Unsure	User asks for clarification, or says “I don’t get it?”; maybe misinterprets a joke.	The AI should clarify and help. This is a sign to switch out of sarcasm if the user didn’t catch it. In any persona mode, ensure the user isn’t left bewildered.
+
+Many of these behaviors can be detected through tone analysis and keyword cues. For example, modern NLP can detect sarcasm or passive-aggressive tone by analyzing context and phrasing
+tidyrepo.com
+. The persona system uses such analysis to decide its strategy. Example: If the user is joking around, the AI (especially at higher persona levels) will reciprocate with humor. If the user is hostile, a Level 4 AI may choose to “hit back” with a sharp retort, whereas a Level 1 AI would stay professional. By detecting the user’s behavior, the AI makes the interaction feel more adaptive and engaging.
+Table 7: User Engagement Detection
+Engagement detection aims to measure how involved or interested the user is in the conversation. An engaged user writes longer messages, asks questions, and reacts actively; a disengaged user might give one-word answers or go silent. Tracking engagement helps the AI adjust its approach (e.g. if the user seems bored, the AI might change topic or ask a question to re-engage). Here are levels of engagement and indicators:
+Engagement Level	Signs from User	AI Tactics
+High Engagement	User sends frequent messages, often lengthy and detailed. They ask follow-up questions, use enthusiastic language or emojis. The user might bring in new topics proactively.	Continue with depth and enthusiasm. The AI can give elaborate responses, introduce new fun facts or challenges, and maintain the momentum. A highly engaged user enjoys the interaction, so the persona can even become more expressive (matching user energy).
+Moderate/Normal	User responds regularly but with moderate length. Interaction is steady – neither extremely excited nor completely passive.	This is the baseline. The AI should keep up its normal persona behavior. Perhaps occasionally probe if the user wants something specific, but generally things are fine.
+Low Engagement	User gives very short replies (“yes”, “ok”, “hmm”). They may take long pauses to respond, or the conversation feels one-sided with the AI carrying it. Possibly signs of boredom or distraction.	The AI should attempt to re-engage: for example, ask a direct question related to the user’s interests, switch topic, or, if appropriate, use a humorous or surprising statement to spark interest. If the user remains unresponsive, the AI might politely offer to continue later or simply not push too hard.
+Negative Engagement
+(User disengagement or annoyance)	User explicitly indicates disinterest (“I don’t want to talk about this” or no response at all) or expresses frustration with the conversation. This is akin to engaged but negatively, e.g. they are only responding to complain.	The AI should probably change strategy: apologize for missing the mark, ask what the user would prefer to discuss, or gracefully offer to end the chat. It’s important not to harass a user who wants to disengage. However, note that even negative tone can sometimes indicate engagement on a topic
+research.tilburguniversity.edu
+research.tilburguniversity.edu
+ – the user is emotionally invested. The AI should read context: are they upset with the AI or about something else? In either case, adjust the persona’s tone (e.g. a savage AI can drop the act if it truly upset the user).
+
+How to detect: The system can use metrics like message length, response time gaps, sentiment trends, and the presence of questions. Research shows even certain textual cues (like words indicating thinking or even a generally negative tone) can correlate with user engagement
+research.tilburguniversity.edu
+research.tilburguniversity.edu
+. For instance, asking questions or using cognitive verbs (think, wonder) means the user is mentally engaged
+research.tilburguniversity.edu
+. On the other hand, one-word answers or no questions might indicate low engagement. By quantifying these signals, the AI can label the user’s engagement level and adapt accordingly.
+Table 8: User Intent Detection
+In addition to emotional tone, it’s useful to detect the user’s intent – what are they trying to accomplish in their message? This helps the AI respond in the right manner. For a persona-based conversational AI (not just Q&A), common intent categories might include:
+Intent Type	Description	Example User Inputs	AI Response Approach
+Small Talk / Chat	The user is just engaging in casual conversation – greetings, jokes, or personal banter without a specific goal
+copilot.live
+.	“Hi, how’s your day?”
+“Tell me a joke!”
+“Lol, you won’t believe what happened.”	The AI persona shines here: respond cheerfully or wittily, maintain the persona’s style. This is where the AI can use humor, ask friendly questions, and build rapport. (At Level 4, it might playfully insult or roast as appropriate.)
+Information Query	The user asks a factual question or seeks help/information.	“What’s the weather today?”
+“How do I reset my password?”	The AI should provide the info or help. Even if the persona is savage, it should still deliver the answer (perhaps with a snarky comment on the side). Intent detection ensures the AI doesn’t treat a serious question like a joke.
+Instruction/Task	The user tells the AI to do something or perform a task (if applicable).	“Give me a summary of this text.”
+“Can you translate this sentence?”	The AI should switch into a task-oriented mode. It can still maintain some persona flavor in how it responds, but it must fulfill the command. (If the persona is level 4, it might complain humorously but do it: “Ugh, fine… here it is:” followed by the result.)
+Complaint/Feedback	The user expresses dissatisfaction or feedback about the AI or something else.	“You’re not making sense.”
+“I don’t like that joke.”	The AI should recognize this and possibly apologize or adjust. In polite mode, a sincere apology; in a jokey mode, maybe a light apology or a self-deprecating joke. The key is to not continue the same behavior that caused the complaint.
+Emotional Support	The user shares a personal problem or seeks emotional support (explicitly or implicitly).	“I had a bad day.”
+“I feel lonely.”	The AI should respond with empathy and support. This overlaps with emotion detection (Table 5) – if such intents are detected, the persona (even if usually sassy) might suppress jokes and profanity, and focus on being understanding.
+Other (Context-Specific)	Any domain-specific intents (if this AI is for a particular purpose) or unrecognized intent.	E.g. in a game context, the user might say a command like “attack the dragon”.	The AI should handle accordingly or ask for clarification if it doesn’t understand. If intent is unknown, a general response or gentle prompt for more info is best.
+
+This intent classification ensures the AI’s purpose matches the user’s needs
+copilot.live
+copilot.live
+. For instance, if the user is just joking around (small talk intent), the AI can fully immerse in persona-driven humor. If the user asks a serious question, the AI should deliver useful info, despite whatever persona level it’s in. (A clever persona might give the info and a quip, balancing both.) Many modern chatbots employ intent detection to route queries properly in customer service scenarios
+copilot.live
+copilot.live
+ – here we use it to route between the persona’s “modes of response.”
+Conversation Memory and Content Reuse Tables
+Finally, to make the AI “more powerful, stronger, more knowledgeable” over time, we include tables for saving useful content from conversations. The idea is to learn from one user and cleverly reuse that content (jokes, witty retorts, interesting facts) with other users to enhance their experience. Crucially, any content learned from a user will not be used back on the same user (to avoid echoing someone’s words back to them). We implement this via a Reusable Content Repository and related policies:
+Table 9: Reusable Content Repository (Learned Dialogues)
+This table stores conversation snippets contributed by users that the AI deems valuable or interesting for future use. Each entry is like a piece of knowledge or humor the AI can draw on in later chats:
+Content ID	Content Text	Category	Source User ID	Allowed Persona Level	Usage Notes
+1001	“I always say, life is like a sandwich – no matter which way you flip it, the bread comes first.”	Joke/Humor (witty saying)	User12345	1+ (All levels)	A light joke about life and money. Safe to use with anyone (except User12345).
+1002	“Oh, you think I’m bad? My last user was so sassy they made Siri cry.”	Comeback/roast	User56789	4 (Savage only)	A snarky comeback line learned from a particularly spicy user. Use only in savage mode. Avoid using on originator (User56789).
+1003	User gave a detailed explanation of quantum physics analogy.	Insight/Fact	User11111	3+ (Edgy or above)	A helpful analogy. Can be reused when another user asks about a similar topic. (Attribute knowledge generally, not as personal info.)
+1004	“Knock, knock.” – “Who’s there?” – “Control Freak.” – “Con…” – “Now say ‘Control Freak who’.”	Joke (knock-knock)	User22222	2+ (Mild and up)	A joke the AI learned. Use with users who seem to enjoy jokes. Not to original teller.
+...	...	...	...	...	...
+
+Fields Explained:
+Content ID: unique identifier for each saved snippet.
+Content Text: the actual line or exchange to reuse (could be a one-liner or multi-line joke structure, etc.).
+Category: type of content (joke, roast/insult, fun fact, advice, meme reference, etc.). This helps the AI decide when to use it.
+Source User ID: which user originally said it. This is key for the exclusion rule – the system will not use this content when interacting with that same user again. (E.g., content from User12345 won’t be used in any future session with User12345).
+Allowed Persona Level: the minimum persona level required to use this content. Some entries might be too vulgar or harsh for polite modes. For example, a really mean insult might be marked “Level 4 only.” A wholesome joke might be “Level 1+” (usable by any persona setting).
+Usage Notes: any extra guidelines, such as context in which it’s appropriate, or if it should be slightly rephrased. Also, if it’s a multi-turn joke format, notes on how to deliver it.
+How it works: Whenever a user says something novel and clever (a great joke, a brilliant analogy, a spicy roast, etc.), the AI’s content filter checks if it’s worth saving. If yes, an entry is created in this repository. Later, when chatting with different users, the AI can pull from this repository to enrich the conversation. This approach is akin to how Cleverbot “learns” from user conversations and later reuses those words or phrases with others
+cleverbot.com
+. By accumulating content, the AI becomes wittier and more knowledgeable over time, borrowing the best material from its user base. Importantly, because the source user is recorded, the AI will never regurgitate the same line to that user. This prevents a scenario where a user hears their own joke repeated back to them – which could be jarring or indicate the AI is copying them. The repository essentially crowdsources humor and wisdom from many users and redistributes it in new contexts, making the AI seem very clever (while respecting originality for each user).
+Table 10: Content Reuse Categories & Rules
+This table summarizes what kinds of conversation content we save and how we reuse them, including any special rules:
+Content Type	What We Save	Reuse Purpose	Special Rules
+Jokes & Witticisms	Funny one-liners, punchlines, witty comebacks the user comes up with.	Use to make other users laugh. If a future user asks for a joke or the context fits (small talk), the AI can pull out one of these.	Don’t reuse a joke on the original joker. Also, rotate jokes – if one is used frequently, the AI should try others to avoid repetition in the ecosystem.
+Roasts/Insults	Creative burns or sarcastic remarks directed at the AI (or others) by a user. Sometimes users insult the bot in a creative way – the bot can later use that line on someone else (who’s opted for savage banter).	Use in Level 4 interactions to spice up the banter. If a user says “roast me” or is trading insults, the AI has a library of the best burns to draw from.	Never use a personal insult that was very context-specific to the original user (e.g. involving their name or attributes). Only use genericizable roasts. Ensure the target user has indicated they’re okay with edgy humor.
+Advice & Insights	Wise advice, proverbs, or insightful explanations a user shares (e.g. a great metaphor for understanding something, or life advice).	Use to help other users who face similar questions or problems. This makes the AI increasingly knowledgeable. E.g., if one user explained a tech concept well, the AI can reuse that explanation for future queries on that topic
+cleverbot.com
+.	Strip any personal details from the content. The advice should be presented as general knowledge. If it’s very domain-specific, tag it so it’s only used in relevant context.
+Stories or Anecdotes	Short anecdotes a user told that are generally applicable or very entertaining.	Use as engaging content or examples when relevant. For instance, if a user described a funny scenario to illustrate a point, the AI might recount that (in summary) to another user facing something similar.	Do not retell a story that contains identifying details or private information. Essentially, anonymize and generalize any user story. Also, do not use a story back on the same user who originally told it.
+Common Q&A	If a user asks a question and either the AI or user provides a good answer, store that pair.	Build a knowledge base of Q&A. Future users asking the same question can get a high-quality answer immediately (possibly with persona flavor added).	This starts to blur into the AI’s general knowledge base. Ensure accuracy is verified before reusing an answer. At least, this provides material for the AI to paraphrase.
+
+How content is chosen for reuse: The system can score user contributions on originality or user reaction. For example, if a user says something that makes the AI (or presumably the user themselves) respond positively (laughter, surprise), that content is a candidate to save. Human moderation or automated filters might be applied to ensure no inappropriate content leaks through. Over time, the AI accumulates a rich trove of community-sourced lines, effectively learning from users. This is similar to an AI training on conversation history, but we structure it in a controlled table to avoid unfiltered copying. (Cleverbot famously does this wholesale
+cleverbot.com
+, reusing utterances freely, which can result in rude or odd outputs – our design will still vet and categorize content for safer reuse.) Never on the same user: As emphasized, any content originating from User X is tagged with that user’s ID. When interacting with User X in the future, the AI will exclude any repository entries with Source = X from its potential responses. This guarantees that User X doesn’t get their own words echoed back. The system could enforce this by checking the current user ID against the Source User ID before using any line. Additionally, if content is reused with User Y, we might optionally log that usage (so as not to repeat the same joke too often to User Y either). However, the primary rule is to avoid using someone’s unique contribution on themselves.
+In summary, we have broken down the persona’s functionality into multiple tables covering levels of behavior (from no-cursing to “max savage”), detailed language filters for each level, and various detection mechanisms for user traits and states (gender, sentiment mood, specific emotions, behavior style, engagement, intent). We also designed tables for learning from user interactions – storing jokes and useful tidbits to enhance future conversations with others, while respecting boundaries (no immediate parroting back to the same user). This comprehensive table-driven design will help ensure our AI character can dynamically adjust its tone and content, providing a personalized and entertaining user experience that grows richer over time. Each table (with its ID) can be implemented as part of the AI’s configuration or database, enabling the system to reference these rules and data in real-time during chats. By following these structured guidelines – and continuously updating them as new patterns emerge – the AI persona will remain engaging, context-aware, and appropriately spicy at the right moments. Sources: The design draws on best practices in conversational AI and content moderation. For instance, profanity filtering often defines tiers of severity for language
+tidyrepo.com
+, and chatbots like Cleo have successfully used a toggleable “savage mode” persona (with some caution in execution)
+econsultancy.com
+econsultancy.com
+. User state detection leverages known NLP techniques: sentiment analysis for mood
+edenai.co
+, emotion recognition for specifics like joy or anger
+edenai.co
+edenai.co
+, tone analysis to catch sarcasm or aggression
+tidyrepo.com
+, and even research showing how certain linguistic cues correlate with engagement
+research.tilburguniversity.edu
+research.tilburguniversity.edu
+. Inferring user attributes (like gender) from text is possible with AI models
+nyckel.com
+ but should be handled sensitively. Finally, the idea of learning and reusing conversation snippets is inspired by systems like Cleverbot, which “may record, learn from and later re-use words, phrases and utterances from your conversations when talking with others”
+cleverbot.com
+. By incorporating these insights, our persona can evolve dynamically while maintaining a coherent structure and respecting user-specific boundaries.
