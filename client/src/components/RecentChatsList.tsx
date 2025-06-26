@@ -191,9 +191,9 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
       <h3 className="text-white font-semibold text-sm mb-3">Recent Chats</h3>
       {recentChats.map((chat) => (
         <div key={chat.id} className="relative">
-          <button
+          <div
             onClick={() => onSelectChat(chat.id, chat.vibe)}
-            className="w-full text-left p-3 rounded-lg transition-all duration-200 relative group"
+            className="w-full text-left p-3 rounded-lg transition-all duration-200 relative group cursor-pointer"
             style={{
               background: '#2e2e2e',
               boxShadow: '3px 3px 6px #1f1f1f, -3px -3px 6px #3d3d3d',
@@ -229,7 +229,7 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
                 <MoreVertical className="w-3 h-3 text-white" />
               </button>
             </div>
-          </button>
+          </div>
           
           {activeMenu === chat.id && (
             <div 
