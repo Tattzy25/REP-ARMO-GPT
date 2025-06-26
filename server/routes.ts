@@ -211,41 +211,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Analyze user message and get persona context
         const userId = session.userId || 1; // Default user ID if not set
-        const analysis = await personaAI.analyzeUserMessage(
-          userId, 
-          messageData.sessionId || 1, 
-          messageData.content, 
-          messageData.content.length,
-          Date.now()
-        );
+        // Temporarily disabled to fix database issues
+        // const analysis = await personaAI.analyzeUserMessage(
+        //   userId, 
+        //   messageData.sessionId || 1, 
+        //   messageData.content, 
+        //   messageData.content.length,
+        //   Date.now()
+        // );
         
-        // Get enhanced persona context
-        const personaContext = await personaAI.getPersonaContext(
-          userId, 
-          messageData.sessionId!, 
-          session.vibe
-        );
+        // Get enhanced persona context - temporarily disabled
+        // const personaContext = await personaAI.getPersonaContext(
+        //   userId, 
+        //   messageData.sessionId!, 
+        //   session.vibe
+        // );
         
-        console.log('Persona analysis:', analysis);
-        console.log('Persona level:', personaContext.currentPersonaLevel);
+        // console.log('Persona analysis:', analysis);
+        // console.log('Persona level:', personaContext.currentPersonaLevel);
 
         let stream;
         if (hasImages && messageData.metadata && 'attachments' in messageData.metadata) {
-          // Use vision-enabled AI response with persona enhancement
-          console.log('Using enhanced vision API for image analysis');
-          stream = await generateAIResponseWithVisionPersona(
+          // Use vision-enabled AI response
+          console.log('Using vision API for image analysis');
+          stream = await generateAIResponseWithVision(
             messageData.content, 
             session.vibe, 
-            messageData.metadata.attachments as any[],
-            personaContext
+            messageData.metadata.attachments as any[]
           );
         } else {
-          // Use regular text-only AI response with persona enhancement
-          console.log('Using enhanced persona API');
-          stream = await generateAIResponseStreamPersona(
+          // Use regular text-only AI response
+          console.log('Using text-only AI response');
+          stream = await generateAIResponseStream(
             messageData.content, 
-            session.vibe, 
-            personaContext
+            session.vibe
           );
         }
         

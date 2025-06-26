@@ -42,12 +42,13 @@ export class PersonaAIIntegration {
     const moodAnalysis = this.detectMood(message);
     if (moodAnalysis) {
       await storage.recordMoodDetection({
+        id: `mood_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
         sessionId,
         detectedMood: moodAnalysis.mood,
-        confidence: moodAnalysis.confidence,
-        triggerPhrases: moodAnalysis.triggers,
-        sentimentScore: moodAnalysis.sentimentScore
+        sentimentScore: moodAnalysis.sentimentScore,
+        indicators: moodAnalysis.triggers,
+        aiResponseAdjustment: `Detected ${moodAnalysis.mood} mood`
       });
     }
 
@@ -55,13 +56,14 @@ export class PersonaAIIntegration {
     const emotionAnalysis = this.detectEmotion(message);
     if (emotionAnalysis) {
       await storage.recordEmotionDetection({
+        id: `emotion_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
         sessionId,
         primaryEmotion: emotionAnalysis.primary,
         secondaryEmotion: emotionAnalysis.secondary,
-        intensity: emotionAnalysis.intensity,
-        confidence: emotionAnalysis.confidence,
-        triggerWords: emotionAnalysis.triggers
+        emotionIntensity: emotionAnalysis.intensity,
+        indicators: emotionAnalysis.triggers,
+        adaptationStrategy: `Adjusting for ${emotionAnalysis.primary} emotion`
       });
     }
 
@@ -69,12 +71,13 @@ export class PersonaAIIntegration {
     const behaviorAnalysis = this.detectBehavior(message, messageLength);
     if (behaviorAnalysis) {
       await storage.recordBehaviorDetection({
+        id: `behavior_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
         sessionId,
-        behaviorType: behaviorAnalysis.type,
-        confidence: behaviorAnalysis.confidence,
+        behaviorStyle: behaviorAnalysis.type,
+        confidenceScore: behaviorAnalysis.confidence,
         indicators: behaviorAnalysis.indicators,
-        communicationStyle: behaviorAnalysis.style
+        aiAdjustment: behaviorAnalysis.style
       });
     }
 
@@ -82,11 +85,12 @@ export class PersonaAIIntegration {
     const engagementAnalysis = this.detectEngagement(message, messageLength, responseTime);
     if (engagementAnalysis) {
       await storage.recordEngagementDetection({
+        id: `engagement_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
         sessionId,
         engagementLevel: engagementAnalysis.level,
         messageLength,
-        responseTimeSeconds: responseTime,
+        responseTime: responseTime,
         questionCount: engagementAnalysis.questionCount,
         emojiCount: engagementAnalysis.emojiCount,
         enthusiasmScore: engagementAnalysis.enthusiasmScore
@@ -97,12 +101,14 @@ export class PersonaAIIntegration {
     const intentAnalysis = this.detectIntent(message);
     if (intentAnalysis) {
       await storage.recordIntentDetection({
+        id: `intent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
         sessionId,
-        detectedIntent: intentAnalysis.intent,
-        confidence: intentAnalysis.confidence,
-        context: intentAnalysis.context,
-        responseApproach: intentAnalysis.approach
+        intentType: intentAnalysis.intent,
+        confidenceScore: intentAnalysis.confidence,
+        intentDescription: intentAnalysis.context,
+        responseApproach: intentAnalysis.approach,
+        requiresPersonaAdjustment: true
       });
     }
   }
