@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { vibeConfigs } from '@/lib/vibes';
+import RecentChatsList from './RecentChatsList';
 import logoImage from '@assets/logo - armo gpt_1750839826863.png';
 
 interface SidebarProps {
@@ -8,12 +9,14 @@ interface SidebarProps {
   onVibeSelect: (vibe: string) => void;
   onSidebarToggle?: (isCollapsed: boolean) => void;
   isMobile?: boolean;
+  onSelectChat?: (sessionId: number, vibe: string) => void;
 }
 
-export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false }: SidebarProps) {
+export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false, onSelectChat }: SidebarProps) {
   const features = Object.values(vibeConfigs);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showRecentChats, setShowRecentChats] = useState(false);
 
   const handleToggle = (collapsed: boolean) => {
     setIsCollapsed(collapsed);
@@ -258,62 +261,95 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
             </div>
           </motion.button>
 
-          {/* Recent Chats Button */}
-          <motion.button
+          {/* Chat History Button */}
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            onClick={() => {
-              setIsDropdownOpen(false);
-              onVibeSelect('recent');
-            }}
-            className="w-full mb-3 relative px-4 py-3 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border"
-            style={{
-              background: 'linear-gradient(to bottom, #171717, #242424)',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)',
-              borderColor: '#292929',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.boxShadow = 'none';
-              const svg = e.currentTarget.querySelector('svg path');
-              if (svg) svg.style.fill = '#ffffff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
-              const svg = e.currentTarget.querySelector('svg path');
-              if (svg) svg.style.fill = 'url(#chatIconGradient)';
-            }}
+            className="w-full mb-3"
           >
-            RECENT CHATS
             <div 
-              className="ml-3 flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200"
+              className="flex rounded-2xl p-1"
               style={{
-                background: 'linear-gradient(to bottom, #171717, #242424)',
-                boxShadow: '0 0 1px rgba(0, 0, 0, 1)',
-                borderColor: '#252525',
+                background: '#2e2e2e',
+                boxShadow: '10px 10px 20px #1f1f1f, -10px -10px 20px #3d3d3d'
               }}
             >
-              <svg 
-                viewBox="0 0 24 24" 
-                className="w-5 h-5"
+              <button 
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  setShowRecentChats(true);
+                }}
+                className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl border-none cursor-pointer font-bold text-xs uppercase transition-all duration-200"
                 style={{
-                  filter: 'drop-shadow(0 10px 20px rgba(26, 25, 25, 0.9)) drop-shadow(0 0 4px rgba(0, 0, 0, 1))',
+                  background: '#2e2e2e',
+                  boxShadow: 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d',
+                  color: '#ffffff',
+                  margin: '3px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = 'none';
+                  e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                  e.target.style.color = '#ffffff';
+                  const svg = e.target.querySelector('svg');
+                  if (svg) svg.style.fill = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
+                  e.target.style.background = '#2e2e2e';
+                  e.target.style.color = '#ffffff';
+                  const svg = e.target.querySelector('svg');
+                  if (svg) svg.style.fill = '#ffffff';
                 }}
               >
-                <defs>
-                  <linearGradient y2="100%" x2="100%" y1="0%" x1="0%" id="chatIconGradient">
-                    <stop style={{stopColor: '#FFFFFF', stopOpacity: 1}} offset="0%" />
-                    <stop style={{stopColor: '#AAAAAA', stopOpacity: 1}} offset="100%" />
-                  </linearGradient>
-                </defs>
-                <path fill="url(#chatIconGradient)" d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
-              </svg>
+                <svg 
+                  viewBox="0 0 24 24" 
+                  className="w-4 h-4 mr-2"
+                  style={{ fill: '#ffffff', transition: 'fill 0.2s' }}
+                >
+                  <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                </svg>
+                Recent
+              </button>
+              
+              <button 
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  onVibeSelect('default'); // Start new chat with default vibe
+                }}
+                className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl border-none cursor-pointer font-bold text-xs uppercase transition-all duration-200"
+                style={{
+                  background: '#2e2e2e',
+                  boxShadow: 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d',
+                  color: '#ffffff',
+                  margin: '3px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = 'none';
+                  e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                  e.target.style.color = '#ffffff';
+                  const svg = e.target.querySelector('svg');
+                  if (svg) svg.style.fill = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
+                  e.target.style.background = '#2e2e2e';
+                  e.target.style.color = '#ffffff';
+                  const svg = e.target.querySelector('svg');
+                  if (svg) svg.style.fill = '#ffffff';
+                }}
+              >
+                <svg 
+                  viewBox="0 0 24 24" 
+                  className="w-4 h-4 mr-2"
+                  style={{ fill: '#ffffff', transition: 'fill 0.2s' }}
+                >
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                New Chat
+              </button>
             </div>
-          </motion.button>
+          </motion.div>
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
@@ -384,6 +420,54 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
             <div 
               className="fixed inset-0 z-30" 
               onClick={() => setIsDropdownOpen(false)}
+              style={{ pointerEvents: 'auto' }}
+            />
+          )}
+
+          {/* Recent Chats List */}
+          {showRecentChats && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="fixed left-4 right-4 z-50 rounded-xl overflow-hidden"
+              style={{
+                top: '120px',
+                bottom: '20px',
+                width: '272px',
+                background: '#2e2e2e',
+                boxShadow: '8px 8px 16px #272727, -8px -8px 16px #353535',
+              }}
+            >
+              <div className="h-full flex flex-col">
+                <div className="p-4 border-b border-gray-600/20">
+                  <button
+                    onClick={() => setShowRecentChats(false)}
+                    className="text-white hover:text-red-400 transition-colors"
+                  >
+                    ← Back to Vibez
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <RecentChatsList 
+                    onSelectChat={(sessionId, vibe) => {
+                      setShowRecentChats(false);
+                      if (onSelectChat) {
+                        onSelectChat(sessionId, vibe);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Overlay to close recent chats */}
+          {showRecentChats && (
+            <div 
+              className="fixed inset-0 z-30" 
+              onClick={() => setShowRecentChats(false)}
               style={{ pointerEvents: 'auto' }}
             />
           )}

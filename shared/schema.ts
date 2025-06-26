@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -11,8 +11,11 @@ export const users = pgTable("users", {
 export const chatSessions = pgTable("chat_sessions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
-  vibe: text("vibe").notNull(),
+  vibe: varchar("vibe", { length: 50 }).notNull(),
+  title: varchar("title", { length: 200 }),
+  isArchived: boolean("is_archived").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+  lastActiveAt: timestamp("last_active_at").defaultNow(),
 });
 
 export const messages = pgTable("messages", {
@@ -43,6 +46,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertChatSessionSchema = createInsertSchema(chatSessions).omit({
   id: true,
   createdAt: true,
+  lastActiveAt: true,
+  isArchived: true,
 });
 
 export const insertMessageSchema = createInsertSchema(messages).omit({
