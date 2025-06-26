@@ -141,7 +141,6 @@ function App() {
                 isSidebarCollapsed={isSidebarCollapsed}
                 isMobile={isMobile}
                 currentSessionId={currentSessionId}
-                currentSessionId={currentSessionId}
               />
             )}
 
