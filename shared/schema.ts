@@ -114,3 +114,92 @@ export type InsertErrorLog = z.infer<typeof insertErrorLogSchema>;
 export type ErrorLog = typeof errorLogs.$inferSelect;
 export type InsertTempStorage = z.infer<typeof insertTempStorageSchema>;
 export type TempStorage = typeof tempStorage.$inferSelect;
+
+// Persona system tables
+export const personaLevels = pgTable("persona_levels", {
+  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "level_1_chill", "level_2_snarky", etc.
+  levelNumber: integer("level_number").notNull(), // 1, 2, 3, 4
+  name: varchar("name", { length: 100 }).notNull(), // "On meds", "Meds wearing off", etc.
+  description: text("description").notNull(),
+  systemPrompt: text("system_prompt").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const welcomeMessages = pgTable("welcome_messages", {
+  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "wm_1_chill", "wm_1_alt", etc.
+  personaLevelId: varchar("persona_level_id", { length: 50 }).notNull()
+    .references(() => personaLevels.id),
+  message: text("message").notNull(),
+  isDefault: boolean("is_default").default(false).notNull(), // primary vs alt message
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const wordLists = pgTable("word_lists", {
+  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "whitelist_level_1", "blacklist_level_4", etc.
+  personaLevelId: varchar("persona_level_id", { length: 50 }).notNull()
+    .references(() => personaLevels.id),
+  listType: varchar("list_type", { length: 20 }).notNull(), // "whitelist" or "blacklist"
+  language: varchar("language", { length: 10 }).notNull(), // "english" or "armenian"
+  words: text("words").array().notNull(), // Array of words
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userPersonaSettings = pgTable("user_persona_settings", {
+  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "user_persona_123"
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  currentPersonaLevel: varchar("current_persona_level", { length: 50 }).notNull()
+    .references(() => personaLevels.id),
+  languagePreference: varchar("language_preference", { length: 20 }).default("english").notNull(), // "english" or "armenian"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userBehaviorTracking = pgTable("user_behavior_tracking", {
+  id: varchar("id", { length: 50 }).primaryKey(), // e.g., "behavior_track_456"
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  messageId: integer("message_id").references(() => messages.id),
+  sentimentScore: real("sentiment_score"), // -1.0 to 1.0
+  emotionalState: varchar("emotional_state", { length: 50 }), // "frustrated", "happy", "confused", etc.
+  engagementLevel: varchar("engagement_level", { length: 20 }), // "active", "passive", "disengaged"
+  conversationTopic: varchar("conversation_topic", { length: 100 }),
+  responseTime: integer("response_time"), // seconds between messages
+  messageLength: integer("message_length"), // character count
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Insert schemas for persona tables
+export const insertPersonaLevelSchema = createInsertSchema(personaLevels).omit({
+  createdAt: true,
+});
+
+export const insertWelcomeMessageSchema = createInsertSchema(welcomeMessages).omit({
+  createdAt: true,
+});
+
+export const insertWordListSchema = createInsertSchema(wordLists).omit({
+  createdAt: true,
+});
+
+export const insertUserPersonaSettingsSchema = createInsertSchema(userPersonaSettings).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserBehaviorTrackingSchema = createInsertSchema(userBehaviorTracking).omit({
+  createdAt: true,
+});
+
+// Types for persona tables
+export type InsertPersonaLevel = z.infer<typeof insertPersonaLevelSchema>;
+export type PersonaLevel = typeof personaLevels.$inferSelect;
+export type InsertWelcomeMessage = z.infer<typeof insertWelcomeMessageSchema>;
+export type WelcomeMessage = typeof welcomeMessages.$inferSelect;
+export type InsertWordList = z.infer<typeof insertWordListSchema>;
+export type WordList = typeof wordLists.$inferSelect;
+export type InsertUserPersonaSettings = z.infer<typeof insertUserPersonaSettingsSchema>;
+export type UserPersonaSettings = typeof userPersonaSettings.$inferSelect;
+export type InsertUserBehaviorTracking = z.infer<typeof insertUserBehaviorTrackingSchema>;
+export type UserBehaviorTracking = typeof userBehaviorTracking.$inferSelect;
