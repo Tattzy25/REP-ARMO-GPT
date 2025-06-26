@@ -15,9 +15,11 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
   const [message, setMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const handleSend = () => {
     if ((message.trim() || hasStagedFiles) && !disabled) {
@@ -45,85 +47,85 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     }
   };
 
-  const initSpeechRecognition = useCallback(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      console.warn('Speech recognition not supported in this browser');
-      return null;
-    }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    
-    recognition.onstart = () => {
-      console.log('Speech recognition started');
-      setIsRecording(true);
-    };
-    
-    recognition.onresult = (event: any) => {
-      let transcript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
-      }
-      
-      // Update the message as user speaks
-      setMessage(prev => {
-        const words = prev.split(' ');
-        const lastWord = words[words.length - 1];
-        // If the last word was from speech recognition, replace it
-        if (event.results[event.resultIndex].isFinal) {
-          return prev + (prev ? ' ' : '') + transcript;
-        } else {
-          // Show interim results
-          const baseMessage = words.slice(0, -1).join(' ');
-          return baseMessage + (baseMessage ? ' ' : '') + transcript;
-        }
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
       });
-    };
-    
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
+      
+      audioChunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        await transcribeAudio(audioBlob);
+        
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+      console.log('Recording started with Gemini STT');
+      
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+      alert('Could not access microphone. Please check permissions.');
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
-    };
-    
-    recognition.onend = () => {
-      console.log('Speech recognition ended');
-      setIsRecording(false);
-    };
-    
-    return recognition;
+      setIsTranscribing(true);
+      console.log('Recording stopped, processing with Gemini...');
+    }
+  }, []);
+
+  const transcribeAudio = useCallback(async (audioBlob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+      
+      const response = await fetch('/api/voice/transcribe', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.success && result.transcription) {
+        console.log('Gemini transcription:', result.transcription);
+        setMessage(prev => prev + (prev ? ' ' : '') + result.transcription);
+        autoResize();
+      } else {
+        console.error('Transcription failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Transcription request failed:', error);
+    } finally {
+      setIsTranscribing(false);
+    }
   }, []);
 
   const handleVoiceToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    if (disabled) return;
+    if (disabled || isTranscribing) return;
     
     if (!isRecording) {
-      // Start recording
-      const recognition = initSpeechRecognition();
-      if (recognition) {
-        recognitionRef.current = recognition;
-        try {
-          recognition.start();
-        } catch (error) {
-          console.error('Failed to start speech recognition:', error);
-          setIsRecording(false);
-        }
-      } else {
-        alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
-      }
+      startRecording();
     } else {
-      // Stop recording
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-        recognitionRef.current = null;
-      }
-      setIsRecording(false);
+      stopRecording();
     }
     
     onVoiceToggle();
@@ -148,11 +150,11 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
     textareaRef.current?.focus();
   }, []);
 
-  // Cleanup speech recognition on unmount
+  // Cleanup media recorder on unmount
   useEffect(() => {
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
       }
     };
   }, []);
@@ -281,15 +283,19 @@ export default function InputArea({ onSendMessage, onVoiceToggle, onFileUpload, 
               {/* Voice Toggle Button */}
               <button
                 onClick={handleVoiceToggle}
-                disabled={disabled}
+                disabled={disabled || isTranscribing}
                 className="p-2 rounded-full transition-all duration-200 hover:bg-gray-600"
                 style={{
-                  background: isRecording ? '#ff4444' : 'transparent',
-                  animation: isRecording ? 'pulse 1.5s infinite' : 'none'
+                  background: isRecording ? '#ff4444' : isTranscribing ? '#ffaa44' : 'transparent',
+                  animation: isRecording ? 'pulse 1.5s infinite' : isTranscribing ? 'pulse 2s infinite' : 'none'
                 }}
-                title={isRecording ? "Click to stop recording" : "Click to start voice input"}
+                title={
+                  isTranscribing ? "Processing with Gemini..." :
+                  isRecording ? "Click to stop recording" : 
+                  "Click to start voice input (Gemini STT)"
+                }
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill={isRecording ? "white" : "#9ca3af"}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={isRecording || isTranscribing ? "white" : "#9ca3af"}>
                   <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1Z"/>
                   <path d="M19 10V12C19 16.42 15.42 20 11 20H9V22H11C16.52 22 21 17.52 21 12V10H19Z"/>
                   <path d="M5 10V12C5 13.66 6.34 15 8 15V13C6.34 13 5 11.66 5 10Z"/>

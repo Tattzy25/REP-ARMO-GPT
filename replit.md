@@ -152,6 +152,9 @@ The application features multiple AI personality modes:
 - June 26, 2025. Added real-time voice transcription with interim results display in chat input
 - June 26, 2025. Created visual feedback with pulse animation for recording state
 - June 26, 2025. Added browser compatibility checks and error handling for speech recognition
+- June 26, 2025. Replaced Web Speech API with Google Gemini STT for more accurate transcription
+- June 26, 2025. Implemented audio recording with MediaRecorder API and Gemini audio processing
+- June 26, 2025. Added visual feedback for recording and transcription states with different colors
 
 ## User Preferences
 
