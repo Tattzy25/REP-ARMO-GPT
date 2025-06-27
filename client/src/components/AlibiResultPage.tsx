@@ -69,7 +69,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
       setAlibiStory(data.alibi);
     } catch (error) {
       console.error('Error generating alibi:', error);
-      setAlibiStory("Sorry, I couldn't generate your alibi. Please try again.");
+      setAlibiStory("CUSTOM_ERROR");
     } finally {
       setIsGenerating(false);
     }
