@@ -16,6 +16,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   const [isExpanded, setIsExpanded] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -29,6 +30,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
     }
     
     setIsPlaying(false);
+    setIsLoadingAudio(false);
   };
 
   const showErrorMessage = (message: string) => {
@@ -127,6 +129,11 @@ Create a cohesive, detailed alibi story that weaves these elements together into
   };
 
   const handleReadAloud = () => {
+    if (isLoadingAudio) {
+      // Do nothing if already loading
+      return;
+    }
+    
     if (isPlaying) {
       // Stop current playback
       stopPlayback();
@@ -138,7 +145,8 @@ Create a cohesive, detailed alibi story that weaves these elements together into
 
   const playWithElevenLabs = async (text: string) => {
     try {
-      setIsPlaying(true);
+      setIsLoadingAudio(true);
+      setIsPlaying(false);
       
       const response = await fetch('/api/voice/speak', {
         method: 'POST',
@@ -157,6 +165,8 @@ Create a cohesive, detailed alibi story that weaves these elements together into
       const audio = new Audio(audioUrl);
       
       setCurrentAudio(audio);
+      setIsLoadingAudio(false);
+      setIsPlaying(true);
       
       audio.onended = () => {
         setIsPlaying(false);
@@ -175,6 +185,7 @@ Create a cohesive, detailed alibi story that weaves these elements together into
     } catch (error) {
       console.error('ElevenLabs TTS failed:', error);
       setIsPlaying(false);
+      setIsLoadingAudio(false);
       setCurrentAudio(null);
       showErrorMessage(`Voice synthesis error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -297,7 +308,7 @@ Create a cohesive, detailed alibi story that weaves these elements together into
               background: '#3a3a3a',
               boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
-            title="Restart Process"
+            title="Restart"
           >
             <RotateCcw size={24} />
           </button>
@@ -333,9 +344,16 @@ Create a cohesive, detailed alibi story that weaves these elements together into
               background: '#3a3a3a',
               boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
-            title="Read Out Loud"
+            title={isLoadingAudio ? "Loading audio..." : "Read Out Loud"}
+            disabled={isLoadingAudio}
           >
-            {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
+            {isLoadingAudio ? (
+              <Loader2 size={24} className="animate-spin" />
+            ) : isPlaying ? (
+              <Pause size={24} />
+            ) : (
+              <Volume2 size={24} />
+            )}
           </button>
           
           <button
@@ -390,9 +408,9 @@ Create a cohesive, detailed alibi story that weaves these elements together into
               boxShadow: '12px 12px 24px #323232, -12px -12px 24px #424242'
             }}
           >
-            <h3 className="text-lg font-semibold mb-4 text-white">Restart Confirmation</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">Restart</h3>
             <p className="text-gray-300 mb-6">
-              Are you sure you want to restart? This will clear your current alibi and start over.
+              Do you want to restart?
             </p>
             <div className="flex gap-4 justify-end">
               <button
