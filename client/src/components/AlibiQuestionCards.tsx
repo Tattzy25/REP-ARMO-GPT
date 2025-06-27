@@ -293,8 +293,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             transition={{ duration: 0.6, delay: 0.2 }}
             className="max-w-2xl w-full rounded-2xl p-8 text-center"
             style={{
-              background: '#3a3a3a',
-              boxShadow: '20px 20px 40px #323232, -20px -20px 40px #484848'
+              background: 'black'
             }}
           >
             {/* Hopar Avatar/Icon */}
