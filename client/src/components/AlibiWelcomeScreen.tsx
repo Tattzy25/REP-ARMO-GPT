@@ -22,14 +22,20 @@ export function AlibiWelcomeScreen({ onStart }: AlibiWelcomeScreenProps) {
         >
           {/* Title with gradient text */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl lg:text-6xl font-bold mb-2 text-white">
-              &lt;code&gt;
+            <h1 className="text-4xl lg:text-6xl font-bold mb-2">
+              <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+                &lt;code&gt;
+              </span>
             </h1>
-            <h2 className="text-3xl lg:text-5xl font-bold mb-2 text-white">
-              GimmiAlibiAra
+            <h2 className="text-3xl lg:text-5xl font-bold mb-2">
+              <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+                GimmiAlibiAra
+              </span>
             </h2>
-            <h3 className="text-4xl lg:text-6xl font-bold text-white">
-              &lt;/code&gt;
+            <h3 className="text-4xl lg:text-6xl font-bold">
+              <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+                &lt;/code&gt;
+              </span>
             </h3>
           </div>
 
