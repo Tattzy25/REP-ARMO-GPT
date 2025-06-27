@@ -166,10 +166,10 @@ function App() {
           >
             <button
               onClick={handleSidebarToggle}
-              className="absolute left-4 p-3 rounded-full text-white"
+              className="absolute left-4 w-10 h-10 rounded-full text-white flex items-center justify-center"
               style={{ background: "#2e2e2e" }}
             >
-              <Menu size={20} />
+              <div className="w-3 h-3 rounded-full bg-white"></div>
             </button>
             <div className="text-white font-bold text-lg">{getPageTitle()}</div>
           </div>
