@@ -12,9 +12,10 @@ interface SidebarProps {
   isMobile?: boolean;
   onSelectChat?: (sessionId: number, vibe: string) => void;
   onMobileClose?: () => void;
+  isMobileSidebarOpen?: boolean;
 }
 
-export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false, onSelectChat, onMobileClose }: SidebarProps) {
+export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false, onSelectChat, onMobileClose, isMobileSidebarOpen = true }: SidebarProps) {
   const features = Object.values(vibeConfigs);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -30,7 +31,10 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
       <div 
         className={`fixed left-0 top-0 h-screen border-r border-armo-accent/20 flex flex-col z-10 overflow-hidden transition-all duration-300`}
         style={isMobile ? {
-          background: '#2e2e2e'
+          background: '#2e2e2e',
+          left: isMobileSidebarOpen ? '0px' : '-320px',
+          width: '320px',
+          transition: 'left 0.3s ease-in-out'
         } : {
           background: '#2e2e2e',
           width: isCollapsed ? '0px' : '320px',

@@ -200,6 +200,7 @@ function App() {
               isMobile={isMobile}
               onSelectChat={handleSelectChat}
               onMobileClose={closeMobileSidebar}
+              isMobileSidebarOpen={isMobileSidebarOpen}
             />
           </div>
 
