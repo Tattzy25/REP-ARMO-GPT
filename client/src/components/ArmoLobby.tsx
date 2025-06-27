@@ -20,8 +20,9 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
    * - Feature button text: text-white (White)
    * 
    * BUTTON COLORS:
-   * - Feature buttons background: Linear gradient #ff4444, #4444ff, #ff8800 (Red, Blue, Orange)
-   * - Button shadows: #323232 (dark) and #484848 (light)
+   * - Feature buttons background: #3a3a3a (Dark gray - neumorphic cards)
+   * - Feature buttons border-radius: 24px
+   * - Feature buttons shadows: inset 14px 14px 28px #313131, inset -14px -14px 28px #434343
    * - Character circle background: Gradient from armo-red via blue-500 to orange-400
    * - Character name tag background: #404040
    * 
@@ -89,16 +90,17 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onSelectVibe(feature.id)}
-              className="group p-6 rounded-2xl transition-all duration-300"
+              className="group p-6 transition-all duration-300"
               style={{
-                background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
-                boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+                borderRadius: '24px',
+                background: '#3a3a3a',
+                boxShadow: 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848, 0 0 8px rgba(255, 68, 68, 0.15)';
+                e.currentTarget.style.boxShadow = 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343, 0 0 8px rgba(255, 68, 68, 0.15)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848';
+                e.currentTarget.style.boxShadow = 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343';
               }}
             >
               <div className="text-4xl mb-3 group-hover:bounce-slow">{feature.emoji}</div>
