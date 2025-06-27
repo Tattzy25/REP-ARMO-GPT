@@ -157,7 +157,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             <ArrowLeft size={20} className="text-white" />
           </button>
           <div className="flex-1 text-center">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold text-white">
               Gimmi Alibi Ara
             </h1>
           </div>
@@ -298,8 +298,14 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             }}
             className="mt-6 px-8 py-3 rounded-xl text-white font-semibold hover:scale-105 transition-transform duration-200"
             style={{
-              background: 'linear-gradient(to right, #ef4444, #3b82f6, #f97316)',
+              background: '#3a3a3a',
               boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848, 0 0 20px rgba(147, 51, 234, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848';
             }}
           >
             Generate My Alibi
