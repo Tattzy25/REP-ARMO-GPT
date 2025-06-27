@@ -10,8 +10,9 @@ import CallInterface from "@/components/CallInterface";
 import Sidebar from "@/components/Sidebar";
 import { AlibiWelcomeScreen } from "@/components/AlibiWelcomeScreen";
 import { AlibiQuestionCards } from "@/components/AlibiQuestionCards";
+import { AlibiRecapPage } from "@/components/AlibiRecapPage";
 
-type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-result";
+type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
@@ -20,6 +21,8 @@ function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [alibiAnswers, setAlibiAnswers] = useState<string[]>([]);
+  const [alibiQuestions, setAlibiQuestions] = useState<string[]>([]);
 
   // Mobile detection
   useEffect(() => {
@@ -75,14 +78,29 @@ function App() {
     setAppState("lobby");
   };
 
-  const handleAlibiComplete = (answers: string[]) => {
+  const handleAlibiComplete = (answers: string[], questions: string[]) => {
     console.log('Alibi answers:', answers);
-    // TODO: Generate alibi story using AI
-    setAppState("alibi-result");
+    setAlibiAnswers(answers);
+    setAlibiQuestions(questions);
+    setAppState("alibi-recap");
   };
 
   const handleAlibiQuestionsBack = () => {
     setAppState("alibi-welcome");
+  };
+
+  const handleRecapEdit = (questionIndex: number) => {
+    // For now, just go back to questions - later we can implement inline editing
+    setAppState("alibi-questions");
+  };
+
+  const handleRecapBack = () => {
+    setAppState("alibi-questions");
+  };
+
+  const handleRecapNext = () => {
+    // TODO: Generate final alibi story
+    setAppState("alibi-result");
   };
 
   const handleSidebarToggle = () => {
@@ -178,6 +196,16 @@ function App() {
               <AlibiQuestionCards
                 onComplete={handleAlibiComplete}
                 onBack={handleAlibiQuestionsBack}
+              />
+            )}
+
+            {appState === "alibi-recap" && (
+              <AlibiRecapPage
+                questions={alibiQuestions}
+                answers={alibiAnswers}
+                onEdit={handleRecapEdit}
+                onBack={handleRecapBack}
+                onNext={handleRecapNext}
               />
             )}
           </div>

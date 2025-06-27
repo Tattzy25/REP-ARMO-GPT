@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { QuestionBubble } from "./QuestionBubble";
 
 interface AlibiQuestionCardsProps {
-  onComplete: (answers: string[]) => void;
+  onComplete: (answers: string[], questions: string[]) => void;
   onBack: () => void;
   username?: string;
 }
@@ -42,7 +42,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
       setCurrentQuestion(currentQuestion + 1);
     } else {
       // All questions answered, proceed to completion
-      onComplete(answers);
+      onComplete(answers, questions);
     }
   };
 
@@ -52,7 +52,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      onComplete(answers);
+      onComplete(answers, questions);
     }
   };
 
@@ -259,7 +259,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
               // Validate all answers before completing
               const allValid = answers.every(answer => validateAnswer(answer).isValid);
               if (allValid) {
-                onComplete(answers);
+                onComplete(answers, questions);
               }
             }}
             className="mt-6 px-8 py-3 rounded-xl text-white font-semibold hover:scale-105 transition-transform duration-200"
