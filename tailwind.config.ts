@@ -7,8 +7,8 @@ export default {
     extend: {
       fontFamily: {
         'audiowide': ['Audiowide', 'cursive'],
-        'inter': ['Inter', 'sans-serif'],
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif'],
+        'roboto-condensed': ['Roboto Condensed', 'sans-serif'],
+        sans: ['Roboto Condensed', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
