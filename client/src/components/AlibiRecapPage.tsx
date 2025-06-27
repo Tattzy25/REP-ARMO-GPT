@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause, Loader2 } from 'lucide-react';
 
 interface AlibiRecapPageProps {
   questions: string[];
@@ -15,6 +15,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [tempAnswer, setTempAnswer] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -67,6 +68,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
     }
     
     setIsPlaying(false);
+    setIsLoadingAudio(false);
   };
 
   const showErrorMessage = (message: string) => {
@@ -76,6 +78,11 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   };
 
   const handleReadAloud = () => {
+    if (isLoadingAudio) {
+      // Do nothing if already loading
+      return;
+    }
+    
     if (isPlaying) {
       // Stop current playback
       stopPlayback();
@@ -88,7 +95,8 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
 
   const playWithElevenLabs = async (text: string) => {
     try {
-      setIsPlaying(true);
+      setIsLoadingAudio(true);
+      setIsPlaying(false);
       
       const response = await fetch('/api/voice/speak', {
         method: 'POST',
@@ -107,6 +115,8 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
       const audio = new Audio(audioUrl);
       
       setCurrentAudio(audio);
+      setIsLoadingAudio(false);
+      setIsPlaying(true);
       
       audio.onended = () => {
         setIsPlaying(false);
@@ -125,6 +135,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
     } catch (error) {
       console.error('ElevenLabs TTS failed:', error);
       setIsPlaying(false);
+      setIsLoadingAudio(false);
       setCurrentAudio(null);
       showErrorMessage(`Voice synthesis error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -274,9 +285,16 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               background: '#3a3a3a',
               boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
             }}
-            title={isPlaying ? "Pause" : "Read Aloud"}
+            title={isLoadingAudio ? "Loading audio..." : isPlaying ? "Pause" : "Read Aloud"}
+            disabled={isLoadingAudio}
           >
-            {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
+            {isLoadingAudio ? (
+              <Loader2 size={24} className="animate-spin" />
+            ) : isPlaying ? (
+              <Pause size={24} />
+            ) : (
+              <Volume2 size={24} />
+            )}
           </button>
         </div>
 
