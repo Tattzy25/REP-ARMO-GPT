@@ -356,25 +356,6 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#3a3a3a' }}>
-      {/* Back Button */}
-      {!isCallActive && (
-        <button
-          onClick={onBack}
-          className="fixed top-6 left-6 z-20 p-3 rounded-full transition-colors duration-200"
-          style={{
-            background: '#3a3a3a',
-            boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8844)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#3a3a3a';
-          }}
-        >
-          <ArrowLeft className="h-6 w-6 text-white" />
-        </button>
-      )}
 
       <div className="w-full max-w-md">
         {!isCallActive && !isRinging ? (
