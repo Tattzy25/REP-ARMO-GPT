@@ -154,19 +154,19 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="p-6 rounded-3xl"
               style={{
-                background: '#bbbbbb',
-                boxShadow: '12px 12px 24px #9f9f9f, -12px -12px 24px #d7d7d7'
+                background: '#3a3a3a',
+                boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
               }}
             >
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   Question {index + 1}
                 </h3>
-                <p className="text-gray-700">{question}</p>
+                <p className="text-white">{question}</p>
               </div>
               
               <div>
-                <h4 className="text-md font-medium text-gray-800 mb-2">Your Answer:</h4>
+                <h4 className="text-md font-medium text-white mb-2">Your Answer:</h4>
                 {editingIndex === index ? (
                   <div className="space-y-3">
                     <textarea
@@ -192,7 +192,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
                   </div>
                 ) : (
                   <div className="flex items-start justify-between">
-                    <p className="text-gray-700 flex-1">{answers[index]}</p>
+                    <p className="text-white flex-1">{answers[index]}</p>
                     <button
                       onClick={() => handleEditClick(index)}
                       className="ml-4 px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
