@@ -11,11 +11,11 @@ interface AlibiQuestionCardsProps {
 
 const getPersonalizedQuestions = (username: string = "[Your Name]") => [
   `Yo ${username}, what mess are you trying to cover up?`,
-  `Who's breathing down your neck, ${username}?`,
-  `Which ride-or-die partner backs your alibi, ${username}?`,
-  `What "totally legit" excuse are you selling, ${username}?`,
-  `Where were you "definitely not" when the chaos went down, ${username}?`,
-  `What "bulletproof" evidence seals the deal, ${username}?`
+  `Who's breathing down your neck?`,
+  `Which ride-or-die partner backs your alibi?`,
+  `What "totally legit" excuse are you selling?`,
+  `Where were you "definitely not" when the chaos went down?`,
+  `What "bulletproof" evidence seals the deal?`
 ];
 
 export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]" }: AlibiQuestionCardsProps) {
@@ -31,21 +31,20 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
       const joke = generateJoke(currentQuestion, answers);
       setJokeContent(joke);
       setShowJokePopup(true);
-      
-      // Auto-hide popup after 4 seconds
-      setTimeout(() => {
-        setShowJokePopup(false);
-        // Continue to next question or complete
-        if (currentQuestion < questions.length - 1) {
-          setCurrentQuestion(currentQuestion + 1);
-        } else {
-          onComplete(answers);
-        }
-      }, 4000);
     } else if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       // All questions answered, proceed to completion
+      onComplete(answers);
+    }
+  };
+
+  const handleContinueFromJoke = () => {
+    setShowJokePopup(false);
+    // Continue to next question or complete
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
       onComplete(answers);
     }
   };
@@ -85,9 +84,9 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
       const partner = userAnswers[2] || "their imaginary friend";
       
       const jokes = [
-        `So let me get this straight... you're in trouble for "${mess}" and "${investigator}" is hunting you down? Good thing "${partner}" has your back - nothing says "trustworthy alibi" like that combo! 😏`,
-        `Ah yes, "${mess}" - truly the crime of the century! And with "${investigator}" breathing down your neck, you called in "${partner}" as your alibi? This is either genius or completely unhinged! 🤔`,
-        `"${mess}" eh? Classic move! And now "${investigator}" is onto you, so you're banking on "${partner}" to save the day? This alibi is already legendary! 🎭`
+        `"${mess}" and "${investigator}" is after you? With "${partner}" as backup? This should be good! 😏`,
+        `So "${investigator}" caught you with "${mess}" and you're counting on "${partner}"? Bold strategy! 🤔`,
+        `"${mess}" - classic! Now "${investigator}" is hunting you and "${partner}" is your ace? Legendary! 🎭`
       ];
       
       return jokes[Math.floor(Math.random() * jokes.length)];
@@ -97,9 +96,9 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
       const evidence = userAnswers[5] || "rock-solid proof";
       
       const jokes = [
-        `Wait, wait, wait... your excuse is "${excuse}" and you were at "${location}" with "${evidence}" as proof? This alibi is so wild even I'm starting to believe it! 🤯`,
-        `Let me paint this picture: "${excuse}" happened while you were at "${location}" and your evidence is "${evidence}"... you're either a criminal mastermind or completely insane! 🎨`,
-        `So your grand finale is "${excuse}" at "${location}" backed by "${evidence}"? Hopar is both impressed and terrified by your creativity! 🎪`
+        `"${excuse}" at "${location}" with "${evidence}" as proof? Even I'm starting to believe this! 🤯`,
+        `"${excuse}" happened at "${location}" and your evidence is "${evidence}"? You're either genius or insane! 🎨`,
+        `"${excuse}" at "${location}" backed by "${evidence}"? Hopar is impressed and terrified! 🎪`
       ];
       
       return jokes[Math.floor(Math.random() * jokes.length)];
@@ -308,13 +307,20 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
               - Armo Hopar
             </motion.div>
             
-            {/* Auto-close indicator */}
-            <motion.div
-              initial={{ width: "100%" }}
-              animate={{ width: "0%" }}
-              transition={{ duration: 4, ease: "linear" }}
-              className="mt-4 h-1 bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 rounded-full"
-            />
+            {/* Continue Button */}
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 1.5 }}
+              onClick={handleContinueFromJoke}
+              className="mt-6 px-6 py-3 rounded-xl text-white font-medium transition-all duration-200 hover:scale-105"
+              style={{
+                background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8844)',
+                boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+              }}
+            >
+              Continue
+            </motion.button>
           </motion.div>
         </motion.div>
       )}
