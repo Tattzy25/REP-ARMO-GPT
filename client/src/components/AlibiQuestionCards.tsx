@@ -232,7 +232,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
         </motion.div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between w-full max-w-2xl mb-8">
+        <div className="flex items-center justify-center gap-8 w-full max-w-2xl mb-8">
           {/* Previous Button */}
           <button
             onClick={handlePrevious}
