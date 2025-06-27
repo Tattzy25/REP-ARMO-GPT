@@ -55,12 +55,10 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           {/* Description Text */}
           <div className="text-center">
             <p className="text-white text-xl leading-relaxed font-medium">
-              this screen would be the. introduction<br />
-              screen. the very first screen we would<br />
-              briefly explain how this is going to<br />
-              work. The user has the option to either<br />
-              click back and leave or click start<br />
-              and. continue
+              You've summoned Armo Hopar's Alibi Maker.<br />
+              Time to cook up a cover story so wild<br />
+              even your landlord will believe it.<br />
+              Ready? Hit "Let's Roll."
             </p>
           </div>
         </motion.div>
@@ -90,7 +88,7 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
                   fill="currentColor"
                 />
               </svg>
-              <span>START</span>
+              <span>LET'S ROLL</span>
             </div>
           </motion.button>
         </div>
