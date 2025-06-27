@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import phoneRingAudio from '@assets/11L-PHONE_RINGING_CALLIN-1751063550449_1751063667978.mp3';
 
 interface CallHoparInterfaceProps {
   onBack: () => void;
@@ -9,6 +10,7 @@ interface CallHoparInterfaceProps {
 
 export function CallHoparInterface({ onBack, username = "User" }: CallHoparInterfaceProps) {
   const [isCallActive, setIsCallActive] = useState(false);
+  const [isRinging, setIsRinging] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isOnSpeaker, setIsOnSpeaker] = useState(true);
@@ -70,9 +72,27 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   const startCall = async () => {
     if (checkCooldownStatus()) return;
     
-    setIsCallActive(true);
-    setCallDuration(0);
+    // Start ringing phase
+    setIsRinging(true);
     
+    // Play phone ringing sound
+    const ringAudio = new Audio(phoneRingAudio);
+    ringAudio.loop = true;
+    ringAudio.volume = 0.5;
+    ringAudio.play();
+    
+    // Ring for 2-3 seconds before "answering"
+    setTimeout(() => {
+      ringAudio.pause();
+      ringAudio.currentTime = 0;
+      setIsRinging(false);
+      setIsCallActive(true);
+      setCallDuration(0);
+      startActualCall();
+    }, 2500);
+  };
+
+  const startActualCall = async () => {
     // Start call timer (60-90 seconds)
     const callLength = Math.floor(Math.random() * (90 - 60 + 1)) + 60; // 60-90 seconds
     
@@ -353,7 +373,7 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
       )}
 
       <div className="w-full max-w-md">
-        {!isCallActive ? (
+        {!isCallActive && !isRinging ? (
           // Pre-call screen
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -390,6 +410,41 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
             >
               <Phone className="h-8 w-8 text-white" />
             </button>
+          </motion.div>
+        ) : isRinging ? (
+          // Ringing screen
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-center"
+          >
+            <div className="mb-12">
+              <motion.div 
+                className="w-32 h-32 mx-auto mb-6 rounded-full flex items-center justify-center"
+                style={{
+                  background: '#3a3a3a',
+                  boxShadow: '16px 16px 32px #323232, -16px -16px 32px #484848'
+                }}
+                animate={{
+                  scale: [1, 1.1, 1],
+                  boxShadow: [
+                    '16px 16px 32px #323232, -16px -16px 32px #484848',
+                    '20px 20px 40px #323232, -20px -20px 40px #484848',
+                    '16px 16px 32px #323232, -16px -16px 32px #484848'
+                  ]
+                }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <Phone className="h-12 w-12 text-green-500" />
+              </motion.div>
+              
+              <h2 className="text-2xl font-bold text-white mb-2">Calling Hopar...</h2>
+              <p className="text-gray-300">Connecting to the roast master</p>
+            </div>
           </motion.div>
         ) : (
           // Active call screen

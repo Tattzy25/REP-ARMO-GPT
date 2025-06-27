@@ -794,7 +794,7 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       
       // Get user behavioral context for personalized roasting
       const userId = 1; // For now, using default user
-      const sessionId = Date.now(); // Temporary session ID
+      const sessionId = Math.floor(Math.random() * 1000000); // Random session ID for call context
       const personaContext = await personaAI.getPersonaContext(userId, sessionId, "call");
       
       const welcomePrompts = [
@@ -921,12 +921,12 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
         }]
       });
 
-      const userTranscript = transcriptionResponse.text();
+      const userTranscript = transcriptionResponse.text || "";
       console.log('User said:', userTranscript);
       
       // Step 2: Generate Level 4 Savage roast response using Groq
       const userId = 1; // For now, using default user
-      const sessionId = Date.now(); // Temporary session ID
+      const sessionId = Math.floor(Math.random() * 1000000); // Random session ID for call context
       const personaContext = await personaAI.getPersonaContext(userId, sessionId, "call");
       
       // Level 4 Savage Persona with maximum profanity
