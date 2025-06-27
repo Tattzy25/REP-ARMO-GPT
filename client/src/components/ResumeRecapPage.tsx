@@ -198,7 +198,6 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
           </button>
         </div>
       </motion.div>
-
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center p-4 pt-20">
         <div className="w-full max-w-4xl">
@@ -217,9 +216,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
               <h2 className="text-2xl font-bold text-white">Review Your Career Info</h2>
             </div>
             
-            <p className="text-gray-300">
-              Here's a summary of your career information. Make sure everything looks good before generating your resume.
-            </p>
+            <p className="text-gray-300">H</p>
           </motion.div>
 
           {/* Q&A Cards */}
@@ -377,7 +374,6 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
           </div>
         </div>
       </div>
-
       {/* Error Popup */}
       {showError && (
         <motion.div
