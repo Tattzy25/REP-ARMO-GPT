@@ -19,10 +19,13 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
    * - Subtitle "Your chaotic Armenian AI companion": text-gray-300 (Light gray)
    * - Feature button text: text-white (White)
    * 
-   * BUTTON COLORS:
+   * BUTTON COLORS - LOCKED DO NOT CHANGE UNLESS SPECIFICALLY REQUESTED:
    * - Feature buttons background: #3a3a3a (Dark gray - neumorphic cards)
    * - Feature buttons border-radius: 24px
    * - Feature buttons shadows: inset 14px 14px 28px #313131, inset -14px -14px 28px #434343
+   * 
+   * ⚠️ CRITICAL: These feature card styles are LOCKED and must NOT be modified
+   * unless the user specifically requests changes to "those cards" or "feature cards"
    * - Character circle background: Gradient from armo-red via blue-500 to orange-400
    * - Character name tag background: #404040
    * 
@@ -81,6 +84,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8"
         >
+          {/* 🔒 LOCKED: Feature card styling - DO NOT MODIFY unless user specifically requests "change those cards" */}
           {features.map((feature, index) => (
             <motion.button
               key={feature.id}
