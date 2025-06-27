@@ -1,8 +1,8 @@
-# Armo-GPT Replit Project
+# Armo Lobby Replit Project
 
 ## Overview
 
-Armo-GPT is a full-stack TypeScript web application featuring an Armenian-themed AI chatbot with multiple personality modes ("vibes"). The application combines a React frontend with an Express.js backend, using PostgreSQL for data persistence and supporting both text and voice interactions.
+Armo Lobby is a full-stack TypeScript web application featuring an Armenian-themed AI chatbot with multiple personality modes ("vibes"). The application combines a React frontend with an Express.js backend, using PostgreSQL for data persistence and supporting both text and voice interactions.
 
 ## System Architecture
 
@@ -98,7 +98,7 @@ The application features multiple AI personality modes:
 - June 25, 2025. Added red-blue-orange gradient to main content headers and cards
 - June 25, 2025. Updated sidebar to dark theme (#2e2e2e background, #272727/#353535 shadows)
 - June 25, 2025. Removed Armenian flag icon from sidebar header
-- June 25, 2025. Added Armo-GPT logo image with soft white glow to sidebar header
+- June 25, 2025. Added Armo Lobby logo image with soft white glow to sidebar header
 - June 25, 2025. Replaced "Choose Your Vibe" heading with neumorphic "THE VIBEZ" dropdown button using custom gradient styling
 - June 25, 2025. Made sidebar fixed positioned with internal scrolling capability
 - June 25, 2025. Added Gallery and Recent Chats buttons below Vibez with matching neumorphic styling and icons
@@ -180,7 +180,7 @@ The application features multiple AI personality modes:
 - June 26, 2025. COMPLETE: Created comprehensive analytics dashboard with mood distribution, emotion trends, and behavior patterns
 - June 26, 2025. COMPLETE: Added database seeding system with sample content and language permission matrices
 - June 26, 2025. COMPLETE: Implemented user-specified vibe-to-persona level mapping system
-- June 26, 2025. ACTIVE: Armo-GPT = Level 1 (Polite), Therapy = Level 2 (Mild), Smoke & Roast = Level 4 (Savage), Call Hopar = Level 4 (Savage)
+- June 26, 2025. ACTIVE: Armo Lobby = Level 1 (Polite), Therapy = Level 2 (Mild), Smoke & Roast = Level 4 (Savage), Call Hopar = Level 4 (Savage)
 - June 27, 2025. COMPLETE: Implemented production-ready "Gimmi Alibi Ara" feature with real AI integration
 - June 27, 2025. COMPLETE: Fixed all placeholder implementations with real Groq API calls using meta-llama/llama-4-scout-17b-16e-instruct model
 - June 27, 2025. COMPLETE: Implemented real ElevenLabs voice synthesis with voice ID pNInz6obpgDQGcFmaJgB

@@ -1,4 +1,4 @@
-# Armo-GPT
+# Armo Lobby
 
 An advanced bilingual Armenian-American AI character platform featuring "Armo Hopar" with sophisticated persona engine capabilities.
 

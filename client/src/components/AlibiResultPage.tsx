@@ -228,7 +228,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
                 >
                   <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
                   <p className="text-xl text-gray-700">Crafting your perfect alibi...</p>
-                  <p className="text-sm text-gray-500 mt-2">Armo-GPT is working its magic</p>
+                  <p className="text-sm text-gray-500 mt-2">Armo Lobby is working its magic</p>
                 </motion.div>
               ) : (
                 <motion.div

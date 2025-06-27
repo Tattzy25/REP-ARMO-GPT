@@ -159,14 +159,14 @@ function App() {
   const getPageTitle = () => {
     switch (appState) {
       case "lobby":
-        return "Armo-GPT";
+        return "Armo Lobby";
       case "chat":
-        if (currentVibe === "default") return "Armo-GPT";
+        if (currentVibe === "default") return "Armo Lobby";
         if (currentVibe === "roast") return "Smoke & Roast";
         if (currentVibe === "therapy") return "Therapy Session";
         if (currentVibe === "famous") return "Make Me Famous";
         if (currentVibe === "job") return "You Are Hired";
-        return "Armo-GPT";
+        return "Armo Lobby";
       case "call":
         return "Call Hopar";
       case "alibi-welcome":
@@ -180,7 +180,7 @@ function App() {
       case "caption-result":
         return "Make Me Famous Ara";
       default:
-        return "Armo-GPT";
+        return "Armo Lobby";
     }
   };
 

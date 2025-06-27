@@ -6,6 +6,28 @@ interface ArmoLobbyProps {
 }
 
 export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
+  /*
+   * ARMO LOBBY PAGE COLOR SPECIFICATIONS (FOR AI REFERENCE ONLY):
+   * 
+   * BACKGROUND COLORS:
+   * - Main page background: #3a3a3a (Dark gray)
+   * - Central container background: #3a3a3a (Same dark gray)
+   * - Container neumorphic shadows: #323232 (darker) and #484848 (lighter)
+   * 
+   * TEXT COLORS:
+   * - Main title "Բարի գալուստ!" and "Welcome to Armo Lobby": Red-blue-orange gradient (from-red-500 via-blue-500 to-orange-500)
+   * - Subtitle "Your chaotic Armenian AI companion": text-gray-300 (Light gray)
+   * - Feature button text: text-white (White)
+   * 
+   * BUTTON COLORS:
+   * - Feature buttons background: Linear gradient #ff4444, #4444ff, #ff8800 (Red, Blue, Orange)
+   * - Button shadows: #323232 (dark) and #484848 (light)
+   * - Character circle background: Gradient from armo-red via blue-500 to orange-400
+   * - Character name tag background: #404040
+   * 
+   * HEADER TITLE: Should dynamically show "Armo Lobby" when appState === "lobby"
+   */
+  
   // Filter out buttons that start with "Armo" and exclude utility buttons
   const features = Object.values(vibeConfigs).filter(feature => 
     !feature.title.startsWith('Armo') && 
@@ -27,7 +49,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
           <h1 className="text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 glow-animation">
             Բարի գալուստ!
           </h1>
-          <p className="text-2xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-500 to-orange-500">Welcome to Armo-GPT</p>
+          <p className="text-2xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-500 to-orange-500">Welcome to Armo Lobby</p>
           <p className="text-lg text-gray-300">Your chaotic Armenian AI companion is ready to serve</p>
         </motion.div>
 
