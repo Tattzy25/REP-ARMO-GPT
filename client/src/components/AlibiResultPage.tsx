@@ -17,7 +17,8 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
-  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const stopPlayback = () => {
     // Stop ElevenLabs audio
@@ -27,13 +28,13 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
       setCurrentAudio(null);
     }
     
-    // Stop Web Speech API
-    if (currentUtterance) {
-      window.speechSynthesis.cancel();
-      setCurrentUtterance(null);
-    }
-    
     setIsPlaying(false);
+  };
+
+  const showErrorMessage = (message: string) => {
+    setErrorMessage(message);
+    setShowError(true);
+    setTimeout(() => setShowError(false), 4000);
   };
 
   useEffect(() => {
@@ -138,7 +139,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
       });
 
       if (!response.ok) {
-        throw new Error('Failed to synthesize speech');
+        throw new Error(`Voice synthesis failed: ${response.status} ${response.statusText}`);
       }
 
       const audioBlob = await response.blob();
@@ -157,7 +158,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
         setIsPlaying(false);
         setCurrentAudio(null);
         URL.revokeObjectURL(audioUrl);
-        fallbackToWebSpeech(text);
+        showErrorMessage('Audio playback failed. Please try again.');
       };
       
       await audio.play();
@@ -165,33 +166,11 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
       console.error('ElevenLabs TTS failed:', error);
       setIsPlaying(false);
       setCurrentAudio(null);
-      fallbackToWebSpeech(text);
+      showErrorMessage(`Voice synthesis error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
-  const fallbackToWebSpeech = (text: string) => {
-    if ('speechSynthesis' in window) {
-      setIsPlaying(true);
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
-      
-      setCurrentUtterance(utterance);
-      
-      utterance.onend = () => {
-        setIsPlaying(false);
-        setCurrentUtterance(null);
-      };
-      
-      utterance.onerror = () => {
-        setIsPlaying(false);
-        setCurrentUtterance(null);
-      };
-      
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+
 
   const handleRestartClick = () => {
     setShowRestartConfirm(true);
@@ -403,6 +382,33 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             </div>
           </div>
         </div>
+      )}
+
+      {/* Error Popup */}
+      {showError && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 50 }}
+          className="fixed bottom-6 right-6 z-50 max-w-sm"
+        >
+          <div
+            className="p-4 rounded-xl text-white"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646',
+              border: '2px solid #ff4444'
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div>
+                <h4 className="font-semibold text-red-400 mb-1">Error</h4>
+                <p className="text-sm text-gray-300">{errorMessage}</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       )}
     </div>
   );
