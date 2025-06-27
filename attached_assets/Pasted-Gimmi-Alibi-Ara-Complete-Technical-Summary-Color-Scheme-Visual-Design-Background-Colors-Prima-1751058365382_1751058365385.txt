@@ -1,0 +1,167 @@
+Gimmi Alibi Ara - Complete Technical Summary
+Color Scheme & Visual Design
+Background Colors
+Primary Background: #3a3a3a (all main content areas)
+Secondary Background: #2e2e2e (recap page variant)
+Card Background: #3a3a3a (consistent across all components)
+Interactive Elements: #404040 (scoring cards, alternative endings)
+Neumorphic Shadow System
+Light Shadows: #424242, #464646
+Dark Shadows: #323232, #2e2e2e
+Button Effects: 12px 12px 24px #323232, -12px -12px 24px #424242
+Smaller Elements: 8px 8px 16px #323232, -8px -8px 16px #424242
+Gradient System
+Header Gradient: linear-gradient(135deg, #ff4444, #4444ff, #ff8800)
+Achievement Badges: Same red-blue-orange gradient
+Hover Effects: Applied to interactive elements
+Typography Colors
+Primary Text: #ffffff (white)
+Secondary Text: #d7d7d7 (light gray)
+Accent Text: #4444ff (blue for interactive elements)
+Score Text: #22c55e (green for believability scores)
+Component Structure & Flow
+1. AlibiWelcomeScreen
+Purpose: Feature introduction and onboarding
+Card Type: Single welcome card with gradient header
+Button: "Start Your Alibi" - triggers navigation to questions
+Background: #3a3a3a with neumorphic styling
+2. AlibiQuestionCards
+Purpose: 6-question data collection interface
+Card Type: Progressive question cards with answer inputs
+Questions Flow:
+"Yo User, what mess are you trying to cover up?"
+"Who's breathing down your neck?"
+"Which ride-or-die partner backs your alibi?"
+"What 'totally legit' excuse are you selling?"
+"Where were you 'definitely not' when the chaos went down?"
+"What 'bulletproof' evidence seals the deal?"
+Navigation: Back/Next buttons with progress indicator
+Auto-advance: Moves to next question when current is answered
+3. AlibiRecapPage
+Purpose: Review and edit collected answers
+Card Type: Editable answer review cards
+Background: #2e2e2e (darker variant for distinction)
+Features: Inline editing with "Edit" buttons per answer
+Action Buttons:
+Back: Return to questions
+Download: Save recap as text file
+Copy: Copy answers to clipboard
+Read Aloud: ElevenLabs TTS with loading states
+Generate: Animated proceed button
+4. AlibiResultPage (Enhanced with Interactive Features)
+Purpose: Display final AI-generated alibi with gamification
+Card Type: Main result card with multiple interactive sections
+Interactive Elements:
+Progressive Story Reveal: Chunks appear with typing indicators
+Believability Score Card: 1-10 rating with visual dots
+Achievement Badges: Trophy icons with gradient backgrounds
+Alternative Endings: Branching story options
+Action Buttons:
+Restart: Confirmation popup
+Download: Save alibi as text
+Copy: Clipboard functionality
+Read Aloud: ElevenLabs with loading protection
+Expand: Show more/less text
+Share: Native share API
+Database Integration & Table Mappings
+Core Session Tables
+chat_sessions: Main session tracking
+id: Auto-increment primary key
+userId: null (guest sessions)
+vibe: "gimmi-alibi-ara"
+createdAt: Timestamp
+Message Storage Tables
+messages: User inputs and AI responses
+sessionId: Links to chat_sessions.id
+sender: "user" | "armo"
+content: Answer text or alibi story
+metadata: JSON with type and interactive data
+User Message Type: 'alibi-request'
+AI Message Type: 'alibi-response'
+Persona Detection Tables (18 Total)
+user_mood_detections: Emotional analysis
+user_emotion_detections: Primary/secondary emotions
+user_behavior_detections: Communication patterns
+user_engagement_detections: Investment measurement
+user_intent_detections: Goal identification
+user_gender_detections: Optional gender analysis
+persona_permissions: Language permission matrices
+persona_content_learned: Content learning system
+persona_analytics: User behavior analytics
+reusable_content: Suggestion database
+Persona System Mapping
+Vibe: "gimmi-alibi-ara"
+Persona Level: 3 (Edgy)
+Persona ID: "edgy"
+Profanity Level: 2 (moderate: fuck, bitch, ass, shit, damn, hell)
+User ID: 1 (temporary guest ID)
+Button Functionality & Icons
+Navigation Buttons
+Back: <ArrowLeft> - Returns to previous step
+Generate: Custom animated button with sparkle SVG
+Restart: <RotateCcw> - Shows confirmation popup
+Action Buttons (All Neumorphic Styled)
+Download: <Download> - Creates text file download
+Copy: <Copy> - Clipboard API integration
+Share: <Share2> - Native share or fallback copy
+Read Aloud: Dynamic icon system:
+<Loader2> (spinning) during loading
+<Volume2> when ready to play
+<Pause> when audio is playing
+Expand: <Maximize2> - Toggle text visibility
+Interactive Story Elements
+Believability Dots: Visual 1-10 rating system
+Achievement Badges: Trophy emoji with gradient backgrounds
+Alternative Ending Buttons: Selectable story branches
+Progress Indicator: Animated dots during story reveal
+API Endpoints & Data Flow
+Primary Endpoint
+POST /api/alibi/generate
+Input: prompt, answers, username, interactive
+Output: Enhanced response with interactive features
+Features: Story chunks, believability score, achievements, alternative endings
+Supporting Endpoints
+POST /api/voice/speak: ElevenLabs TTS (voice ID: pNInz6obpgDQGcFmaJgB)
+GET /api/chat/recent: Session retrieval for Recent Chats
+GET /api/chat/session/:id/messages: Session restoration
+AI Integration & Persona System
+AI Model Configuration
+Primary Model: meta-llama/llama-4-scout-17b-16e-instruct
+API Provider: Groq API
+Processing: Non-streaming for alibi generation
+Voice Synthesis: ElevenLabs with Armenian-accented voice
+Interactive Storytelling Features
+Progressive Reveal: Stories split into 2-sentence chunks
+Story Branching: 3 alternative endings generated via AI
+Believability Scoring: Algorithm analyzes answer quality (1-10)
+Achievement System: 6 different badges based on creativity metrics
+Gamification Elements
+Believability Score: Real-time analysis of answer consistency
+Achievement Badges:
+"Detail Master" (200+ characters)
+"Edgy Storyteller" (profanity usage)
+"Cultural Authentic" (Armenian elements)
+"Precision Planner" (4+ detailed answers)
+"Evidence Expert" (location/evidence consistency)
+"Vocabulary Virtuoso" (20+ unique words)
+Recent Chats Integration
+Session Naming
+Display Format: "Alibi Story [time]" instead of "Chat [time]"
+Vibe Mapping: "gimmi-alibi-ara" → "Alibi Story"
+Session Restoration: Full alibi content restored when clicked
+Data Persistence
+Answer Storage: User responses saved as message metadata
+Alibi Storage: Generated stories with interactive data
+Session Tracking: Complete interaction history maintained
+Mobile Responsiveness
+Responsive Design
+Mobile-First: Optimized for touch interactions
+Card Stacking: Vertical layout on small screens
+Button Sizing: Touch-friendly 44px minimum targets
+Text Scaling: Responsive typography across devices
+Interactive Elements
+Touch Gestures: Smooth animations for mobile
+Loading States: Clear visual feedback on all actions
+Error Handling: Mobile-optimized error popups
+Audio Controls: Touch-friendly play/pause functionality
+This comprehensive system creates a sophisticated, gamified alibi generation experience that leverages the full 18-table persona detection system while maintaining the authentic Armenian-American character and neumorphic design aesthetic throughout the entire user journey.

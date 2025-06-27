@@ -646,7 +646,7 @@ Additional Context:
 
   app.post("/api/resume/generate", async (req: Request, res: Response) => {
     try {
-      const { answers, questions, username } = req.body;
+      const { answers, questions, username, interactive = false } = req.body;
 
       if (!answers || !Array.isArray(answers) || answers.length !== 6) {
         return res.status(400).json({ 
@@ -704,10 +704,57 @@ Make it sound authentic and tailored to their target role. Address it for ${user
       console.log('Generated resume:', resume.substring(0, 100) + '...');
       console.log('Saved to session:', resumeSession.id);
 
-      res.json({ 
-        resume,
-        sessionId: resumeSession.id 
-      });
+      // Interactive Features
+      let responseData: any = { resume, sessionId: resumeSession.id };
+
+      if (interactive) {
+        // Generate story chunks for progressive reveal
+        const chunks = resume.split('. ').reduce((acc, sentence, index) => {
+          const chunkIndex = Math.floor(index / 3); // 3 sentences per chunk for professional content
+          if (!acc[chunkIndex]) acc[chunkIndex] = '';
+          acc[chunkIndex] += sentence + (index < resume.split('. ').length - 1 ? '. ' : '');
+          return acc;
+        }, [] as string[]);
+
+        if (chunks.length > 1) {
+          responseData.chunks = chunks;
+        }
+
+        // Generate professionalism score based on answer analysis
+        const professionalismScore = generateProfessionalismScore(answers);
+        responseData.professionalismScore = professionalismScore.score;
+        responseData.scoreAnalysis = professionalismScore.analysis;
+
+        // Generate achievements based on career planning and specificity
+        const achievements = generateResumeAchievements(answers, resume);
+        if (achievements.length > 0) {
+          responseData.achievements = achievements;
+        }
+
+        // Generate alternative career focuses
+        try {
+          const alternativePrompt = `Create 3 different career focus variations for this resume: "${resume}"
+
+Based on the candidate's profile, suggest alternative positioning approaches that emphasize different strengths or target different opportunities. Each should be 2-3 sentences.
+
+Format as JSON array: ["focus1", "focus2", "focus3"]`;
+
+          const alternativeResponse = await generateAIResponseFallback(alternativePrompt, "you-are-hired-ara");
+          
+          try {
+            const alternatives = JSON.parse(alternativeResponse);
+            if (Array.isArray(alternatives) && alternatives.length > 0) {
+              responseData.alternativeEndings = alternatives;
+            }
+          } catch (parseError) {
+            console.log('Could not parse alternative career focuses, skipping');
+          }
+        } catch (error) {
+          console.log('Could not generate alternative career focuses, skipping');
+        }
+      }
+
+      res.json(responseData);
 
     } catch (error) {
       console.error('Resume generation error:', error);
@@ -1705,6 +1752,129 @@ function generateAchievements(answers: string[], alibi: string): string[] {
   const uniqueWords = new Set(answers.join(' ').toLowerCase().split(/\s+/));
   if (uniqueWords.size > 20) {
     achievements.push("Vocabulary Virtuoso");
+  }
+
+  return achievements;
+}
+
+// Helper function to generate professionalism score for resumes
+function generateProfessionalismScore(answers: string[]): { score: number; analysis: string } {
+  let score = 6; // Start with good professionalism
+  const factors = [];
+
+  // Check for specificity and detail level
+  const totalLength = answers.join(' ').length;
+  if (totalLength > 150) {
+    score += 1;
+    factors.push("Detailed responses");
+  } else if (totalLength < 50) {
+    score -= 2;
+    factors.push("Brief responses need more detail");
+  }
+
+  // Check for professional language and goals
+  const professionalTerms = ['experience', 'skills', 'management', 'leadership', 'project', 'team', 'develop', 'implement'];
+  const professionalCount = answers.filter(answer => 
+    professionalTerms.some(term => answer.toLowerCase().includes(term))
+  ).length;
+
+  if (professionalCount >= 3) {
+    score += 1;
+    factors.push("Strong professional vocabulary");
+  } else if (professionalCount <= 1) {
+    score -= 1;
+    factors.push("Needs more professional terminology");
+  }
+
+  // Check for specific target job vs generic
+  if (answers[0] && answers[0].length > 15 && !answers[0].toLowerCase().includes('anything')) {
+    score += 1;
+    factors.push("Clear career target");
+  } else {
+    score -= 1;
+    factors.push("Vague career goals");
+  }
+
+  // Check for quantifiable achievements
+  const numberPattern = /\d+/;
+  const quantifiableAnswers = answers.filter(answer => numberPattern.test(answer)).length;
+  
+  if (quantifiableAnswers >= 2) {
+    score += 1;
+    factors.push("Quantifiable achievements");
+  }
+
+  // Check for realistic salary expectations
+  if (answers[5] && (answers[5].includes('$') || answers[5].includes('competitive') || answers[5].includes('negotiable'))) {
+    score += 1;
+    factors.push("Professional salary approach");
+  }
+
+  // Ensure score is within bounds
+  score = Math.max(1, Math.min(10, Math.round(score)));
+
+  // Generate analysis text
+  let analysis = "";
+  if (score >= 8) {
+    analysis = "Excellent professionalism! Your responses show strong career planning and industry awareness.";
+  } else if (score >= 6) {
+    analysis = "Good professional foundation. Consider adding more specific details and quantifiable achievements.";
+  } else if (score >= 4) {
+    analysis = "Moderate professionalism. Focus on clearer career goals and more detailed examples.";
+  } else {
+    analysis = "Needs improvement. Add more specific professional details and clearer career objectives.";
+  }
+
+  if (factors.length > 0) {
+    analysis += ` Key factors: ${factors.join(', ')}.`;
+  }
+
+  return { score, analysis };
+}
+
+// Helper function to generate achievements for resumes
+function generateResumeAchievements(answers: string[], resume: string): string[] {
+  const achievements = [];
+
+  // Check for comprehensive answers
+  const totalAnswerLength = answers.join(' ').length;
+  if (totalAnswerLength > 250) {
+    achievements.push("Detail Oriented");
+  }
+
+  // Check for specific target job
+  if (answers[0] && answers[0].length > 20) {
+    achievements.push("Career Focused");
+  }
+
+  // Check for quantifiable achievements
+  const numberPattern = /\d+/;
+  if (answers.some(answer => numberPattern.test(answer))) {
+    achievements.push("Results Driven");
+  }
+
+  // Check for leadership/management language
+  const leadershipTerms = ['lead', 'manage', 'direct', 'supervise', 'coordinate', 'oversee'];
+  if (answers.some(answer => leadershipTerms.some(term => answer.toLowerCase().includes(term)))) {
+    achievements.push("Leadership Material");
+  }
+
+  // Check for skills diversity
+  const uniqueSkills = new Set(answers.join(' ').toLowerCase().split(/\s+/));
+  if (uniqueSkills.size > 30) {
+    achievements.push("Skill Diversified");
+  }
+
+  // Check for professional development mindset
+  const growthTerms = ['learn', 'improve', 'develop', 'grow', 'advance', 'challenge'];
+  if (answers.some(answer => growthTerms.some(term => answer.toLowerCase().includes(term)))) {
+    achievements.push("Growth Minded");
+  }
+
+  // Check for industry-specific language
+  const industryTerms = ['technology', 'marketing', 'finance', 'healthcare', 'education', 'consulting'];
+  if (answers.some(answer => industryTerms.some(term => answer.toLowerCase().includes(term)))) {
+    achievements.push("Industry Savvy");
   }
 
   return achievements;
