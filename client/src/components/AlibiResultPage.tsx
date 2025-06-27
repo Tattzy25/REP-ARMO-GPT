@@ -186,7 +186,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   };
 
   return (
-    <div className="min-h-screen" style={{ background: '#bbbbbb' }}>
+    <div className="min-h-screen" style={{ background: '#3a3a3a' }}>
       {/* Header - Mobile responsive */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -292,7 +292,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
             title="Restart Process"
           >
@@ -304,7 +304,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
             title="Download Alibi"
           >
@@ -316,7 +316,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
             title="Copy to Clipboard"
           >
@@ -328,7 +328,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
             title="Read Out Loud"
           >
@@ -340,7 +340,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
             title="Expand/Collapse"
           >
@@ -352,7 +352,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
             }}
             title="Share Alibi"
           >
