@@ -70,6 +70,12 @@ export const VIBE_PERSONA_MAPPINGS: VibePersonaMapping[] = [
     description: 'Sneaky storyteller with attitude'
   },
   {
+    vibe: 'gimmi-alibi-ara',
+    personaLevel: 3,
+    personaId: 'edgy',
+    description: 'Level 3 Edgy persona with Level 1 profanity restrictions for alibi crafting'
+  },
+  {
     vibe: 'hired',
     personaLevel: 3,
     personaId: 'edgy',

@@ -385,19 +385,39 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
         vibe: "gimmi-alibi-ara"
       });
 
-      // For now, use basic enhanced prompt with Level 3 persona without user detection
-      const enhancedPrompt = `${prompt}
+      // Use the full persona AI integration system
+      const { personaAI } = await import('./ai-persona-integration.js');
       
-Additional Context:
-- Use Level 3 Edgy persona with moderate profanity (damn, hell, shit, crap only)
-- Be creative and detailed in alibi construction
-- Use Armenian expressions naturally, but replace "hopar" with the actual user's name: ${username || "[Your Name]"}
-- Keep sarcastic but supportive tone
-- Focus on realistic, believable scenarios
-- Address the user by their actual name, not "hopar"`;
+      // Analyze user's alibi answers for behavior detection
+      const combinedAnswers = answers.join(' ');
+      const userId = 1; // Temporary user ID for guest sessions
+      
+      // Perform user analysis on the alibi content
+      await personaAI.analyzeUserMessage(
+        userId,
+        alibiSession.id,
+        combinedAnswers,
+        combinedAnswers.length,
+        1000 // Default response time
+      );
 
-      // Use existing AI system with Edgy persona (Level 3) for alibi generation
-      let alibi = await generateAIResponseFallback(enhancedPrompt, "gimmi-alibi-ara");
+      // Get full persona context with user detection data
+      const personaContext = await personaAI.getPersonaContext(userId, alibiSession.id, "gimmi-alibi-ara");
+      
+      // Build enhanced system prompt using persona system
+      const enhancedSystemPrompt = personaAI.buildEnhancedSystemPrompt(personaContext);
+      
+      // Create final prompt combining system prompt with alibi request
+      const finalPrompt = `${enhancedSystemPrompt}
+
+PROFANITY RESTRICTIONS: Use Level 2 profanity (moderate language including fuck, bitch, ass, shit, damn, hell). No extreme profanity.
+
+USER REQUEST: ${prompt}
+
+Important: Address the user as "${username || "[Your Name]"}" not "hopar". Create a believable, detailed alibi story using Level 3 Edgy persona with Level 2 profanity restrictions.`;
+
+      // Use existing AI system with dynamic persona context
+      let alibi = await generateAIResponseFallback(finalPrompt, "gimmi-alibi-ara");
       
       // Replace any remaining "hopar" references with the user's name
       if (username) {
