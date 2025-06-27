@@ -125,9 +125,8 @@
   position: absolute;
   top: 30%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  transform-origin: left;
-  transform: rotate(0deg);
+  transform: translate(-50%, -50%) rotate(0deg);
+  transform-origin: center;
 
   width: 100%;
   height: 2rem;
@@ -138,8 +137,11 @@
 }
 
 @keyframes rotate {
-  to {
-    transform: rotate(360deg);
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
