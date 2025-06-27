@@ -8,8 +8,9 @@ import ArmoLobby from "@/components/ArmoLobby";
 import ChatInterface from "@/components/ChatInterface";
 import CallInterface from "@/components/CallInterface";
 import Sidebar from "@/components/Sidebar";
+import { AlibiWelcomeScreen } from "@/components/AlibiWelcomeScreen";
 
-type AppState = "lobby" | "chat" | "call";
+type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-form";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
@@ -37,6 +38,8 @@ function App() {
       setAppState("lobby");
     } else if (vibe === "call") {
       setAppState("call");
+    } else if (vibe === "alibi") {
+      setAppState("alibi-welcome");
     } else if (vibe === "gallery" || vibe === "recent") {
       setAppState("chat"); // For now, these will use the chat interface
     } else {
@@ -61,6 +64,14 @@ function App() {
   const handleEndCall = () => {
     setAppState("lobby");
     setCurrentVibe("default");
+  };
+
+  const handleAlibiStart = () => {
+    setAppState("alibi-form");
+  };
+
+  const handleAlibiBack = () => {
+    setAppState("lobby");
   };
 
   const handleSidebarToggle = () => {
@@ -145,6 +156,13 @@ function App() {
             )}
 
             {appState === "call" && <CallInterface onEndCall={handleEndCall} />}
+
+            {appState === "alibi-welcome" && (
+              <AlibiWelcomeScreen
+                onStart={handleAlibiStart}
+                onBack={handleAlibiBack}
+              />
+            )}
           </div>
         </div>
       </TooltipProvider>

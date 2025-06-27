@@ -61,7 +61,7 @@ export const vibeConfigs: Record<string, VibeConfig> = {
   },
   alibi: {
     id: 'alibi',
-    title: 'Give Me an Alibi Ara',
+    title: 'Gimmi Alibi Ara',
     subtitle: 'Story Builder for Trouble',
     personality: 'sneaky',
     icon: 'fas fa-mask',
