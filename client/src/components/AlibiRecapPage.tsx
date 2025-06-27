@@ -157,7 +157,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
             }}
           >
-            <h2 className="text-4xl font-bold text-white font-audiowide">Recap</h2>
+            <h2 className="text-4xl font-bold text-white font-audiowide">RECAP</h2>
           </motion.div>
 
           {questions.map((question, index) => (
