@@ -827,3 +827,231 @@ export type AdaptiveLearning = typeof adaptiveLearning.$inferSelect;
 
 export type InsertCrossSessionMemory = z.infer<typeof insertCrossSessionMemorySchema>;
 export type CrossSessionMemory = typeof crossSessionMemory.$inferSelect;
+
+// Smart Caching & Performance Tables
+export const predictiveCache = pgTable("predictive_cache", {
+  id: serial("id").primaryKey(),
+  cacheKey: text("cache_key").notNull().unique(), // scenario-work-emergency-basic
+  cacheType: text("cache_type").notNull(), // scenario, voice_clip, template_variation
+  scenario: text("scenario"), // Base scenario identifier
+  parameters: jsonb("parameters").notNull(), // Input parameters that generated this
+  cachedContent: text("cached_content").notNull(), // Pre-generated content
+  aiModel: text("ai_model").notNull(), // Which model generated this
+  hitCount: integer("hit_count").default(0).notNull(), // How many times used
+  successRate: real("success_rate").default(0.0).notNull(), // Success rate when used
+  lastUsed: timestamp("last_used").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"), // When this cache entry expires
+  isActive: boolean("is_active").default(true).notNull(),
+  generationTimeMs: integer("generation_time_ms").notNull(), // Time saved by using cache
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const voiceCache = pgTable("voice_cache", {
+  id: serial("id").primaryKey(),
+  textHash: text("text_hash").notNull().unique(), // SHA-256 of the text content
+  originalText: text("original_text").notNull(), // The text that was converted
+  voiceProvider: text("voice_provider").notNull(), // elevenlabs, browser
+  voiceId: text("voice_id"), // Specific voice ID used
+  audioUrl: text("audio_url"), // URL to cached audio file
+  audioFilename: text("audio_filename"), // Local filename if stored
+  duration: real("duration"), // Audio duration in seconds
+  hitCount: integer("hit_count").default(0).notNull(),
+  lastUsed: timestamp("last_used").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"), // When to purge this cache
+  fileSize: integer("file_size"), // Audio file size in bytes
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const backgroundProcessing = pgTable("background_processing", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  processType: text("process_type").notNull(), // early_generation, predictive_load, voice_prepare
+  triggerCondition: text("trigger_condition").notNull(), // 4th_question_answered, idle_time, pattern_detected
+  inputData: jsonb("input_data").notNull(), // The data being processed
+  processStatus: text("process_status").default('queued').notNull(), // queued, processing, completed, failed
+  priority: integer("priority").default(5).notNull(), // 1-10, higher = more important
+  estimatedCompletion: timestamp("estimated_completion"),
+  actualCompletion: timestamp("actual_completion"),
+  processingTimeMs: integer("processing_time_ms"),
+  result: jsonb("result"), // The generated result
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Seamless Experience Tables
+export const autoCompleteCache = pgTable("auto_complete_cache", {
+  id: serial("id").primaryKey(),
+  questionPattern: text("question_pattern").notNull(), // Pattern or category of question
+  userInput: text("user_input").notNull(), // Partial input from user
+  suggestion: text("suggestion").notNull(), // The suggested completion
+  context: jsonb("context").notNull(), // Context that led to this suggestion
+  successfulUsage: integer("successful_usage").default(0).notNull(), // Times user accepted
+  timesShown: integer("times_shown").default(0).notNull(), // Times suggested
+  successRate: real("success_rate").default(0.0).notNull(), // successfulUsage / timesShown
+  userCategory: text("user_category"), // Type of user this works best for
+  believabilityBoost: real("believability_boost").default(0.0).notNull(), // Impact on believability
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const contradictionRules = pgTable("contradiction_rules", {
+  id: serial("id").primaryKey(),
+  ruleId: text("rule_id").primaryKey(), // time-consistency, location-logic, etc.
+  ruleName: text("rule_name").notNull(),
+  description: text("description").notNull(),
+  triggerPattern: jsonb("trigger_pattern").notNull(), // When to check this rule
+  validationLogic: text("validation_logic").notNull(), // The actual validation code
+  warningMessage: text("warning_message").notNull(), // What to tell the user
+  severity: text("severity").default('medium').notNull(), // low, medium, high, critical
+  fixSuggestions: jsonb("fix_suggestions").notNull(), // Array of suggested fixes
+  isActive: boolean("is_active").default(true).notNull(),
+  triggerCount: integer("trigger_count").default(0).notNull(), // How often this fires
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const plausibilityHints = pgTable("plausibility_hints", {
+  id: serial("id").primaryKey(),
+  scenario: text("scenario").notNull(), // work, family, health, etc.
+  questionType: text("question_type").notNull(), // time, location, details, etc.
+  hint: text("hint").notNull(), // The actual hint text
+  hintType: text("hint_type").notNull(), // guidance, warning, enhancement
+  condition: jsonb("condition").notNull(), // When to show this hint
+  believabilityImpact: real("believability_impact").notNull(), // +/- impact on score
+  priority: integer("priority").default(5).notNull(), // Display priority
+  isActive: boolean("is_active").default(true).notNull(),
+  timesShown: integer("times_shown").default(0).notNull(),
+  timesFollowed: integer("times_followed").default(0).notNull(),
+  effectiveness: real("effectiveness").default(0.0).notNull(), // timesFollowed / timesShown
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const sessionHandoff = pgTable("session_handoff", {
+  id: serial("id").primaryKey(),
+  handoffToken: text("handoff_token").notNull().unique(), // UUID for secure handoff
+  userId: integer("user_id").references(() => users.id),
+  sourceSessionId: integer("source_session_id").references(() => chatSessions.id),
+  sourceDevice: text("source_device").notNull(), // mobile, desktop, tablet
+  targetDevice: text("target_device"), // When handoff is completed
+  sessionState: jsonb("session_state").notNull(), // Complete session state
+  currentStep: text("current_step").notNull(), // Where user left off
+  progress: jsonb("progress").notNull(), // Answers, attachments, etc.
+  isActive: boolean("is_active").default(true).notNull(),
+  expiresAt: timestamp("expires_at").notNull(), // Handoff token expiration
+  completedAt: timestamp("completed_at"), // When handoff was used
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const quickResume = pgTable("quick_resume", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  featureType: text("feature_type").notNull(), // alibi_generation, voice_call, gallery_browse
+  resumePoint: text("resume_point").notNull(), // Specific point in the flow
+  savedState: jsonb("saved_state").notNull(), // Complete state to restore
+  metadata: jsonb("metadata"), // Additional context
+  deviceInfo: jsonb("device_info"), // Device used when saved
+  priority: integer("priority").default(5).notNull(), // Display priority
+  isActive: boolean("is_active").default(true).notNull(),
+  expiresAt: timestamp("expires_at"), // When this resume point expires
+  timesResumed: integer("times_resumed").default(0).notNull(),
+  lastResumed: timestamp("last_resumed"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const smartBookmarks = pgTable("smart_bookmarks", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  bookmarkType: text("bookmark_type").notNull(), // auto_save, user_manual, optimal_point
+  bookmarkPoint: text("bookmark_point").notNull(), // Where in the flow
+  savedState: jsonb("saved_state").notNull(), // State at this point
+  autoSaveTrigger: text("auto_save_trigger"), // What triggered auto-save
+  completionPercentage: real("completion_percentage").notNull(), // 0.0 - 1.0
+  estimatedTimeRemaining: integer("estimated_time_remaining"), // Seconds
+  isOptimalPoint: boolean("is_optimal_point").default(false).notNull(), // AI-identified good save point
+  userRating: integer("user_rating"), // 1-5 if user rates the bookmark
+  accessCount: integer("access_count").default(0).notNull(),
+  lastAccessed: timestamp("last_accessed"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Insert schemas for Smart Caching & Performance
+export const insertPredictiveCacheSchema = createInsertSchema(predictiveCache).omit({
+  id: true,
+  lastUsed: true,
+  createdAt: true,
+});
+
+export const insertVoiceCacheSchema = createInsertSchema(voiceCache).omit({
+  id: true,
+  lastUsed: true,
+  createdAt: true,
+});
+
+export const insertBackgroundProcessingSchema = createInsertSchema(backgroundProcessing).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Insert schemas for Seamless Experience
+export const insertAutoCompleteCacheSchema = createInsertSchema(autoCompleteCache).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertContradictionRuleSchema = createInsertSchema(contradictionRules).omit({
+  createdAt: true,
+});
+
+export const insertPlausibilityHintSchema = createInsertSchema(plausibilityHints).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSessionHandoffSchema = createInsertSchema(sessionHandoff).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertQuickResumeSchema = createInsertSchema(quickResume).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSmartBookmarkSchema = createInsertSchema(smartBookmarks).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for Smart Caching & Performance
+export type InsertPredictiveCache = z.infer<typeof insertPredictiveCacheSchema>;
+export type PredictiveCache = typeof predictiveCache.$inferSelect;
+
+export type InsertVoiceCache = z.infer<typeof insertVoiceCacheSchema>;
+export type VoiceCache = typeof voiceCache.$inferSelect;
+
+export type InsertBackgroundProcessing = z.infer<typeof insertBackgroundProcessingSchema>;
+export type BackgroundProcessing = typeof backgroundProcessing.$inferSelect;
+
+// Types for Seamless Experience
+export type InsertAutoCompleteCache = z.infer<typeof insertAutoCompleteCacheSchema>;
+export type AutoCompleteCache = typeof autoCompleteCache.$inferSelect;
+
+export type InsertContradictionRule = z.infer<typeof insertContradictionRuleSchema>;
+export type ContradictionRule = typeof contradictionRules.$inferSelect;
+
+export type InsertPlausibilityHint = z.infer<typeof insertPlausibilityHintSchema>;
+export type PlausibilityHint = typeof plausibilityHints.$inferSelect;
+
+export type InsertSessionHandoff = z.infer<typeof insertSessionHandoffSchema>;
+export type SessionHandoff = typeof sessionHandoff.$inferSelect;
+
+export type InsertQuickResume = z.infer<typeof insertQuickResumeSchema>;
+export type QuickResume = typeof quickResume.$inferSelect;
+
+export type InsertSmartBookmark = z.infer<typeof insertSmartBookmarkSchema>;
+export type SmartBookmark = typeof smartBookmarks.$inferSelect;

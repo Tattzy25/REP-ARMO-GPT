@@ -55,6 +55,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import and register social sharing routes
   const socialPersonaRoutes = await import("./social-persona-routes");
   app.use("/api/social", socialPersonaRoutes.default);
+  
+  // Import and register smart caching & seamless experience routes
+  const smartSeamlessRoutes = await import("./smart-seamless-routes");
+  app.use("/api/smart", smartSeamlessRoutes.default);
 
   // Seed endpoint for initial persona data
   app.post("/api/seed-personas", async (req: Request, res: Response) => {
