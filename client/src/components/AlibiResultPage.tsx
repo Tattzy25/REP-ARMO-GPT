@@ -19,18 +19,6 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const stopPlayback = () => {
-    // Stop ElevenLabs audio
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-      setCurrentAudio(null);
-    }
-    
-    setIsPlaying(false);
-    setIsLoadingAudio(false);
-  };
-
   const showErrorMessage = (message: string) => {
     setErrorMessage(message);
     setShowError(true);
@@ -39,11 +27,6 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
 
   useEffect(() => {
     generateAlibiStory();
-    
-    // Cleanup function to stop audio when component unmounts
-    return () => {
-      stopPlayback();
-    };
   }, []);
 
   const generateAlibiStory = async () => {
