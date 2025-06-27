@@ -55,7 +55,16 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: `Generate a detailed alibi story based on these details: ${answers.join(', ')}`,
+          prompt: `Generate a detailed, believable alibi story for ${username || "[Your Name]"} based on their specific situation:
+
+The Problem: ${answers[0] || 'unspecified trouble'}
+Person After Them: ${answers[1] || 'someone unnamed'}  
+Alibi Partner: ${answers[2] || 'no partner specified'}
+Their Excuse: ${answers[3] || 'no excuse given'}
+Location Claim: ${answers[4] || 'location unspecified'}
+Evidence: ${answers[5] || 'no evidence provided'}
+
+Create a cohesive, detailed alibi story that weaves these elements together into a believable narrative. Make it sound legitimate while incorporating the user's specific answers.`,
           questions,
           answers,
           username
