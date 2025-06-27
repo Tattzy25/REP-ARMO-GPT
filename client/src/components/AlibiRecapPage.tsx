@@ -176,7 +176,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
       </motion.div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto" style={{ background: '#bbbbbb' }}>
+      <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
           {questions.map((question, index) => (
             <motion.div
