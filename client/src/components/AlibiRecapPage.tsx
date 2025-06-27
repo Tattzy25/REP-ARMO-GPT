@@ -173,14 +173,14 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               }}
             >
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="font-audiowide font-semibold text-white mb-2" style={{ fontSize: '18px' }}>
                   Question {index + 1}
                 </h3>
                 <p className="text-white">{question}</p>
               </div>
               
               <div>
-                <h4 className="text-md font-medium text-white mb-2">Your Answer:</h4>
+                <h4 className="font-audiowide font-medium text-white mb-2" style={{ fontSize: '18px' }}>Your Answer:</h4>
                 {editingIndex === index ? (
                   <div className="space-y-3">
                     <textarea
