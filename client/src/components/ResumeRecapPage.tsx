@@ -213,57 +213,8 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
               boxShadow: '16px 16px 32px #323232, -16px -16px 32px #484848'
             }}
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h2 className="text-2xl font-bold text-white">Review Your Career Info</h2>
-              
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handlePlayPause}
-                  disabled={isLoadingAudio}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  {isLoadingAudio ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : isPlaying ? (
-                    <Pause className="w-5 h-5" />
-                  ) : (
-                    <Volume2 className="w-5 h-5" />
-                  )}
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleCopy}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  <Copy className="w-5 h-5" />
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleDownload}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  <Download className="w-5 h-5" />
-                </motion.button>
-              </div>
             </div>
             
             <p className="text-gray-300">
@@ -355,6 +306,57 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
               </motion.div>
             ))}
           </div>
+
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className="flex flex-wrap justify-center gap-4 mb-8"
+          >
+            <button
+              onClick={handlePlayPause}
+              disabled={isLoadingAudio}
+              className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200 disabled:opacity-50"
+              style={{
+                background: '#3a3a3a',
+                boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+              }}
+              title={isPlaying ? "Pause" : "Read Aloud"}
+            >
+              {isLoadingAudio ? (
+                <Loader2 size={24} className="animate-spin" />
+              ) : isPlaying ? (
+                <Pause size={24} />
+              ) : (
+                <Volume2 size={24} />
+              )}
+            </button>
+
+            <button
+              onClick={handleCopy}
+              className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+              style={{
+                background: '#3a3a3a',
+                boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+              }}
+              title="Copy"
+            >
+              <Copy size={24} />
+            </button>
+
+            <button
+              onClick={handleDownload}
+              className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+              style={{
+                background: '#3a3a3a',
+                boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+              }}
+              title="Download"
+            >
+              <Download size={24} />
+            </button>
+          </motion.div>
 
           {/* Continue Button */}
           <div className="flex justify-center">
