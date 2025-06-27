@@ -70,6 +70,16 @@ interface CallHoparInterfaceProps {
 
 export function CallHoparInterface({ onBack, username = "User" }: CallHoparInterfaceProps) {
   const [isCallActive, setIsCallActive] = useState(false);
+  
+  // Cleanup when component unmounts
+  useEffect(() => {
+    return () => {
+      console.log('CallHoparInterface unmounting - stopping all audio');
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
   const [isRinging, setIsRinging] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -604,11 +614,20 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   };
 
   const endCall = () => {
+    console.log('Ending call - stopping all audio and timers');
+    
+    // Stop all speech synthesis immediately
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
     setIsCallActive(false);
     setIsRecording(false);
     setIsAiSpeaking(false);
     setIsRinging(false);
     setIsUserTurn(false);
+    setIsProcessingAudio(false);
+    setIsGeneratingResponse(false);
     
     // Set cooldown
     localStorage.setItem('lastCallHoparTime', Date.now().toString());
@@ -639,6 +658,10 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
     }
     
     // Automatically return to lobby
+    // Stop all speech before going back
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
     onBack();
   };
 
