@@ -234,8 +234,8 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
           <div
             className="p-8 rounded-3xl"
             style={{
-              background: '#bbbbbb',
-              boxShadow: '12px 12px 24px #9f9f9f, -12px -12px 24px #d7d7d7'
+              background: '#3a3a3a',
+              boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646'
             }}
           >
             <div className="text-center">
@@ -245,9 +245,9 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
                   animate={{ opacity: 1 }}
                   className="flex flex-col items-center py-16"
                 >
-                  <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
-                  <p className="text-xl text-gray-700">Crafting your perfect alibi...</p>
-                  <p className="text-sm text-gray-500 mt-2">Armo Lobby is working its magic</p>
+                  <Loader2 className="w-12 h-12 animate-spin text-blue-400 mb-4" />
+                  <p className="text-xl text-white">Crafting your perfect alibi...</p>
+                  <p className="text-sm text-gray-300 mt-2">Armo Lobby is working its magic</p>
                 </motion.div>
               ) : (
                 <motion.div
@@ -257,7 +257,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
                   className="text-left"
                 >
                   <div
-                    className="text-lg text-gray-800 leading-relaxed whitespace-pre-wrap"
+                    className="text-lg text-white leading-relaxed whitespace-pre-wrap"
                     style={{
                       maxHeight: isExpanded ? 'none' : '400px',
                       overflow: isExpanded ? 'visible' : 'hidden'
@@ -380,15 +380,21 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
       {/* Restart Confirmation Modal */}
       {showRestartConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Restart Confirmation</h3>
-            <p className="text-gray-600 mb-6">
+          <div 
+            className="p-6 rounded-xl max-w-md w-full mx-4"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646'
+            }}
+          >
+            <h3 className="text-lg font-semibold mb-4 text-white">Restart Confirmation</h3>
+            <p className="text-gray-300 mb-6">
               Are you sure you want to restart? This will clear your current alibi and start over.
             </p>
             <div className="flex gap-4 justify-end">
               <button
                 onClick={handleRestartCancel}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
               >
                 Cancel
               </button>
