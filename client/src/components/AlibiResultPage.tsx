@@ -23,33 +23,30 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart }: Alibi
     setIsGenerating(true);
     try {
       // Create a comprehensive prompt with all the user's answers
-      const alibiContext = `
-User needs a complete alibi story. Here are their answers:
-1. What they got in trouble for: "${answers[0] || "unknown situation"}"
-2. Who is investigating them: "${answers[1] || "someone"}"
-3. Their alibi partner: "${answers[2] || "no one reliable"}"
-4. Their excuse: "${answers[3] || "no excuse"}"
-5. Where they claim to have been: "${answers[4] || "nowhere specific"}"
-6. Their evidence: "${answers[5] || "no evidence"}"
+      const alibiPrompt = `Generate a complete, detailed alibi story using these details:
+- Got in trouble for: ${answers[0] || "unknown situation"}
+- Being investigated by: ${answers[1] || "someone"}
+- Alibi partner: ${answers[2] || "no one reliable"}
+- Their excuse: ${answers[3] || "no excuse"}
+- Where they claim to have been: ${answers[4] || "nowhere specific"}
+- Their evidence: ${answers[5] || "no evidence"}
 
-Generate a complete, detailed alibi story that weaves all these elements together into a believable narrative. Make it sound like Armo Hopar wrote it - witty, slightly edgy, but practical. Include specific details and make it sound convincing. The story should be 3-4 paragraphs long.
-      `;
+Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a believable narrative that weaves all elements together. Write 3-4 paragraphs with specific details that sound convincing.`;
 
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/alibi/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: alibiContext,
-          vibe: "roast",
-          sessionId: Date.now() // Temporary session for alibi generation
+          prompt: alibiPrompt,
+          answers: answers
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setAlibiStory(data.response || "Hopar couldn't craft your alibi right now. Try again later!");
+        setAlibiStory(data.alibi || "Hopar couldn't craft your alibi right now. Try again later!");
       } else {
         throw new Error('Failed to generate alibi');
       }

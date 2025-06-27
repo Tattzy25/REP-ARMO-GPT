@@ -32,6 +32,58 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
     setTempAnswer("");
   };
 
+  const handleRestart = () => {
+    window.location.reload();
+  };
+
+  const handleDownload = () => {
+    const content = questions.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${answers[i]}\n`).join('\n');
+    const element = document.createElement('a');
+    const file = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'alibi-recap.txt';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const handleShare = async () => {
+    const content = questions.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${answers[i]}`).join('\n\n');
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'My Alibi Recap',
+          text: content,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(content);
+      } catch (error) {
+        console.error('Failed to copy:', error);
+      }
+    }
+  };
+
+  const handleProfile = () => {
+    console.log('Profile button clicked');
+  };
+
+  const handleExpand = () => {
+    console.log('Expand button clicked');
+  };
+
+  const handleCopy = async () => {
+    const content = questions.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${answers[i]}`).join('\n\n');
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: "#3a3a3a" }}>
       <div className="w-full max-w-4xl flex flex-col items-center">
@@ -51,9 +103,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             }}
           >
             <h1 className="text-3xl font-bold text-white text-center">
-              <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
-                RECAP
-              </span>
+              RECAP
             </h1>
           </div>
         </motion.div>
@@ -186,33 +236,15 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </div>
         </motion.div>
 
-        {/* Next Button - Prominent */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="mb-6"
-        >
-          <button
-            onClick={onNext}
-            className="px-8 py-4 rounded-xl text-white font-bold text-lg hover:scale-105 transition-all duration-200"
-            style={{
-              background: 'linear-gradient(to right, #ef4444, #3b82f6, #f97316)',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-            }}
-          >
-            Generate My Alibi →
-          </button>
-        </motion.div>
-
         {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="flex flex-wrap justify-center gap-4 mb-4"
+          className="flex flex-wrap justify-center gap-4 mb-6"
         >
           <button
+            onClick={handleRestart}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -224,6 +256,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </button>
           
           <button
+            onClick={handleDownload}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -235,6 +268,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </button>
           
           <button
+            onClick={handleShare}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -246,6 +280,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </button>
           
           <button
+            onClick={handleProfile}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -257,6 +292,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </button>
           
           <button
+            onClick={handleExpand}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -268,6 +304,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </button>
           
           <button
+            onClick={handleCopy}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -276,6 +313,25 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             title="Copy"
           >
             <Copy size={24} />
+          </button>
+        </motion.div>
+
+        {/* Generate Button - Below Action Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+          className="mb-6"
+        >
+          <button
+            onClick={onNext}
+            className="px-8 py-4 rounded-xl text-white font-bold text-lg hover:scale-105 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+            }}
+          >
+            Generate My Alibi →
           </button>
         </motion.div>
 

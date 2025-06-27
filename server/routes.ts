@@ -328,11 +328,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Prompt is required" });
       }
 
-      const fullPrompt = `You are Armo Hopar, a witty Armenian AI. ${prompt} Keep it to 1-2 sentences maximum. Be clever and funny but not mean.`;
+      console.log('Generating joke with prompt:', prompt);
+      console.log('User answers:', answers);
+
+      // Use Groq API directly for jokes
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are Armo Hopar, a witty Armenian AI comedian who roasts people\'s alibis. Be sarcastic and funny but not mean. Keep responses to 1-2 sentences maximum.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.9
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Groq API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const joke = data.choices[0]?.message?.content || "Your alibi game is weaker than week-old lavash bread! 🍞";
       
-      const aiResponse = await generateAIResponseFallback(fullPrompt, "roast");
-      
-      res.json({ joke: aiResponse });
+      console.log('Generated joke:', joke);
+      res.json({ joke });
     } catch (error) {
       console.error('Error generating joke:', error);
       res.status(500).json({ error: "Failed to generate joke" });
@@ -342,18 +373,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Voice synthesis endpoint for read-aloud
   app.post("/api/voice/speak", async (req, res) => {
     try {
-      const { text, voice = 'alloy' } = req.body;
+      const { text } = req.body;
       
       if (!text) {
         return res.status(400).json({ error: "Text is required" });
       }
 
-      // Try ElevenLabs API first (if available)
-      // For now, return an error to trigger fallback to browser speech
-      res.status(500).json({ error: "Voice synthesis not available, using browser fallback" });
+      console.log('Generating speech for text:', text.substring(0, 100) + '...');
+
+      // Use ElevenLabs API
+      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB', {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': process.env.ELEVENLABS_API_KEY || ''
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_monolingual_v1',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      const audioBuffer = await response.arrayBuffer();
+      
+      res.setHeader('Content-Type', 'audio/mpeg');
+      res.setHeader('Content-Length', audioBuffer.byteLength);
+      res.send(Buffer.from(audioBuffer));
     } catch (error) {
-      console.error('Error with voice synthesis:', error);
+      console.error('Error with ElevenLabs voice synthesis:', error);
       res.status(500).json({ error: "Voice synthesis failed" });
+    }
+  });
+
+  // Generate alibi story
+  app.post("/api/alibi/generate", async (req, res) => {
+    try {
+      const { prompt, answers } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      console.log('Generating alibi with prompt:', prompt);
+      console.log('User answers:', answers);
+
+      // Use Groq API directly for alibi generation
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are Armo Hopar, a clever Armenian AI that creates believable alibis. Write detailed, convincing stories that sound realistic and well-thought-out. Use a slightly witty but professional tone.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 800,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Groq API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const alibi = data.choices[0]?.message?.content || "Sorry, I couldn't craft your alibi right now. Please try again.";
+      
+      console.log('Generated alibi:', alibi.substring(0, 100) + '...');
+      res.json({ alibi });
+    } catch (error) {
+      console.error('Error generating alibi:', error);
+      res.status(500).json({ error: "Failed to generate alibi" });
     }
   });
 
