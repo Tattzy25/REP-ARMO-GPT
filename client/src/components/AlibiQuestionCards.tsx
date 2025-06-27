@@ -9,7 +9,7 @@ interface AlibiQuestionCardsProps {
   username?: string;
 }
 
-const getPersonalizedQuestions = (username: string = "hopar") => [
+const getPersonalizedQuestions = (username: string = "[Your Name]") => [
   `Yo ${username}, what mess are you trying to cover up?`,
   `Who's breathing down your neck, ${username}?`,
   `Which ride-or-die partner backs your alibi, ${username}?`,
@@ -18,7 +18,7 @@ const getPersonalizedQuestions = (username: string = "hopar") => [
   `What "bulletproof" evidence seals the deal, ${username}?`
 ];
 
-export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: AlibiQuestionCardsProps) {
+export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]" }: AlibiQuestionCardsProps) {
   const questions = getPersonalizedQuestions(username);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<string[]>(new Array(questions.length).fill(""));
@@ -85,9 +85,9 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
       const partner = userAnswers[2] || "their imaginary friend";
       
       const jokes = [
-        `So let me get this straight, ${username}... you're in trouble for "${mess}" and "${investigator}" is hunting you down? Good thing "${partner}" has your back - nothing says "trustworthy alibi" like that combo! 😏`,
-        `Ah yes, "${mess}" - truly the crime of the century! And with "${investigator}" breathing down your neck, you called in "${partner}" as your alibi? This is either genius or completely unhinged, ${username}! 🤔`,
-        `"${mess}" eh? Classic ${username} move! And now "${investigator}" is onto you, so you're banking on "${partner}" to save the day? This alibi is already legendary! 🎭`
+        `So let me get this straight... you're in trouble for "${mess}" and "${investigator}" is hunting you down? Good thing "${partner}" has your back - nothing says "trustworthy alibi" like that combo! 😏`,
+        `Ah yes, "${mess}" - truly the crime of the century! And with "${investigator}" breathing down your neck, you called in "${partner}" as your alibi? This is either genius or completely unhinged! 🤔`,
+        `"${mess}" eh? Classic move! And now "${investigator}" is onto you, so you're banking on "${partner}" to save the day? This alibi is already legendary! 🎭`
       ];
       
       return jokes[Math.floor(Math.random() * jokes.length)];
@@ -97,9 +97,9 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
       const evidence = userAnswers[5] || "rock-solid proof";
       
       const jokes = [
-        `Wait, wait, wait... your excuse is "${excuse}" and you were at "${location}" with "${evidence}" as proof? ${username}, this alibi is so wild even I'm starting to believe it! 🤯`,
-        `Let me paint this picture: "${excuse}" happened while you were at "${location}" and your evidence is "${evidence}"... ${username}, you're either a criminal mastermind or completely insane! 🎨`,
-        `So your grand finale is "${excuse}" at "${location}" backed by "${evidence}"? ${username}, Hopar is both impressed and terrified by your creativity! 🎪`
+        `Wait, wait, wait... your excuse is "${excuse}" and you were at "${location}" with "${evidence}" as proof? This alibi is so wild even I'm starting to believe it! 🤯`,
+        `Let me paint this picture: "${excuse}" happened while you were at "${location}" and your evidence is "${evidence}"... you're either a criminal mastermind or completely insane! 🎨`,
+        `So your grand finale is "${excuse}" at "${location}" backed by "${evidence}"? Hopar is both impressed and terrified by your creativity! 🎪`
       ];
       
       return jokes[Math.floor(Math.random() * jokes.length)];
