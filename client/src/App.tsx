@@ -178,6 +178,7 @@ function App() {
               <AlibiQuestionCards
                 onComplete={handleAlibiComplete}
                 onBack={handleAlibiQuestionsBack}
+                username="Avi"
               />
             )}
           </div>

@@ -6,18 +6,20 @@ import { QuestionBubble } from "./QuestionBubble";
 interface AlibiQuestionCardsProps {
   onComplete: (answers: string[]) => void;
   onBack: () => void;
+  username?: string;
 }
 
-const questions = [
-  "What mess are you trying to cover up?",
-  "Who's breathing down your neck?",
-  "Which ride-or-die partner backs your alibi?",
-  "What \"totally legit\" excuse are you selling?",
-  "Where were you \"definitely not\" when the chaos went down?",
-  "What \"bulletproof\" evidence seals the deal?"
+const getPersonalizedQuestions = (username: string = "hopar") => [
+  `Yo ${username}, what mess are you trying to cover up?`,
+  `Who's breathing down your neck, ${username}?`,
+  `Which ride-or-die partner backs your alibi, ${username}?`,
+  `What "totally legit" excuse are you selling, ${username}?`,
+  `Where were you "definitely not" when the chaos went down, ${username}?`,
+  `What "bulletproof" evidence seals the deal, ${username}?`
 ];
 
-export function AlibiQuestionCards({ onComplete, onBack }: AlibiQuestionCardsProps) {
+export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: AlibiQuestionCardsProps) {
+  const questions = getPersonalizedQuestions(username);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<string[]>(new Array(questions.length).fill(""));
 
