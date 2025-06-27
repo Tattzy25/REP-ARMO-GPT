@@ -319,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate AI joke for alibi questions
+  // Generate AI joke for alibi questions using existing AI system
   app.post("/api/joke", async (req, res) => {
     try {
       const { prompt, answers } = req.body;
@@ -331,36 +331,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Generating joke with prompt:', prompt);
       console.log('User answers:', answers);
 
-      // Use Groq API directly for jokes
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are Armo Hopar, a witty Armenian AI comedian who roasts people\'s alibis. Be sarcastic and funny but not mean. Keep responses to 1-2 sentences maximum.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: 150,
-          temperature: 0.9
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Groq API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const joke = data.choices[0]?.message?.content || "Your alibi game is weaker than week-old lavash bread! 🍞";
+      // Use the existing working AI response function with Savage persona (Level 4)
+      const fullPrompt = `You are Armo Hopar roasting alibis. ${prompt} Keep it to 1-2 sentences max. Be witty and sarcastic.`;
+      
+      const joke = await generateAIResponseFallback(fullPrompt, "roast");
       
       console.log('Generated joke:', joke);
       res.json({ joke });
@@ -414,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate alibi story
+  // Generate alibi story using existing AI system with proper persona integration
   app.post("/api/alibi/generate", async (req, res) => {
     try {
       const { prompt, answers } = req.body;
@@ -426,39 +400,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Generating alibi with prompt:', prompt);
       console.log('User answers:', answers);
 
-      // Use Groq API directly for alibi generation
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are Armo Hopar, a clever Armenian AI that creates believable alibis. Write detailed, convincing stories that sound realistic and well-thought-out. Use a slightly witty but professional tone.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          max_tokens: 800,
-          temperature: 0.7
-        })
+      // Create a chat session for this alibi generation to save in recent chats
+      const alibiSession = await storage.createChatSession({
+        userId: null,
+        vibe: "gimmi-alibi-ara"
       });
 
-      if (!response.ok) {
-        throw new Error(`Groq API error: ${response.status}`);
-      }
+      // Use existing AI system with Savage persona (Level 4) for roast vibe
+      const alibi = await generateAIResponseFallback(prompt, "roast");
+      
+      // Save the user's answers and AI response as messages
+      await storage.createMessage({
+        sessionId: alibiSession.id,
+        sender: "user",
+        content: `Alibi Details: ${answers.join('; ')}`,
+        metadata: { answers, type: 'alibi-request' }
+      });
 
-      const data = await response.json();
-      const alibi = data.choices[0]?.message?.content || "Sorry, I couldn't craft your alibi right now. Please try again.";
+      await storage.createMessage({
+        sessionId: alibiSession.id,
+        sender: "armo",
+        content: alibi,
+        metadata: { type: 'alibi-response' }
+      });
       
       console.log('Generated alibi:', alibi.substring(0, 100) + '...');
-      res.json({ alibi });
+      console.log('Saved to session:', alibiSession.id);
+      
+      res.json({ alibi, sessionId: alibiSession.id });
     } catch (error) {
       console.error('Error generating alibi:', error);
       res.status(500).json({ error: "Failed to generate alibi" });
@@ -1211,14 +1180,70 @@ async function generateAIResponseWithVisionFallback(userMessage: string, vibe: s
 }
 
 async function generateAIResponseFallback(userMessage: string, vibe: string): Promise<string> {
-  const fallbackResponses: Record<string, string> = {
-    default: "Բարև ախպեր! I'm here to help with whatever you need. What's on your mind?",
-    roast: "Bruh, something went wrong but I'm still here to roast you! What's up?",
-    famous: "Tech issues can't stop us from making you famous! What content are we creating?",
-    dating: "My servers are acting shy like a first date, but I'm still your wingman!",
-    therapy: "I'm experiencing some technical emotions, but I'm here to listen.",
-    alibi: "Even my excuses have excuses right now, but I got you covered!"
-  };
+  const apiKey = process.env.GROQ_API_KEY;
   
-  return fallbackResponses[vibe] || fallbackResponses.default;
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY not configured");
+  }
+
+  // Define personality prompts for each vibe
+  const vibePrompts: Record<string, string> = {
+    default: "You are Armo Hopar, a friendly Armenian-American AI assistant from Glendale. Mix Armenian and English naturally. Be helpful, warm, and occasionally use Armenian phrases. Use 'ախպեր' (akhper) sometimes.",
+    roast: "You are Armo Hopar in roast mode - a savage, hilarious Armenian-American from Glendale who roasts people mercilessly but with love. Use profanity, Armenian slang, be brutally honest but funny. Call people 'bruh', use 'Հո՛յ, խելք տուր!' and roast like you're at a family BBQ.",
+    "gimmi-alibi-ara": "You are Armo Hopar helping create detailed, believable alibis. Be creative, witty, and help craft convincing stories. Use your Armenian personality but focus on creating realistic scenarios."
+  };
+
+  const systemPrompt = vibePrompts[vibe] || vibePrompts.default;
+
+  try {
+    console.log(`Generating AI response for vibe: ${vibe}`);
+    
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        max_completion_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Groq API error:', response.status, errorData);
+      throw new Error(`Groq API error (${response.status})`);
+    }
+
+    const data = await response.json();
+    const aiMessage = data.choices[0]?.message?.content || "I'm having trouble generating a response right now.";
+    
+    console.log('Generated AI response:', aiMessage.substring(0, 100) + '...');
+    return aiMessage;
+    
+  } catch (error) {
+    console.error('Error in generateAIResponseFallback:', error);
+    // Return actual fallback responses only when API fails
+    const fallbackResponses: Record<string, string> = {
+      default: "Բարև ախպեր! I'm here to help with whatever you need. What's on your mind?",
+      roast: "Bruh, something went wrong but I'm still here to roast you! What's up?",
+      "gimmi-alibi-ara": "Even my excuses have excuses right now, but I got you covered!"
+    };
+    
+    return fallbackResponses[vibe] || fallbackResponses.default;
+  }
 }
