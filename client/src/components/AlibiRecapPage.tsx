@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause } from 'lucide-react';
+import { COMMON_STYLES, NEUMORPHIC_SHADOWS, ARMO_COLORS } from '../styles/colors';
 
 interface AlibiRecapPageProps {
   questions: string[];
@@ -160,19 +161,6 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </span>
         </h1>
         <p className="text-lg text-gray-300">Make sure everything looks perfect</p>
-        
-        {/* Progress Bar */}
-        <div className="mt-4 max-w-md mx-auto">
-          <div className="w-full bg-gray-600 rounded-full h-2">
-            <div
-              className="h-2 rounded-full"
-              style={{
-                width: '85%',
-                background: 'linear-gradient(90deg, #ef4444, #3b82f6, #f97316)'
-              }}
-            ></div>
-          </div>
-        </div>
       </motion.div>
 
       {/* Main Content */}
@@ -185,10 +173,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="p-6 rounded-3xl"
-              style={{
-                background: '#3a3a3a',
-                boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646'
-              }}
+              style={COMMON_STYLES.CARD}
             >
               <div className="mb-4">
                 <h3 className="text-lg font-semibold text-white mb-2">
@@ -250,10 +235,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           <button
             onClick={handleDownload}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            style={COMMON_STYLES.BUTTON}
             title="Download Recap"
           >
             <Download size={24} />
@@ -262,10 +244,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           <button
             onClick={handleCopy}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            style={COMMON_STYLES.BUTTON}
             title="Copy to Clipboard"
           >
             <Copy size={24} />
@@ -274,10 +253,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           <button
             onClick={handleReadAloud}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            style={COMMON_STYLES.BUTTON}
             title={isPlaying ? "Pause" : "Read Aloud"}
           >
             {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
@@ -291,10 +267,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             transition={{ duration: 0.5, delay: 0.8 }}
             onClick={onBack}
             className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            style={COMMON_STYLES.BUTTON}
           >
             <ArrowLeft size={20} />
             Back
@@ -306,10 +279,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             transition={{ duration: 0.5, delay: 0.8 }}
             onClick={onNext}
             className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
-            style={{
-              background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            style={COMMON_STYLES.GRADIENT_BUTTON}
           >
             Generate Alibi
             <ArrowRight size={20} />

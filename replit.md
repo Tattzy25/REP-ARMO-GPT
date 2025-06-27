@@ -237,6 +237,38 @@ The application features multiple AI personality modes:
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Color scheme preference: Gray backgrounds (#bbbbbb) with neumorphic shadows (#9f9f9f, #d7d7d7).
-Main content styling: Red-blue-orange gradients for headers and cards.
-Sidebar styling: Dark theme (#2e2e2e background, #272727/#353535 shadows).
+
+## CRITICAL COLOR SYSTEM REQUIREMENTS
+
+⚠️ **MANDATORY COLOR STANDARDS FOR ALL AI AGENTS** ⚠️
+
+**ONLY USE THESE EXACT COLORS - NO EXCEPTIONS:**
+
+### Core Background Colors:
+- **Sidebar Background**: #2e2e2e (dark sidebar only)
+- **Main Content Background**: #3a3a3a (all content areas)
+- **Card Background**: #3a3a3a (all cards, buttons, elements)
+
+### Neumorphic Shadows (Dark Theme):
+- **Dark Shadow**: #272727 (darker shadow)
+- **Light Shadow**: #464646 (lighter shadow)
+- **Card Shadow**: `12px 12px 24px #272727, -12px -12px 24px #464646`
+- **Button Shadow**: `8px 8px 16px #272727, -8px -8px 16px #464646`
+
+### Text Colors:
+- **Primary Text**: #ffffff (white)
+- **Secondary Text**: #d1d5db (gray-300)
+- **Muted Text**: #9ca3af (gray-400)
+
+### Accent Colors:
+- **Primary Gradient**: `linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)`
+- **Red Accent**: #ff6b6b
+- **Blue Accent**: #4ecdc4
+- **Orange Accent**: #45b7d1
+
+### FORBIDDEN COLORS:
+- **NEVER USE**: #bbbbbb, #9f9f9f, #d7d7d7 (old gray system)
+- **NEVER USE**: #2e2e2e for anything except sidebar background
+- **NEVER USE**: Any color not listed above
+
+**Reference File**: `/client/src/styles/colors.ts` contains the official color system.
