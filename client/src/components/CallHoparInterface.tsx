@@ -322,8 +322,16 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
 
   const startAutomaticRecording = async () => {
     try {
-      if (!mediaRecorderRef.current) return;
+      if (!mediaRecorderRef.current) {
+        console.log('MediaRecorder not available, setting up microphone...');
+        await setupMicrophone();
+        if (!mediaRecorderRef.current) {
+          console.error('Failed to set up microphone');
+          return;
+        }
+      }
       
+      console.log('Starting recording...');
       audioChunksRef.current = [];
       mediaRecorderRef.current.start();
       setIsRecording(true);
@@ -335,6 +343,7 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
 
   const stopAutomaticRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
+      console.log('Stopping recording...');
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
@@ -483,19 +492,28 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
     try {
       setIsProcessingAudio(true);
       
+      console.log('Processing audio blob of size:', audioBlob.size);
+      
+      // Check if we actually have audio data
+      if (audioBlob.size === 0) {
+        console.log('No audio data detected - user might not have spoken');
+      }
+      
       // Add a short delay to show processing state
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Simple roast responses using Web Speech API
+      // Create more varied roast responses that acknowledge different scenarios
       const roastResponses = [
-        `Yo ${username}, that was weak as fuck! Try harder!`,
-        `${username}, is that the best you got? My grandmother roasts better!`,
-        `Listen ${username}, you're gonna have to speak up if you want to play with the big boys!`,
-        `${username}, that comeback was more disappointing than your life choices!`,
-        `Come on ${username}, I've heard better insults from a broken GPS!`,
-        `${username}, you sound like a broken record player trying to be tough!`,
-        `Oh please ${username}, I've heard better comebacks from a mute person!`,
-        `${username}, you're about as intimidating as a wet napkin!`
+        `Yo ${username}, I'm waiting for you to say something! Did you fall asleep?`,
+        `${username}, your mic working? I can't hear shit from you!`,
+        `Listen ${username}, you called ME remember? Speak up!`,
+        `${username}, this silence is more boring than your personality!`,
+        `Come on ${username}, I don't have all day! Say something!`,
+        `${username}, even a mute person would be more entertaining!`,
+        `Oh please ${username}, at least try to insult me back!`,
+        `${username}, your silence speaks louder than your words ever could!`,
+        `What's wrong ${username}? Cat got your tongue?`,
+        `${username}, I've heard more noise from a library!`
       ];
       
       const roastResponse = roastResponses[Math.floor(Math.random() * roastResponses.length)];
@@ -540,19 +558,35 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
 
   const setupMicrophone = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('Requesting microphone access...');
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
       
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      console.log('Microphone access granted, setting up MediaRecorder...');
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
       
       mediaRecorderRef.current.ondataavailable = async (event) => {
+        console.log('Audio data available, size:', event.data.size);
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
 
       mediaRecorderRef.current.onstop = async () => {
+        console.log('Recording stopped, processing audio...');
+        console.log('Audio chunks collected:', audioChunksRef.current.length);
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        console.log('Audio blob created with size:', audioBlob.size, 'bytes');
         audioChunksRef.current = [];
+        
+        // Always process the audio, even if it's empty (simulating real behavior)
         await sendAudioForTranscription(audioBlob);
       };
       
@@ -562,8 +596,10 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
       analyserRef.current = audioContextRef.current.createAnalyser();
       source.connect(analyserRef.current);
       
+      console.log('Microphone setup complete');
     } catch (error) {
       console.error('Error setting up microphone:', error);
+      showErrorPopup('Microphone access denied or not available');
     }
   };
 
