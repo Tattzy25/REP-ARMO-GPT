@@ -122,39 +122,7 @@ export function ResumeQuestionCards({ onComplete, onBack, username = "[Your Name
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#bbbbbb' }}>
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full p-4"
-      >
-        <div className="flex items-center">
-          <button
-            onClick={onBack}
-            className="p-2 rounded-lg transition-all duration-200"
-            style={{
-              background: '#404040',
-              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#404040';
-            }}
-          >
-            <ArrowLeft size={20} className="text-white" />
-          </button>
-          <div className="flex-1 text-center">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent">
-              You Are Hired Ara
-            </h1>
-          </div>
-        </div>
-      </motion.div>
-
+    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-2 pt-4">
         <div className="w-full max-w-4xl flex flex-col items-center">
@@ -216,58 +184,77 @@ export function ResumeQuestionCards({ onComplete, onBack, username = "[Your Name
             </div>
           </motion.div>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between w-full max-w-2xl mb-8">
-            {/* Previous Button */}
-            <button
-              onClick={handlePrevious}
-              className="w-16 h-16 rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform duration-200"
-              style={{
-                background: '#3a3a3a',
-                boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-              }}
-            >
-              <ChevronLeft size={24} />
-            </button>
+        {/* Navigation */}
+        <div className="flex items-center justify-center gap-8 mb-8">
+          {/* Previous Button */}
+          <button
+            onClick={handlePrevious}
+            className="w-16 h-16 rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+            }}
+          >
+            <ChevronLeft size={24} />
+          </button>
 
-            {/* Question Counter */}
-            <div className="text-white text-lg font-semibold">
-              {currentQuestion + 1} / {questions.length}
+          {/* Next Button */}
+          <button
+            onClick={handleNext}
+            disabled={!isValid}
+            className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-200 ${
+              isValid ? 'hover:scale-105' : 'opacity-50 cursor-not-allowed'
+            }`}
+            style={{
+              background: '#3a3a3a',
+              boxShadow: isValid 
+                ? '8px 8px 16px #323232, -8px -8px 16px #484848'
+                : 'inset 4px 4px 8px #323232, inset -4px -4px 8px #484848'
+            }}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full max-w-md">
+          <div
+            className="h-12 rounded-full flex items-center justify-center px-6"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+            }}
+          >
+            <div className="flex space-x-2">
+              {questions.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                    index <= currentQuestion
+                      ? 'bg-purple-500'
+                      : 'bg-gray-600'
+                  }`}
+                />
+              ))}
             </div>
-
-            {/* Next Button */}
-            <button
-              onClick={handleNext}
-              disabled={!isValid}
-              className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-200 ${
-                isValid ? 'hover:scale-105' : 'opacity-50 cursor-not-allowed'
-              }`}
-              style={{
-                background: isValid ? '#3a3a3a' : '#2a2a2a',
-                boxShadow: isValid ? '8px 8px 16px #323232, -8px -8px 16px #484848' : 'none'
-              }}
-            >
-              <ChevronRight size={24} />
-            </button>
           </div>
+        </div>
 
-          {/* Progress Bar */}
-          <div className="w-full max-w-2xl mb-4">
-            <div 
-              className="h-2 rounded-full overflow-hidden"
-              style={{
-                background: '#2e2e2e',
-                boxShadow: 'inset 4px 4px 8px #262626, inset -4px -4px 8px #363636'
-              }}
-            >
-              <motion.div
-                className="h-full bg-gradient-to-r from-red-500 via-blue-500 to-orange-400"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
-          </div>
+        {/* Completion Button (only on last question) */}
+        {currentQuestion === questions.length - 1 && isValid && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={handleNext}
+            className="mt-8 px-8 py-4 rounded-xl text-white font-semibold text-lg hover:scale-105 transition-transform duration-200"
+            style={{
+              background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
+            }}
+          >
+            Generate My Professional Resume
+          </motion.button>
+        )}
         </div>
       </div>
 
