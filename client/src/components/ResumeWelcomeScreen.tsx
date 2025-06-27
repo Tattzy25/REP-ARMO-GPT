@@ -1,13 +1,32 @@
 import { motion } from "framer-motion";
 import { AnimatedButton } from "./AnimatedButton";
+import { ArrowLeft } from "lucide-react";
 
 interface ResumeWelcomeScreenProps {
   onStart: () => void;
+  onBack: () => void;
 }
 
-export function ResumeWelcomeScreen({ onStart }: ResumeWelcomeScreenProps) {
+export function ResumeWelcomeScreen({ onStart, onBack }: ResumeWelcomeScreenProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 mobile-content-padding" style={{ background: "#3a3a3a" }}>
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="fixed top-6 left-6 z-20 p-3 rounded-full transition-colors duration-200"
+        style={{
+          background: '#3a3a3a',
+          boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8844)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = '#3a3a3a';
+        }}
+      >
+        <ArrowLeft className="h-6 w-6 text-white" />
+      </button>
       <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center justify-center gap-8">
         {/* Main Content Card */}
         <motion.div

@@ -107,6 +107,42 @@ function App() {
       }
     }
     
+    // Special handling for resume sessions - route back to result page
+    if (vibe === "you-are-hired-ara") {
+      try {
+        // Fetch the session messages to get the resume data
+        const response = await fetch(`/api/chat/session/${sessionId}/messages`);
+        if (response.ok) {
+          const messages = await response.json();
+          
+          // Find the user request and AI response
+          const userMessage = messages.find((m: any) => m.sender === 'user' && m.metadata?.type === 'resume-request');
+          const aiMessage = messages.find((m: any) => m.sender === 'armo' && m.metadata?.type === 'resume-response');
+          
+          if (userMessage && aiMessage) {
+            // Extract answers from metadata
+            const answers = userMessage.metadata?.answers || [];
+            const questions = [
+              "What's your dream job/position?",
+              "What company or industry are you targeting?",
+              "What are your key skills and experience?",
+              "What's your biggest professional achievement?",
+              "What's a weakness you've turned into a strength?",
+              "What's your salary expectation?"
+            ];
+            
+            // Set the resume data and route to result page
+            setResumeAnswers(answers);
+            setResumeQuestions(questions);
+            setAppState("resume-result");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading resume session:', error);
+      }
+    }
+    
     // Default behavior for other vibes
     if (appState === "lobby") {
       setAppState("chat");
@@ -181,8 +217,10 @@ function App() {
     setAppState("resume-welcome");
   };
 
-  const handleResumeRecapEdit = (questionIndex: number) => {
-    // Inline editing is already implemented in the recap page
+  const handleResumeRecapEdit = (questionIndex: number, newAnswer: string) => {
+    const updatedAnswers = [...resumeAnswers];
+    updatedAnswers[questionIndex] = newAnswer;
+    setResumeAnswers(updatedAnswers);
   };
 
   const handleResumeRecapBack = () => {
@@ -383,6 +421,7 @@ function App() {
             {appState === "resume-welcome" && (
               <ResumeWelcomeScreen
                 onStart={handleResumeStart}
+                onBack={handleBackToLobby}
               />
             )}
 
