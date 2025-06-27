@@ -158,7 +158,7 @@ export function FormFeatureInterface({ featureId, onBack }: FormFeatureInterface
   // Welcome Screen
   if (showWelcome) {
     return (
-      <div className="min-h-screen bg-[#bbbbbb] p-6">
+      <div className="min-h-screen bg-[#2e2e2e] p-6">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -192,7 +192,7 @@ export function FormFeatureInterface({ featureId, onBack }: FormFeatureInterface
   // Results Screen
   if (results) {
     return (
-      <div className="min-h-screen bg-[#bbbbbb] p-6">
+      <div className="min-h-screen bg-[#2e2e2e] p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -291,7 +291,7 @@ export function FormFeatureInterface({ featureId, onBack }: FormFeatureInterface
   const currentQuestion = currentFeature.questions[currentStep];
 
   return (
-    <div className="min-h-screen bg-[#bbbbbb] p-6">
+    <div className="min-h-screen bg-[#2e2e2e] p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
