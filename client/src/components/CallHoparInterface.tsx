@@ -3,6 +3,63 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Phone, PhoneOff, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import phoneRingAudio from '@assets/11L-PHONE_RINGING_CALLIN-1751063550449_1751063667978.mp3';
 
+// AudioWaveform Component for Large Animated Equalizer
+function AudioWaveform({ isActive }: { isActive: boolean }) {
+  const [animationKey, setAnimationKey] = useState(0);
+  
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isActive) {
+      interval = setInterval(() => {
+        setAnimationKey(prev => prev + 1);
+      }, 100);
+    }
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  return (
+    <div className="flex items-center justify-center space-x-1">
+      {Array.from({ length: 32 }).map((_, i) => {
+        const baseHeight = 8;
+        const maxHeight = isActive ? 120 : 20;
+        const animatedHeight = isActive 
+          ? baseHeight + Math.random() * maxHeight + Math.sin(Date.now() * 0.01 + i * 0.5) * 20
+          : baseHeight + 4;
+        
+        // Color gradient based on position
+        const colorIntensity = isActive ? 1 : 0.3;
+        let barColor;
+        if (i < 8) {
+          barColor = `rgba(34, 197, 94, ${colorIntensity})`; // Green
+        } else if (i < 16) {
+          barColor = `rgba(59, 130, 246, ${colorIntensity})`; // Blue  
+        } else if (i < 24) {
+          barColor = `rgba(147, 51, 234, ${colorIntensity})`; // Purple
+        } else {
+          barColor = `rgba(239, 68, 68, ${colorIntensity})`; // Red
+        }
+        
+        return (
+          <div
+            key={`${i}-${animationKey}`}
+            className="transition-all duration-75 ease-in-out"
+            style={{
+              width: '5px',
+              height: `${Math.max(animatedHeight, baseHeight)}px`,
+              background: isActive ? 
+                `linear-gradient(to top, ${barColor}, rgba(255, 255, 255, 0.8))` :
+                barColor,
+              borderRadius: '2px',
+              boxShadow: isActive ? `0 0 8px ${barColor}` : 'none',
+              transform: isActive ? `scaleY(${1 + Math.random() * 0.3})` : 'scaleY(1)',
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 interface CallHoparInterfaceProps {
   onBack: () => void;
   username?: string;
@@ -177,34 +234,8 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
     try {
       setIsGeneratingResponse(true);
       
-      // Try ElevenLabs first, fallback to Web Speech API
-      try {
-        const response = await fetch('/api/call-hopar/greeting', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username })
-        });
-        
-        if (response.ok) {
-          const audioBlob = await response.blob();
-          const audioUrl = URL.createObjectURL(audioBlob);
-          const audio = new Audio(audioUrl);
-          
-          setIsGeneratingResponse(false);
-          setIsAiSpeaking(true);
-          
-          audio.onended = () => {
-            setIsAiSpeaking(false);
-            URL.revokeObjectURL(audioUrl);
-            setIsUserTurn(true);
-          };
-          
-          await audio.play();
-          return;
-        }
-      } catch (elevenLabsError) {
-        console.log('ElevenLabs failed, using Web Speech API fallback');
-      }
+      // Always use Web Speech API since ElevenLabs credits are depleted
+      console.log('Using Web Speech API for greeting');
       
       // Fallback to Web Speech API
       const greetings = [
@@ -403,50 +434,25 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   const sendAudioForTranscription = async (audioBlob: Blob) => {
     try {
       setIsProcessingAudio(true);
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
-      formData.append('username', username);
-      formData.append('callDuration', callDuration.toString());
       
-      // Try full speech processing with ElevenLabs
-      try {
-        const response = await fetch('/api/call-hopar/process-speech', {
-          method: 'POST',
-          body: formData
-        });
-        
-        if (response.ok) {
-          const audioResponseBlob = await response.blob();
-          const audioUrl = URL.createObjectURL(audioResponseBlob);
-          const audio = new Audio(audioUrl);
-          
-          setIsProcessingAudio(false);
-          setIsAiSpeaking(true);
-          
-          audio.onended = () => {
-            setIsAiSpeaking(false);
-            URL.revokeObjectURL(audioUrl);
-            setIsUserTurn(true);
-          };
-          
-          await audio.play();
-          return;
-        }
-      } catch (speechProcessingError) {
-        console.log('Speech processing failed, using Web Speech API fallback');
-      }
+      // Add a short delay to show processing state
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Fallback: Generate roast response and use Web Speech API
+      // Simple roast responses using Web Speech API
       const roastResponses = [
         `Yo ${username}, that was weak as fuck! Try harder!`,
         `${username}, is that the best you got? My grandmother roasts better!`,
         `Listen ${username}, you're gonna have to speak up if you want to play with the big boys!`,
         `${username}, that comeback was more disappointing than your life choices!`,
-        `Come on ${username}, I've heard better insults from a broken GPS!`
+        `Come on ${username}, I've heard better insults from a broken GPS!`,
+        `${username}, you sound like a broken record player trying to be tough!`,
+        `Oh please ${username}, I've heard better comebacks from a mute person!`,
+        `${username}, you're about as intimidating as a wet napkin!`
       ];
       
       const roastResponse = roastResponses[Math.floor(Math.random() * roastResponses.length)];
       
+      // Use Web Speech API to speak the response
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(roastResponse);
         utterance.rate = 1.1;
@@ -701,51 +707,35 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
                 <Mic className={`h-8 w-8 ${isAiSpeaking ? 'text-green-400' : 'text-red-400'}`} />
               </div>
               <h2 className="text-xl font-bold text-white">
-                {isAiSpeaking ? "HOPAR LAUGHING..." : "HOPAR ROASTING..."}
+                {isAiSpeaking ? "HOPAR ROASTING..." : 
+                 isProcessingAudio || isGeneratingResponse ? "HOPAR THINKING..." : 
+                 "HOPAR LISTENING..."}
               </h2>
             </div>
 
-            {/* Central Audio Visualization */}
-            <div className="flex-1 flex items-center justify-center">
+            {/* Central Audio Visualization - Large Phone-Style Equalizer */}
+            <div className="flex-1 flex items-center justify-center px-8">
               <div 
-                className="w-64 h-64 rounded-full flex items-center justify-center relative transition-all duration-300"
+                className="w-80 h-80 lg:w-96 lg:h-96 rounded-full flex items-center justify-center relative transition-all duration-300"
                 style={{
                   background: `radial-gradient(circle, 
-                    rgba(59, 130, 246, 0.3) 0%, 
-                    rgba(147, 51, 234, 0.2) 30%, 
-                    rgba(239, 68, 68, 0.3) 60%, 
-                    rgba(34, 197, 94, 0.1) 80%, 
+                    rgba(59, 130, 246, 0.4) 0%, 
+                    rgba(147, 51, 234, 0.3) 25%, 
+                    rgba(239, 68, 68, 0.4) 50%, 
+                    rgba(34, 197, 94, 0.2) 75%, 
                     transparent 100%)`,
                   boxShadow: `
-                    0 0 60px rgba(59, 130, 246, 0.4),
-                    0 0 100px rgba(147, 51, 234, 0.3),
-                    0 0 140px rgba(239, 68, 68, 0.2),
-                    inset 0 0 40px rgba(0, 0, 0, 0.5)
+                    0 0 80px rgba(59, 130, 246, 0.6),
+                    0 0 120px rgba(147, 51, 234, 0.4),
+                    0 0 160px rgba(239, 68, 68, 0.3),
+                    inset 0 0 60px rgba(0, 0, 0, 0.6)
                   `,
                 }}
               >
-                {/* Audio waveform bars */}
-                <div className="flex items-center justify-center space-x-1">
-                  {Array.from({ length: 20 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="transition-all duration-150"
-                      style={{
-                        width: '3px',
-                        height: `${10 + Math.random() * 40 + audioLevel * 30}px`,
-                        background: `linear-gradient(to top, 
-                          #22c55e ${i < 5 ? '100%' : '0%'},
-                          #3b82f6 ${i >= 5 && i < 10 ? '100%' : '0%'},
-                          #8b5cf6 ${i >= 10 && i < 15 ? '100%' : '0%'},
-                          #ef4444 ${i >= 15 ? '100%' : '0%'}
-                        )`,
-                        opacity: 0.8,
-                        borderRadius: '2px',
-                        animation: `pulse ${0.5 + Math.random() * 0.5}s infinite alternate`
-                      }}
-                    />
-                  ))}
-                </div>
+                {/* Large Animated Audio Waveform - Only when actually speaking */}
+                <AudioWaveform 
+                  isActive={isRecording || isAiSpeaking}
+                />
               </div>
             </div>
 
@@ -756,7 +746,9 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
                 <h3 className="text-xl font-bold text-white mr-3">
                   {isProcessingAudio ? "PROCESSING..." : 
                    isGeneratingResponse ? "GENERATING..." : 
-                   isRecording ? "YOUR ROASTING..." : "YOUR LISTENING..."}
+                   isUserTurn && isRecording ? "YOUR ROASTING..." : 
+                   isAiSpeaking ? "YOUR LISTENING..." : 
+                   "YOUR TURN..."}
                 </h3>
                 {(isProcessingAudio || isGeneratingResponse) && (
                   <div className="flex space-x-1">
