@@ -213,7 +213,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
             }}
           >
             <div className="mb-4">
-              <h2 className="text-2xl font-bold text-white">Review Your Career Info</h2>
+              <h2 className="text-2xl font-bold text-white text-center">RECAP</h2>
             </div>
             
             <p className="text-gray-300">H</p>
