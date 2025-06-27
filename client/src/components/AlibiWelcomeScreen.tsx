@@ -1,33 +1,20 @@
-import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { AnimatedButton } from "./AnimatedButton";
 
 interface AlibiWelcomeScreenProps {
   onStart: () => void;
-  onBack: () => void;
 }
 
-export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps) {
+export function AlibiWelcomeScreen({ onStart }: AlibiWelcomeScreenProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#3a3a3a" }}>
-      <div className="w-full max-w-6xl flex items-center justify-between">
-        {/* Back Button */}
-        <button
-          onClick={onBack}
-          className="w-16 h-16 rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform duration-200"
-          style={{
-            background: '#3a3a3a',
-            boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-          }}
-        >
-          <ArrowLeft size={24} />
-        </button>
-
+      <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center justify-center gap-8">
         {/* Main Content Card */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="rounded-2xl p-12 max-w-2xl"
+          className="rounded-2xl p-8 lg:p-12 max-w-2xl"
           style={{
             background: '#3a3a3a',
             boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
@@ -35,17 +22,17 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
         >
           {/* Title with gradient text */}
           <div className="text-center mb-8">
-            <h1 className="text-6xl font-bold mb-2">
+            <h1 className="text-4xl lg:text-6xl font-bold mb-2">
               <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
                 &lt;code&gt;
               </span>
             </h1>
-            <h2 className="text-5xl font-bold mb-2">
+            <h2 className="text-3xl lg:text-5xl font-bold mb-2">
               <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
                 GimmiAlibiAra
               </span>
             </h2>
-            <h3 className="text-6xl font-bold">
+            <h3 className="text-4xl lg:text-6xl font-bold">
               <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
                 &lt;/code&gt;
               </span>
@@ -54,7 +41,7 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
 
           {/* Description Text */}
           <div className="text-center">
-            <p className="text-white text-xl leading-relaxed font-medium">
+            <p className="text-white text-lg lg:text-xl leading-relaxed font-medium">
               You've summoned Armo Hopar's Alibi Maker.<br />
               Time to cook up a cover story so wild<br />
               even your landlord will believe it.<br />
@@ -63,34 +50,9 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           </div>
         </motion.div>
 
-        {/* Start Button Area */}
-        <div className="flex flex-col items-center">
-          <motion.button
-            onClick={onStart}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="rounded-2xl px-8 py-6 text-white font-semibold text-lg min-w-[160px] transition-all duration-300"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-            }}
-          >
-            <div className="flex items-center justify-center gap-3">
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                className="text-white"
-              >
-                <path 
-                  d="M8 5v14l11-7z" 
-                  fill="currentColor"
-                />
-              </svg>
-              <span>LET'S ROLL</span>
-            </div>
-          </motion.button>
+        {/* Animated Start Button */}
+        <div className="flex justify-center mt-8 lg:mt-0">
+          <AnimatedButton onClick={onStart} />
         </div>
       </div>
     </div>
