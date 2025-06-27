@@ -21,6 +21,10 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [turnTimeLeft, setTurnTimeLeft] = useState(15);
   const [isUserTurn, setIsUserTurn] = useState(false);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showError, setShowError] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -64,18 +68,36 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   // Handle automatic recording based on turns
   useEffect(() => {
     if (isCallActive && !isRinging) {
-      if (isUserTurn && !isRecording) {
-        // Start user recording automatically
+      if (isUserTurn && !isRecording && !isProcessingAudio) {
+        // Start user recording automatically for their 15-second turn
         startAutomaticRecording();
       } else if (!isUserTurn && isRecording) {
-        // Stop user recording and process
+        // Stop user recording and process when switching to Hopar's turn
         stopAutomaticRecording();
       }
       
-      // Update AI speaking state
-      setIsAiSpeaking(!isUserTurn);
+      // Update AI speaking state - Hopar speaks when it's not user's turn
+      setIsAiSpeaking(!isUserTurn && !isProcessingAudio && !isGeneratingResponse);
     }
-  }, [isUserTurn, isCallActive, isRinging]);
+  }, [isUserTurn, isCallActive, isRinging, isProcessingAudio, isGeneratingResponse]);
+
+  // Error message auto-dismiss
+  useEffect(() => {
+    if (showError) {
+      const timer = setTimeout(() => {
+        setShowError(false);
+        setErrorMessage("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showError]);
+
+  const showErrorPopup = (message: string) => {
+    setErrorMessage(message);
+    setShowError(true);
+    // End call on any error
+    endCall();
+  };
 
   const checkCooldownStatus = () => {
     // Cooldown disabled for development/testing - users can call multiple times
@@ -153,31 +175,39 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
 
   const triggerHoparGreeting = async () => {
     try {
-      setIsAiSpeaking(true);
+      setIsGeneratingResponse(true);
       const response = await fetch('/api/call-hopar/greeting', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username })
       });
       
-      if (response.ok) {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        
-        audio.onended = () => {
-          setIsAiSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-          // After greeting, switch to user turn
-          setIsUserTurn(true);
-        };
-        
-        await audio.play();
+      if (!response.ok) {
+        throw new Error(`TTS service failed: ${response.status}`);
       }
+      
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      setIsGeneratingResponse(false);
+      setIsAiSpeaking(true);
+      
+      audio.onended = () => {
+        setIsAiSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+        // After greeting, switch to user turn
+        setIsUserTurn(true);
+      };
+      
+      audio.onerror = () => {
+        throw new Error('Audio playback failed');
+      };
+      
+      await audio.play();
     } catch (error) {
       console.error('Error playing greeting:', error);
-      setIsAiSpeaking(false);
-      setIsUserTurn(true);
+      showErrorPopup('Voice synthesis failed. Please check your connection and try again.');
     }
   };
 
@@ -342,6 +372,7 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
 
   const sendAudioForTranscription = async (audioBlob: Blob) => {
     try {
+      setIsProcessingAudio(true);
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
       formData.append('username', username);
@@ -352,21 +383,33 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
         body: formData
       });
       
-      if (response.ok) {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        
-        setIsAiSpeaking(true);
-        audio.onended = () => {
-          setIsAiSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        await audio.play();
+      if (!response.ok) {
+        throw new Error(`Speech processing failed: ${response.status}`);
       }
+      
+      const audioResponseBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioResponseBlob);
+      const audio = new Audio(audioUrl);
+      
+      setIsProcessingAudio(false);
+      setIsAiSpeaking(true);
+      
+      audio.onended = () => {
+        setIsAiSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+        // After Hopar's response, switch back to user turn  
+        setIsUserTurn(true);
+      };
+      
+      audio.onerror = () => {
+        throw new Error('Audio playback failed');
+      };
+      
+      await audio.play();
     } catch (error) {
       console.error('Error processing speech:', error);
+      setIsProcessingAudio(false);
+      showErrorPopup('Speech processing failed. Please check your microphone and connection.');
     }
   };
 
@@ -649,9 +692,21 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
 
             {/* Bottom Section - User's state */}
             <div className="flex flex-col items-center">
-              <h3 className="text-xl font-bold text-white mb-6">
-                {isRecording ? "YOUR ROASTING..." : "YOUR LISTENING..."}
-              </h3>
+              {/* Status Text with Loading Indicators */}
+              <div className="flex items-center justify-center mb-6">
+                <h3 className="text-xl font-bold text-white mr-3">
+                  {isProcessingAudio ? "PROCESSING..." : 
+                   isGeneratingResponse ? "GENERATING..." : 
+                   isRecording ? "YOUR ROASTING..." : "YOUR LISTENING..."}
+                </h3>
+                {(isProcessingAudio || isGeneratingResponse) && (
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                )}
+              </div>
               
               <div className="flex items-center justify-center space-x-12">
                 {/* Speaker Icon */}
@@ -685,8 +740,48 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
                   <PhoneOff className="h-6 w-6 text-white" />
                 </button>
               </div>
+
+              {/* Turn Timer Display */}
+              <div className="mt-6 text-center">
+                <div className="text-3xl font-bold text-white mb-2">
+                  {turnTimeLeft}
+                </div>
+                <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-green-500 to-red-500 transition-all duration-1000"
+                    style={{ width: `${(turnTimeLeft / 15) * 100}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
+        )}
+
+        {/* Error Popup */}
+        {showError && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div 
+              className="max-w-md w-full p-6 rounded-lg text-center"
+              style={{
+                background: '#3a3a3a',
+                boxShadow: '16px 16px 32px #323232, -16px -16px 32px #484848',
+                border: '2px solid #ef4444'
+              }}
+            >
+              <div className="mb-4">
+                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-red-500 bg-opacity-20 mb-4">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.232 8.5c-.77.833-.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Call Failed</h3>
+                <p className="text-gray-300">{errorMessage}</p>
+              </div>
+              <div className="text-sm text-gray-400">
+                Returning to lobby in a moment...
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
