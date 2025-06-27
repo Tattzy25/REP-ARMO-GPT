@@ -227,7 +227,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
         transition={{ duration: 0.5, delay: 0.6 }}
         className="p-6"
       >
-        <div className="flex flex-wrap justify-center gap-4 mb-4">
+        <div className="flex flex-wrap justify-center gap-4">
           <button
             onClick={handleDownload}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
@@ -263,9 +263,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           >
             {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
           </button>
-        </div>
 
-        <div className="flex justify-between max-w-md mx-auto">
           <motion.button
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
