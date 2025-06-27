@@ -11,6 +11,7 @@ import Sidebar from "@/components/Sidebar";
 import { AlibiWelcomeScreen } from "@/components/AlibiWelcomeScreen";
 import { AlibiQuestionCards } from "@/components/AlibiQuestionCards";
 import { AlibiRecapPage } from "@/components/AlibiRecapPage";
+import { AlibiResultPage } from "@/components/AlibiResultPage";
 
 type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result";
 
@@ -99,8 +100,17 @@ function App() {
   };
 
   const handleRecapNext = () => {
-    // TODO: Generate final alibi story
     setAppState("alibi-result");
+  };
+
+  const handleResultBack = () => {
+    setAppState("alibi-recap");
+  };
+
+  const handleResultRestart = () => {
+    setAppState("alibi-welcome");
+    setAlibiAnswers([]);
+    setAlibiQuestions([]);
   };
 
   const handleSidebarToggle = () => {
@@ -206,6 +216,15 @@ function App() {
                 onEdit={handleRecapEdit}
                 onBack={handleRecapBack}
                 onNext={handleRecapNext}
+              />
+            )}
+
+            {appState === "alibi-result" && (
+              <AlibiResultPage
+                questions={alibiQuestions}
+                answers={alibiAnswers}
+                onBack={handleResultBack}
+                onRestart={handleResultRestart}
               />
             )}
           </div>
