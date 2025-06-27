@@ -187,42 +187,6 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
 
   return (
     <div className="min-h-screen" style={{ background: '#3a3a3a' }}>
-      {/* Header - Mobile responsive */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="sticky top-0 p-4 z-10"
-        style={{
-          background: '#404040',
-          boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-        }}
-      >
-        <div className="flex items-center space-x-3 flex-1 min-w-0">
-          <button
-            onClick={onBack}
-            className="p-2 rounded-lg transition-all duration-200"
-            style={{
-              background: '#404040',
-              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#404040';
-            }}
-          >
-            <ArrowLeft size={20} className="text-white" />
-          </button>
-          <div className="flex-1 text-center">
-            <h1 className="text-xl font-bold text-white">
-              Your Alibi
-            </h1>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-6">
         <motion.div
