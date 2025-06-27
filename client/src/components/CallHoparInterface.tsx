@@ -176,38 +176,68 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   const triggerHoparGreeting = async () => {
     try {
       setIsGeneratingResponse(true);
-      const response = await fetch('/api/call-hopar/greeting', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      });
       
-      if (!response.ok) {
-        throw new Error(`TTS service failed: ${response.status}`);
+      // Try ElevenLabs first, fallback to Web Speech API
+      try {
+        const response = await fetch('/api/call-hopar/greeting', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username })
+        });
+        
+        if (response.ok) {
+          const audioBlob = await response.blob();
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          
+          setIsGeneratingResponse(false);
+          setIsAiSpeaking(true);
+          
+          audio.onended = () => {
+            setIsAiSpeaking(false);
+            URL.revokeObjectURL(audioUrl);
+            setIsUserTurn(true);
+          };
+          
+          await audio.play();
+          return;
+        }
+      } catch (elevenLabsError) {
+        console.log('ElevenLabs failed, using Web Speech API fallback');
       }
       
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
+      // Fallback to Web Speech API
+      const greetings = [
+        `Alo ${username}, what the fuck do you want?`,
+        `Yo ${username}, you better have something good to say!`,
+        `${username}! Speak up, I don't have all day!`,
+        `Well well, ${username} decided to call... this better be worth my time!`,
+        `Alo ${username}, ready to get destroyed? Start talking!`
+      ];
       
-      setIsGeneratingResponse(false);
-      setIsAiSpeaking(true);
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
       
-      audio.onended = () => {
-        setIsAiSpeaking(false);
-        URL.revokeObjectURL(audioUrl);
-        // After greeting, switch to user turn
-        setIsUserTurn(true);
-      };
-      
-      audio.onerror = () => {
-        throw new Error('Audio playback failed');
-      };
-      
-      await audio.play();
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(greeting);
+        utterance.rate = 1.1;
+        utterance.pitch = 0.8;
+        utterance.volume = 1;
+        
+        setIsGeneratingResponse(false);
+        setIsAiSpeaking(true);
+        
+        utterance.onend = () => {
+          setIsAiSpeaking(false);
+          setIsUserTurn(true);
+        };
+        
+        speechSynthesis.speak(utterance);
+      } else {
+        throw new Error('Speech synthesis not supported');
+      }
     } catch (error) {
       console.error('Error playing greeting:', error);
-      showErrorPopup('Voice synthesis failed. Please check your connection and try again.');
+      showErrorPopup('Voice synthesis failed. Please check your browser compatibility.');
     }
   };
 
@@ -378,34 +408,63 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
       formData.append('username', username);
       formData.append('callDuration', callDuration.toString());
       
-      const response = await fetch('/api/call-hopar/process-speech', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Speech processing failed: ${response.status}`);
+      // Try full speech processing with ElevenLabs
+      try {
+        const response = await fetch('/api/call-hopar/process-speech', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          const audioResponseBlob = await response.blob();
+          const audioUrl = URL.createObjectURL(audioResponseBlob);
+          const audio = new Audio(audioUrl);
+          
+          setIsProcessingAudio(false);
+          setIsAiSpeaking(true);
+          
+          audio.onended = () => {
+            setIsAiSpeaking(false);
+            URL.revokeObjectURL(audioUrl);
+            setIsUserTurn(true);
+          };
+          
+          await audio.play();
+          return;
+        }
+      } catch (speechProcessingError) {
+        console.log('Speech processing failed, using Web Speech API fallback');
       }
       
-      const audioResponseBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioResponseBlob);
-      const audio = new Audio(audioUrl);
+      // Fallback: Generate roast response and use Web Speech API
+      const roastResponses = [
+        `Yo ${username}, that was weak as fuck! Try harder!`,
+        `${username}, is that the best you got? My grandmother roasts better!`,
+        `Listen ${username}, you're gonna have to speak up if you want to play with the big boys!`,
+        `${username}, that comeback was more disappointing than your life choices!`,
+        `Come on ${username}, I've heard better insults from a broken GPS!`
+      ];
       
-      setIsProcessingAudio(false);
-      setIsAiSpeaking(true);
+      const roastResponse = roastResponses[Math.floor(Math.random() * roastResponses.length)];
       
-      audio.onended = () => {
-        setIsAiSpeaking(false);
-        URL.revokeObjectURL(audioUrl);
-        // After Hopar's response, switch back to user turn  
-        setIsUserTurn(true);
-      };
-      
-      audio.onerror = () => {
-        throw new Error('Audio playback failed');
-      };
-      
-      await audio.play();
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(roastResponse);
+        utterance.rate = 1.1;
+        utterance.pitch = 0.8;
+        utterance.volume = 1;
+        
+        setIsProcessingAudio(false);
+        setIsAiSpeaking(true);
+        
+        utterance.onend = () => {
+          setIsAiSpeaking(false);
+          setIsUserTurn(true);
+        };
+        
+        speechSynthesis.speak(utterance);
+      } else {
+        throw new Error('Speech synthesis not supported');
+      }
     } catch (error) {
       console.error('Error processing speech:', error);
       setIsProcessingAudio(false);
