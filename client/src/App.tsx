@@ -383,12 +383,7 @@ function App() {
               />
             )}
 
-            {appState === "call" && (
-              <CallHoparInterface 
-                onBack={handleBackToLobby}
-                username="User"
-              />
-            )}
+
 
             {appState === "alibi-welcome" && (
               <AlibiWelcomeScreen
@@ -477,6 +472,16 @@ function App() {
               />
             )}
           </div>
+
+          {/* Full-screen overlays */}
+          {appState === "call" && (
+            <div className="fixed inset-0 z-50">
+              <CallHoparInterface 
+                onBack={handleBackToLobby}
+                username="User"
+              />
+            </div>
+          )}
         </div>
       </TooltipProvider>
     </QueryClientProvider>
