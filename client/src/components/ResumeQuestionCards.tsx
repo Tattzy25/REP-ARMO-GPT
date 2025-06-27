@@ -270,18 +270,23 @@ export function ResumeQuestionCards({ onComplete, onBack, username = "[Your Name
             animate={{ scale: 1, opacity: 1 }}
             className="max-w-lg w-full rounded-2xl p-6 text-center"
             style={{
-              background: '#3a3a3a',
-              boxShadow: '20px 20px 40px #2a2a2a, -20px -20px 40px #4a4a4a'
+              background: '#3a3a3a'
             }}
           >
             <h3 className="text-xl font-bold text-white mb-4">🔥 Hopar's Take</h3>
             <p className="text-gray-300 mb-6 leading-relaxed">{jokeContent}</p>
             <button
               onClick={handleContinueFromJoke}
-              className="px-6 py-3 rounded-lg text-white font-semibold hover:scale-105 transition-transform duration-200"
+              className="px-6 py-3 rounded-lg text-white font-semibold transition-all duration-200"
               style={{
-                background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
-                boxShadow: '8px 8px 16px #2a2a2a, -8px -8px 16px #4a4a4a'
+                background: '#3a3a3a',
+                boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#8b5cf6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#3a3a3a';
               }}
             >
               Continue
