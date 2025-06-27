@@ -193,6 +193,11 @@ The application features multiple AI personality modes:
 - June 27, 2025. COMPLETE: Removed profile, expand, and share buttons from recap page - added ElevenLabs read-aloud with pause functionality
 - June 27, 2025. COMPLETE: Restart button properly shows confirmation popup before restarting
 - June 27, 2025. COMPLETE: Expand button correctly positioned next to alibi content with show more/less functionality
+- June 27, 2025. COMPLETE: Enhanced read-aloud functionality across all features with proper pause/resume controls
+- June 27, 2025. COMPLETE: Added audio cleanup effects to prevent memory leaks in all audio-enabled components
+- June 27, 2025. COMPLETE: Implemented proper play/pause icon switching (Volume2 for play, Pause for pause state)
+- June 27, 2025. COMPLETE: Enhanced both AlibiResultPage and AlibiRecapPage with ElevenLabs TTS and Web Speech API fallback
+- June 27, 2025. COMPLETE: Updated README.md with correct AI model information (meta-llama/llama-4-scout-17b-16e-instruct via Groq API)
 
 ## Production Implementation Summary
 

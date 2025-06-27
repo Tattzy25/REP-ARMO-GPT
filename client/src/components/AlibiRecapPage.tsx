@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause } from 'lucide-react';
 
@@ -16,6 +16,14 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   const [tempAnswer, setTempAnswer] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    // Cleanup function to stop audio when component unmounts
+    return () => {
+      stopPlayback();
+    };
+  }, [currentAudio, currentUtterance]);
 
   const handleEditClick = (index: number) => {
     setEditingIndex(index);
@@ -49,44 +57,99 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
     document.body.removeChild(element);
   };
 
-  const handleReadAloud = async () => {
-    if (isPlaying && currentAudio) {
+  const stopPlayback = () => {
+    // Stop ElevenLabs audio
+    if (currentAudio) {
       currentAudio.pause();
-      setIsPlaying(false);
+      currentAudio.currentTime = 0;
       setCurrentAudio(null);
-      return;
     }
-
-    const content = questions.map((q, i) => `${q} ${answers[i]}`).join('. ');
     
+    // Stop Web Speech API
+    if (currentUtterance) {
+      window.speechSynthesis.cancel();
+      setCurrentUtterance(null);
+    }
+    
+    setIsPlaying(false);
+  };
+
+  const handleReadAloud = () => {
+    if (isPlaying) {
+      // Stop current playback
+      stopPlayback();
+    } else {
+      // Start new playback
+      const content = questions.map((q, i) => `${q} ${answers[i]}`).join('. ');
+      playWithElevenLabs(content);
+    }
+  };
+
+  const playWithElevenLabs = async (text: string) => {
     try {
+      setIsPlaying(true);
+      
       const response = await fetch('/api/voice/speak', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: content }),
+        body: JSON.stringify({ text }),
       });
 
-      if (response.ok) {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        
-        audio.onended = () => {
-          setIsPlaying(false);
-          setCurrentAudio(null);
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        audio.onplay = () => setIsPlaying(true);
-        audio.onpause = () => setIsPlaying(false);
-        
-        setCurrentAudio(audio);
-        audio.play();
+      if (!response.ok) {
+        throw new Error('Failed to synthesize speech');
       }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      setCurrentAudio(audio);
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      audio.onerror = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+        URL.revokeObjectURL(audioUrl);
+        fallbackToWebSpeech(text);
+      };
+      
+      await audio.play();
     } catch (error) {
-      console.error('Error with text-to-speech:', error);
+      console.error('ElevenLabs TTS failed:', error);
+      setIsPlaying(false);
+      setCurrentAudio(null);
+      fallbackToWebSpeech(text);
+    }
+  };
+
+  const fallbackToWebSpeech = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setIsPlaying(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      setCurrentUtterance(utterance);
+      
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setCurrentUtterance(null);
+      };
+      
+      utterance.onerror = () => {
+        setIsPlaying(false);
+        setCurrentUtterance(null);
+      };
+      
+      window.speechSynthesis.speak(utterance);
     }
   };
 

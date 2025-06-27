@@ -16,8 +16,8 @@ An advanced bilingual Armenian-American AI character platform featuring "Armo Ho
 - **Frontend**: React + TypeScript + Vite
 - **Backend**: Node.js + Express
 - **Database**: PostgreSQL with Drizzle ORM
-- **AI**: Google Gemini API for chat and vision
-- **Voice**: Web Speech API + ElevenLabs TTS
+- **AI**: Groq API with meta-llama/llama-4-scout-17b-16e-instruct for chat and vision analysis
+- **Voice**: Google Gemini API for speech-to-text transcription + ElevenLabs TTS (voice ID: pNInz6obpgDQGcFmaJgB)
 - **UI**: Shadcn/ui + Tailwind CSS with neumorphic design
 
 ## Quick Start

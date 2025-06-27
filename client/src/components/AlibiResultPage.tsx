@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw, Download, Share2, Volume2, Maximize2, Copy, Loader2 } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Download, Share2, Volume2, Maximize2, Copy, Loader2, Pause } from 'lucide-react';
 
 interface AlibiResultPageProps {
   questions: string[];
@@ -15,118 +15,62 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   const [isGenerating, setIsGenerating] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+
+  const stopPlayback = () => {
+    // Stop ElevenLabs audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+    
+    // Stop Web Speech API
+    if (currentUtterance) {
+      window.speechSynthesis.cancel();
+      setCurrentUtterance(null);
+    }
+    
+    setIsPlaying(false);
+  };
 
   useEffect(() => {
     generateAlibiStory();
+    
+    // Cleanup function to stop audio when component unmounts
+    return () => {
+      stopPlayback();
+    };
   }, []);
 
   const generateAlibiStory = async () => {
-    setIsGenerating(true);
     try {
-      // Create a comprehensive prompt with all the user's answers
-      const alibiPrompt = `Generate a complete, detailed alibi story using these details:
-- Got in trouble for: ${answers[0] || "unknown situation"}
-- Being investigated by: ${answers[1] || "someone"}
-- Alibi partner: ${answers[2] || "no one reliable"}
-- Their excuse: ${answers[3] || "no excuse"}
-- Where they claim to have been: ${answers[4] || "nowhere specific"}
-- Their evidence: ${answers[5] || "no evidence"}
-
-Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a believable narrative that weaves all elements together. Write 3-4 paragraphs with specific details that sound convincing.`;
-
+      setIsGenerating(true);
       const response = await fetch('/api/alibi/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: alibiPrompt,
-          answers: answers,
-          username: username
+          questions,
+          answers,
+          username
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setAlibiStory(data.alibi || "Hopar couldn't craft your alibi right now. Try again later!");
-      } else {
+      if (!response.ok) {
         throw new Error('Failed to generate alibi');
       }
+
+      const data = await response.json();
+      setAlibiStory(data.alibi);
     } catch (error) {
       console.error('Error generating alibi:', error);
-      setAlibiStory("Something went wrong while crafting your alibi. Hopar's creativity machine needs a reboot!");
+      setAlibiStory("Sorry, I couldn't generate your alibi. Please try again.");
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(alibiStory);
-      // Could add a toast notification here
-    } catch (error) {
-      console.error('Failed to copy:', error);
-    }
-  };
-
-  const handleDownload = () => {
-    const element = document.createElement('a');
-    const file = new Blob([alibiStory], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'my-alibi-by-armo-hopar.txt';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'My Alibi by Armo Hopar',
-          text: alibiStory,
-        });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
-    } else {
-      // Fallback: copy to clipboard
-      handleCopy();
-    }
-  };
-
-  const handleReadAloud = async () => {
-    try {
-      const response = await fetch('/api/voice/speak', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: alibiStory,
-          voice: 'alloy'
-        }),
-      });
-
-      if (response.ok) {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        audio.play();
-      } else {
-        // Fallback to browser speech synthesis
-        const utterance = new SpeechSynthesisUtterance(alibiStory);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        speechSynthesis.speak(utterance);
-      }
-    } catch (error) {
-      console.error('Error with text-to-speech:', error);
-      // Fallback to browser speech synthesis
-      const utterance = new SpeechSynthesisUtterance(alibiStory);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
-      speechSynthesis.speak(utterance);
     }
   };
 
@@ -134,102 +78,191 @@ Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a 
     setIsExpanded(!isExpanded);
   };
 
+  const handleDownload = () => {
+    const element = document.createElement("a");
+    const file = new Blob([alibiStory], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `${username}-alibi.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(alibiStory);
+      alert("Alibi copied to clipboard!");
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      alert("Failed to copy alibi. Please copy manually.");
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${username}'s Alibi`,
+          text: alibiStory,
+        });
+      } catch (err) {
+        console.error('Error sharing:', err);
+        handleCopy();
+      }
+    } else {
+      // Fallback: copy to clipboard
+      handleCopy();
+    }
+  };
+
+  const handleReadAloud = () => {
+    if (isPlaying) {
+      // Stop current playback
+      stopPlayback();
+    } else if (alibiStory) {
+      // Start new playback
+      playWithElevenLabs(alibiStory);
+    }
+  };
+
+  const playWithElevenLabs = async (text: string) => {
+    try {
+      setIsPlaying(true);
+      
+      const response = await fetch('/api/voice/speak', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to synthesize speech');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      setCurrentAudio(audio);
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      audio.onerror = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+        URL.revokeObjectURL(audioUrl);
+        fallbackToWebSpeech(text);
+      };
+      
+      await audio.play();
+    } catch (error) {
+      console.error('ElevenLabs TTS failed:', error);
+      setIsPlaying(false);
+      setCurrentAudio(null);
+      fallbackToWebSpeech(text);
+    }
+  };
+
+  const fallbackToWebSpeech = (text: string) => {
+    if ('speechSynthesis' in window) {
+      setIsPlaying(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      setCurrentUtterance(utterance);
+      
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setCurrentUtterance(null);
+      };
+      
+      utterance.onerror = () => {
+        setIsPlaying(false);
+        setCurrentUtterance(null);
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   const handleRestartClick = () => {
     setShowRestartConfirm(true);
   };
 
-  const confirmRestart = () => {
+  const handleRestartConfirm = () => {
     setShowRestartConfirm(false);
     onRestart();
   };
 
-  const cancelRestart = () => {
+  const handleRestartCancel = () => {
     setShowRestartConfirm(false);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 mobile-content-padding" style={{ background: "#3a3a3a" }}>
-      <div className="w-full max-w-4xl flex flex-col items-center">
-        
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div 
-            className="px-8 py-4 rounded-2xl"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
-            }}
-          >
-            <h1 className="text-2xl lg:text-3xl font-bold text-white text-center">
-              <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
-                Hopar Got You<br />Here Is Your Alibi
-              </span>
-            </h1>
-          </div>
-        </motion.div>
+    <div className="min-h-screen bg-gray-200 flex flex-col">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="p-4 text-center border-b border-gray-300"
+        style={{ 
+          background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}
+      >
+        <h1 className="text-4xl font-bold mb-2">Your Alibi is Ready!</h1>
+        <p className="text-lg text-gray-600">Generated by Armo-GPT</p>
+      </motion.div>
 
-        {/* Main Content Area */}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="w-full max-w-3xl mb-8"
+          className="w-full max-w-4xl"
         >
-          <div 
-            className="rounded-2xl p-8 lg:p-12 relative"
+          <div
+            className="p-8 rounded-3xl"
             style={{
-              background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
+              background: '#bbbbbb',
+              boxShadow: '12px 12px 24px #9f9f9f, -12px -12px 24px #d7d7d7'
             }}
           >
-            {/* Back Arrow - Desktop */}
-            <button
-              onClick={onBack}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full text-white hover:scale-110 transition-all duration-200 hidden md:block"
-              style={{
-                background: '#3a3a3a',
-                boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-              }}
-            >
-              <ArrowLeft size={24} />
-            </button>
-            
-            {/* Restart Arrow - Desktop */}
-            <button
-              onClick={handleRestartClick}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full text-white hover:scale-110 transition-all duration-200 hidden md:block"
-              style={{
-                background: '#3a3a3a',
-                boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-              }}
-            >
-              <RotateCcw size={24} />
-            </button>
-
-            {/* Alibi Story Content */}
-            <div className="mx-4 md:mx-12">
+            <div className="text-center">
               {isGenerating ? (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <Loader2 className="animate-spin text-blue-500 mb-4" size={48} />
-                  <p className="text-white text-lg">Hopar is crafting your perfect alibi...</p>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center py-16"
+                >
+                  <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
+                  <p className="text-xl text-gray-700">Crafting your perfect alibi...</p>
+                  <p className="text-sm text-gray-500 mt-2">Armo-GPT is working its magic</p>
+                </motion.div>
               ) : (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className={`prose prose-invert max-w-none ${isExpanded ? '' : 'max-h-96 overflow-hidden'}`}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="text-left"
                 >
-                  <div 
-                    className="p-6 rounded-xl text-gray-100 leading-relaxed whitespace-pre-wrap"
+                  <div
+                    className="text-lg text-gray-800 leading-relaxed whitespace-pre-wrap"
                     style={{
-                      background: '#2a2a2a',
-                      boxShadow: 'inset 6px 6px 12px #222222, inset -6px -6px 12px #323232'
+                      maxHeight: isExpanded ? 'none' : '400px',
+                      overflow: isExpanded ? 'visible' : 'hidden'
                     }}
                   >
                     {alibiStory}
@@ -261,9 +294,9 @@ Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a 
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
             }}
-            title="Restart"
+            title="Restart Process"
           >
             <RotateCcw size={24} />
           </button>
@@ -273,23 +306,23 @@ Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a 
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
             }}
-            title="Download"
+            title="Download Alibi"
           >
             <Download size={24} />
           </button>
           
           <button
-            onClick={handleShare}
+            onClick={handleCopy}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
             }}
-            title="Share"
+            title="Copy to Clipboard"
           >
-            <Share2 size={24} />
+            <Copy size={24} />
           </button>
           
           <button
@@ -301,7 +334,7 @@ Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a 
             }}
             title="Read Out Loud"
           >
-            <Volume2 size={24} />
+            {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
           </button>
           
           <button
@@ -309,107 +342,67 @@ Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a 
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
             }}
-            title="Expand"
+            title="Expand/Collapse"
           >
             <Maximize2 size={24} />
           </button>
           
           <button
-            onClick={handleCopy}
+            onClick={handleShare}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
             }}
-            title="Copy"
+            title="Share Alibi"
           >
-            <Copy size={24} />
+            <Share2 size={24} />
           </button>
         </motion.div>
 
-        {/* Mobile Navigation Arrows */}
-        <motion.div
+        {/* Back Button */}
+        <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="flex md:hidden gap-6"
+          onClick={onBack}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200 mt-4"
+          style={{
+            background: '#3a3a3a',
+            boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+          }}
         >
-          <button
-            onClick={onBack}
-            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-            }}
-          >
-            <ArrowLeft size={24} />
-          </button>
-          
-          <button
-            onClick={handleRestartClick}
-            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-            }}
-          >
-            <RotateCcw size={24} />
-          </button>
-        </motion.div>
+          <ArrowLeft size={20} />
+          Back to Previous
+        </motion.button>
       </div>
 
-      {/* Restart Confirmation Popup */}
+      {/* Restart Confirmation Modal */}
       {showRestartConfirm && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={cancelRestart}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            onClick={(e) => e.stopPropagation()}
-            className="p-8 rounded-2xl max-w-md mx-4"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
-            }}
-          >
-            <h3 className="text-xl font-bold text-white mb-4 text-center">
-              Do you really want to restart?
-            </h3>
-            <p className="text-gray-300 mb-6 text-center">
-              This will clear all your answers and start over from the beginning.
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Restart Confirmation</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to restart? This will clear your current alibi and start over.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 justify-end">
               <button
-                onClick={confirmRestart}
-                className="flex-1 py-3 px-6 rounded-xl text-white font-semibold transition-all duration-200 hover:scale-105"
-                style={{
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                  boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-                }}
+                onClick={handleRestartCancel}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
-                Yes, Restart
+                Cancel
               </button>
               <button
-                onClick={cancelRestart}
-                className="flex-1 py-3 px-6 rounded-xl text-white font-semibold transition-all duration-200 hover:scale-105"
-                style={{
-                  background: 'linear-gradient(135deg, #6b7280, #4b5563)',
-                  boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-                }}
+                onClick={handleRestartConfirm}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
               >
-                No, Cancel
+                Restart
               </button>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
     </div>
   );
