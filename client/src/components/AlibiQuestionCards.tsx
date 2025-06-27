@@ -24,6 +24,8 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
   const [answers, setAnswers] = useState<string[]>(new Array(questions.length).fill(""));
   const [showJokePopup, setShowJokePopup] = useState(false);
   const [jokeContent, setJokeContent] = useState("");
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleNext = async () => {
     // Check if we should show a joke popup
@@ -36,21 +38,9 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
         setJokeContent(joke);
       } catch (error) {
         console.error('Error generating joke:', error);
-        // Generate dynamic fallback based on user answers
-        const userAnswers = answers.filter(a => a && a.trim().length > 0);
-        let dynamicFallback = "Hopar's roast machine is taking a coffee break! ☕";
-        
-        if (userAnswers.length > 0) {
-          const dynamicResponses = [
-            `Your story about "${userAnswers[0] || "that situation"}" has more holes than Armenian cheese! 🧀`,
-            `Even my grandmother would roast this alibi better than me right now! 👵`,
-            `This excuse involving "${userAnswers[1] || "someone"}" is shakier than a Yerevan earthquake! 🌍`,
-            `Your alibi game is weaker than Armenian internet connection, especially with "${userAnswers[2] || "that partner"}"! 📡`
-          ];
-          dynamicFallback = dynamicResponses[Math.floor(Math.random() * dynamicResponses.length)];
-        }
-        
-        setJokeContent(dynamicFallback);
+        setShowJokePopup(false);
+        setErrorMessage(error instanceof Error ? error.message : 'Unknown error occurred');
+        setShowErrorPopup(true);
       }
     } else if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
@@ -120,25 +110,15 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
 
       if (response.ok) {
         const data = await response.json();
-        return data.joke || "Your alibi game is weaker than week-old lavash bread! 🍞";
+        if (!data.joke) {
+          throw new Error('No joke content received from server');
+        }
+        return data.joke;
       } else {
-        throw new Error('Failed to generate joke');
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error generating joke:', error);
-      // Dynamic fallback jokes based on actual user answers
-      const answers = userAnswers.filter(a => a && a.trim().length > 0);
-      if (answers.length > 0) {
-        const randomResponses = [
-          "Your story has more holes than Armenian cheese! 🧀",
-          "This alibi is shakier than a Yerevan earthquake! 🌍", 
-          "Even my grandmother's conspiracy theories are more believable! 👵",
-          "Your excuse game is weaker than Armenian internet connection! 📡",
-          "This story has more plot twists than a telenovela! 📺"
-        ];
-        return randomResponses[Math.floor(Math.random() * randomResponses.length)];
-      }
-      return "Your alibi game needs serious work, hopar! 💪";
+      throw error; // Re-throw error to be handled by caller
     }
   };
 
@@ -397,6 +377,70 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
               }}
             >
               Continue
+            </motion.button>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Error Popup */}
+      {showErrorPopup && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: -50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: -50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0, 0, 0, 0.8)" }}
+        >
+          <motion.div
+            initial={{ rotateX: -90 }}
+            animate={{ rotateX: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-md w-full rounded-2xl p-8 text-center"
+            style={{
+              background: '#2e2e2e'
+            }}
+          >
+            {/* Error Icon */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              className="mb-6 text-6xl"
+            >
+              ⚠️
+            </motion.div>
+
+            {/* Error Message */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+              className="text-white text-lg font-medium leading-relaxed mb-6"
+            >
+              <p className="mb-4">There is an issue with the system:</p>
+              <p className="text-red-400 text-sm">{errorMessage}</p>
+            </motion.div>
+            
+            {/* Close Button */}
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 1.0 }}
+              onClick={() => setShowErrorPopup(false)}
+              className="px-6 py-3 rounded-xl text-white font-medium transition-all duration-200 hover:scale-105"
+              style={{
+                background: '#2e2e2e',
+                boxShadow: 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737, 0 0 20px rgba(147, 51, 234, 0.6)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737';
+              }}
+            >
+              Close
             </motion.button>
           </motion.div>
         </motion.div>
