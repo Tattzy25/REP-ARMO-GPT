@@ -157,7 +157,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
             }}
           >
-            <h2 className="text-4xl font-bold text-white font-audiowide">RECAP</h2>
+            <h2 className="text-4xl font-bold font-audiowide" style={{ color: '#9333ea' }}>RECAP</h2>
           </motion.div>
 
           {questions.map((question, index) => (
@@ -173,14 +173,14 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               }}
             >
               <div className="mb-4">
-                <h3 className="font-audiowide font-semibold text-white mb-2" style={{ fontSize: '18px' }}>
+                <h3 className="font-audiowide font-semibold mb-2" style={{ fontSize: '18px', color: '#9333ea' }}>
                   Question {index + 1}
                 </h3>
                 <p className="text-white">{question}</p>
               </div>
               
               <div>
-                <h4 className="font-audiowide font-medium text-white mb-2" style={{ fontSize: '18px' }}>Your Answer:</h4>
+                <h4 className="font-audiowide font-medium mb-2" style={{ fontSize: '18px', color: '#9333ea' }}>Your Answer:</h4>
                 {editingIndex === index ? (
                   <div className="space-y-3">
                     <textarea
