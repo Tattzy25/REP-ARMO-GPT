@@ -272,32 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       } catch (streamError) {
         console.error('Streaming error:', streamError);
-        // Fallback to non-streaming
-        const hasImages = messageData.metadata && 
-          typeof messageData.metadata === 'object' && 
-          messageData.metadata !== null &&
-          !Array.isArray(messageData.metadata) &&
-          'attachments' in messageData.metadata &&
-          Array.isArray(messageData.metadata.attachments) &&
-          messageData.metadata.attachments.length > 0 &&
-          messageData.metadata.attachments.some((att: any) => 
-            att.type && att.type.startsWith('image/')
-          );
-        
-        let aiResponse;
-        if (hasImages && messageData.metadata && 'attachments' in messageData.metadata) {
-          aiResponse = await generateAIResponseWithVisionFallback(messageData.content, session.vibe, messageData.metadata.attachments as any[]);
-        } else {
-          aiResponse = await generateAIResponseFallback(messageData.content, session.vibe);
-        }
-        
-        const armoMessage = await storage.createMessage({
-          sessionId: messageData.sessionId!,
-          sender: "armo",
-          content: aiResponse,
-          metadata: null
-        });
-        res.write(`data: ${JSON.stringify({ type: 'complete', message: armoMessage })}\n\n`);
+        res.write(`data: ${JSON.stringify({ type: 'error', message: 'AI streaming failed - check API keys and try again' })}\n\n`);
         res.end();
       }
 
@@ -331,16 +306,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Generating joke with prompt:', prompt);
       console.log('User answers:', answers);
 
-      // Use the existing working AI response function with Savage persona (Level 4)
-      const fullPrompt = `You are Armo Hopar roasting alibis. ${prompt} Keep it to 1-2 sentences max. Be witty and sarcastic.`;
+      // Use user detection for contextual humor
+      const userId = 1; // Anonymous user for alibi features
+      const sessionId = Date.now(); // Temporary session for analysis
       
-      const joke = await generateAIResponseFallback(fullPrompt, "roast");
+      // Analyze user input for better joke targeting
+      await personaAI.analyzeUserMessage(userId, sessionId, prompt, prompt.length, 5);
+      
+      // Get user context for enhanced joke generation
+      const personaContext = await personaAI.getPersonaContext(userId, sessionId, "roast");
+      
+      // Enhanced prompt with user detection insights
+      const enhancedPrompt = `You are Armo Hopar roasting alibis. ${prompt}
+      
+User Profile Analysis:
+- Mood: ${personaContext.userProfile.recentMood}
+- Emotion: ${personaContext.userProfile.dominantEmotion}
+- Behavior: ${personaContext.userProfile.behaviorPattern}
+- Engagement: ${personaContext.userProfile.engagementLevel}
+- Intent: ${personaContext.userProfile.primaryIntent}
+
+Use this psychological profile to make the roast more targeted and effective. Be savage but clever. Keep it to 1-2 sentences max.`;
+      
+      const joke = await generateAIResponseFallback(enhancedPrompt, "roast");
       
       console.log('Generated joke:', joke);
       res.json({ joke });
     } catch (error) {
       console.error('Error generating joke:', error);
-      res.status(500).json({ error: "Failed to generate joke" });
+      res.status(500).json({ error: "API call failed - check your GROQ_API_KEY and try again" });
     }
   });
 
@@ -384,7 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.send(Buffer.from(audioBuffer));
     } catch (error) {
       console.error('Error with ElevenLabs voice synthesis:', error);
-      res.status(500).json({ error: "Voice synthesis failed" });
+      res.status(500).json({ error: "ElevenLabs voice synthesis failed - check your ELEVENLABS_API_KEY and try again" });
     }
   });
 
@@ -406,8 +400,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         vibe: "gimmi-alibi-ara"
       });
 
+      // Use user detection for enhanced alibi generation
+      const userId = alibiSession.id; // Use session ID as user ID for this alibi session
+      const sessionId = alibiSession.id;
+      
+      // Analyze combined user input for personality insights
+      const combinedInput = `${prompt} ${answers.join(' ')}`;
+      await personaAI.analyzeUserMessage(userId, sessionId, combinedInput, combinedInput.length, 10);
+      
+      // Get comprehensive user context
+      const personaContext = await personaAI.getPersonaContext(userId, sessionId, "gimmi-alibi-ara");
+      
+      // Enhanced prompt with user detection insights for better alibi creation
+      const enhancedPrompt = `${prompt}
+      
+User Psychological Profile:
+- Mood State: ${personaContext.userProfile.recentMood}
+- Emotional State: ${personaContext.userProfile.dominantEmotion}
+- Behavior Pattern: ${personaContext.userProfile.behaviorPattern}
+- Engagement Style: ${personaContext.userProfile.engagementLevel}
+- Primary Intent: ${personaContext.userProfile.primaryIntent}
+
+Use this psychological analysis to craft a more believable, personalized alibi that matches their communication style and emotional state. Make the story feel authentic to their personality.`;
+
       // Use existing AI system with Savage persona (Level 4) for roast vibe
-      const alibi = await generateAIResponseFallback(prompt, "roast");
+      const alibi = await generateAIResponseFallback(enhancedPrompt, "gimmi-alibi-ara");
       
       // Save the user's answers and AI response as messages
       await storage.createMessage({
@@ -430,7 +447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ alibi, sessionId: alibiSession.id });
     } catch (error) {
       console.error('Error generating alibi:', error);
-      res.status(500).json({ error: "Failed to generate alibi" });
+      res.status(500).json({ error: "AI alibi generation failed - check your GROQ_API_KEY and try again" });
     }
   });
 
@@ -1094,7 +1111,7 @@ async function generateAIResponseWithVisionFallback(userMessage: string, vibe: s
   const apiKey = process.env.GROQ_API_KEY;
   
   if (!apiKey) {
-    return "I need a Groq API key to analyze images. Please contact support.";
+    throw new Error("GROQ_API_KEY not configured");
   }
 
   const vibePrompts: Record<string, string> = {
@@ -1172,10 +1189,14 @@ async function generateAIResponseWithVisionFallback(userMessage: string, vibe: s
     }
 
     const data = await response.json();
-    return data.choices[0]?.message?.content || "Sorry, I couldn't analyze the image.";
+    const content = data.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No content received from vision API");
+    }
+    return content;
   } catch (error) {
     console.error('Vision fallback error:', error);
-    return "Sorry ախպեր, I'm having trouble analyzing that image right now. Try again in a moment!";
+    throw new Error(`Vision analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -1237,13 +1258,6 @@ async function generateAIResponseFallback(userMessage: string, vibe: string): Pr
     
   } catch (error) {
     console.error('Error in generateAIResponseFallback:', error);
-    // Return actual fallback responses only when API fails
-    const fallbackResponses: Record<string, string> = {
-      default: "Բարև ախպեր! I'm here to help with whatever you need. What's on your mind?",
-      roast: "Bruh, something went wrong but I'm still here to roast you! What's up?",
-      "gimmi-alibi-ara": "Even my excuses have excuses right now, but I got you covered!"
-    };
-    
-    return fallbackResponses[vibe] || fallbackResponses.default;
+    throw new Error(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
