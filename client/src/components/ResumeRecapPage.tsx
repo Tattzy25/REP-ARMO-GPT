@@ -180,7 +180,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
                 <h3 className="text-xl font-audiowide mb-2 text-[#9333ea] font-medium">
                   Question {index + 1}
                 </h3>
-                <p className="text-gray-300">{question}</p>
+                <p className="text-gray-300 font-roboto-condensed">{question}</p>
               </div>
 
               {editingIndex === index ? (
@@ -208,7 +208,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
                 </div>
               ) : (
                 <div className="flex items-start justify-between">
-                  <p className="text-white flex-1">{answers[index]}</p>
+                  <p className="text-white flex-1 font-roboto-condensed">{answers[index]}</p>
                   <button
                     onClick={() => handleEditClick(index)}
                     className="ml-4 px-3 py-1 text-sm text-white rounded-lg hover:bg-blue-600 transition-colors bg-[#9333ea]"
