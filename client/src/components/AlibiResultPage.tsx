@@ -7,9 +7,10 @@ interface AlibiResultPageProps {
   answers: string[];
   onBack: () => void;
   onRestart: () => void;
+  username?: string;
 }
 
-export function AlibiResultPage({ questions, answers, onBack, onRestart }: AlibiResultPageProps) {
+export function AlibiResultPage({ questions, answers, onBack, onRestart, username = "[Your Name]" }: AlibiResultPageProps) {
   const [alibiStory, setAlibiStory] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -40,7 +41,8 @@ Write this as Armo Hopar would - witty, slightly edgy, but practical. Make it a 
         },
         body: JSON.stringify({
           prompt: alibiPrompt,
-          answers: answers
+          answers: answers,
+          username: username
         }),
       });
 

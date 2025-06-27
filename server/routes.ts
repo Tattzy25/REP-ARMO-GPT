@@ -368,7 +368,7 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
   // Generate alibi story using existing AI system with proper persona integration
   app.post("/api/alibi/generate", async (req, res) => {
     try {
-      const { prompt, answers } = req.body;
+      const { prompt, answers, username } = req.body;
       
       if (!prompt) {
         return res.status(400).json({ error: "Prompt is required" });
@@ -376,6 +376,7 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
 
       console.log('Generating alibi with prompt:', prompt);
       console.log('User answers:', answers);
+      console.log('Username:', username);
 
       // Create a chat session for this alibi generation to save in recent chats
       const alibiSession = await storage.createChatSession({
@@ -389,12 +390,19 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
 Additional Context:
 - Use Level 3 Edgy persona with moderate profanity (damn, hell, shit, crap only)
 - Be creative and detailed in alibi construction
-- Use Armenian expressions naturally
+- Use Armenian expressions naturally, but replace "hopar" with the actual user's name: ${username || "[Your Name]"}
 - Keep sarcastic but supportive tone
-- Focus on realistic, believable scenarios`;
+- Focus on realistic, believable scenarios
+- Address the user by their actual name, not "hopar"`;
 
       // Use existing AI system with Edgy persona (Level 3) for alibi generation
-      const alibi = await generateAIResponseFallback(enhancedPrompt, "gimmi-alibi-ara");
+      let alibi = await generateAIResponseFallback(enhancedPrompt, "gimmi-alibi-ara");
+      
+      // Replace any remaining "hopar" references with the user's name
+      if (username) {
+        alibi = alibi.replace(/\bhopar\b/gi, username);
+        alibi = alibi.replace(/Listen hopar/gi, `Listen ${username}`);
+      }
       
       // Save the user's answers and AI response as messages
       await storage.createMessage({

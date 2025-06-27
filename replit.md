@@ -186,6 +186,13 @@ The application features multiple AI personality modes:
 - June 27, 2025. COMPLETE: Implemented real ElevenLabs voice synthesis with voice ID pNInz6obpgDQGcFmaJgB
 - June 27, 2025. COMPLETE: Added proper session management - alibi sessions save to recent chats as "gimmi-alibi-ara" vibe
 - June 27, 2025. COMPLETE: All action buttons functional with real implementations (download, share, copy, expand, read-aloud)
+- June 27, 2025. COMPLETE: Fixed mobile header positioning and dynamic page titles - mobile header now shows correct feature names
+- June 27, 2025. COMPLETE: Reduced alibi page padding and removed question counter from header (kept only progress bar)
+- June 27, 2025. COMPLETE: Fixed "Listen hopar" username references - now uses actual user's name in alibi generation
+- June 27, 2025. COMPLETE: Confirmed ElevenLabs voice ID pNInz6obpgDQGcFmaJgB is correctly implemented
+- June 27, 2025. COMPLETE: Removed profile, expand, and share buttons from recap page - added ElevenLabs read-aloud with pause functionality
+- June 27, 2025. COMPLETE: Restart button properly shows confirmation popup before restarting
+- June 27, 2025. COMPLETE: Expand button correctly positioned next to alibi content with show more/less functionality
 
 ## Production Implementation Summary
 

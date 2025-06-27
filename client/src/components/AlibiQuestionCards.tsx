@@ -166,7 +166,6 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent">
               Gimmi Alibi Ara
             </h1>
-            <p className="text-gray-300 text-sm">Question {currentQuestion + 1} of {questions.length}</p>
           </div>
         </div>
       </motion.div>

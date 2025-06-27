@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, RotateCcw, Download, Share2, User, Maximize2, Copy } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause } from 'lucide-react';
 
 interface AlibiRecapPageProps {
   questions: string[];
@@ -14,6 +14,8 @@ interface AlibiRecapPageProps {
 export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, username = "[Your Name]" }: AlibiRecapPageProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [tempAnswer, setTempAnswer] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   const handleEditClick = (index: number) => {
     setEditingIndex(index);
@@ -47,32 +49,45 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
     document.body.removeChild(element);
   };
 
-  const handleShare = async () => {
-    const content = questions.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${answers[i]}`).join('\n\n');
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'My Alibi Recap',
-          text: content,
-        });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(content);
-      } catch (error) {
-        console.error('Failed to copy:', error);
-      }
+  const handleReadAloud = async () => {
+    if (isPlaying && currentAudio) {
+      currentAudio.pause();
+      setIsPlaying(false);
+      setCurrentAudio(null);
+      return;
     }
-  };
 
-  const handleProfile = () => {
-    console.log('Profile button clicked');
-  };
+    const content = questions.map((q, i) => `${q} ${answers[i]}`).join('. ');
+    
+    try {
+      const response = await fetch('/api/voice/speak', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: content }),
+      });
 
-  const handleExpand = () => {
-    console.log('Expand button clicked');
+      if (response.ok) {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        audio.onended = () => {
+          setIsPlaying(false);
+          setCurrentAudio(null);
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        audio.onplay = () => setIsPlaying(true);
+        audio.onpause = () => setIsPlaying(false);
+        
+        setCurrentAudio(audio);
+        audio.play();
+      }
+    } catch (error) {
+      console.error('Error with text-to-speech:', error);
+    }
   };
 
   const handleCopy = async () => {
@@ -268,39 +283,15 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           </button>
           
           <button
-            onClick={handleShare}
+            onClick={handleReadAloud}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
               boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
             }}
-            title="Share"
+            title={isPlaying ? "Pause" : "Read Aloud"}
           >
-            <Share2 size={24} />
-          </button>
-          
-          <button
-            onClick={handleProfile}
-            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-            }}
-            title="Profile"
-          >
-            <User size={24} />
-          </button>
-          
-          <button
-            onClick={handleExpand}
-            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-            }}
-            title="Fullscreen"
-          >
-            <Maximize2 size={24} />
+            {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
           </button>
           
           <button

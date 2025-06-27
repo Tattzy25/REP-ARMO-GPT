@@ -239,6 +239,7 @@ function App() {
                 onEdit={handleRecapEdit}
                 onBack={handleRecapBack}
                 onNext={handleRecapNext}
+                username="User"
               />
             )}
 
@@ -248,6 +249,7 @@ function App() {
                 answers={alibiAnswers}
                 onBack={handleResultBack}
                 onRestart={handleResultRestart}
+                username="User"
               />
             )}
           </div>
