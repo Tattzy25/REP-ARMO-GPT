@@ -12,11 +12,14 @@ import { AlibiWelcomeScreen } from "@/components/AlibiWelcomeScreen";
 import { AlibiQuestionCards } from "@/components/AlibiQuestionCards";
 import { AlibiRecapPage } from "@/components/AlibiRecapPage";
 import { AlibiResultPage } from "@/components/AlibiResultPage";
+import { ResumeWelcomeScreen } from "@/components/ResumeWelcomeScreen";
+import { ResumeQuestionCards } from "@/components/ResumeQuestionCards";
+import { ResumeRecapPage } from "@/components/ResumeRecapPage";
 import { ResumeResultPage } from "@/components/ResumeResultPage";
 import { CaptionQuestionCards } from "@/components/CaptionQuestionCards";
 import { CaptionResultPage } from "@/components/CaptionResultPage";
 
-type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result" | "resume-result" | "caption-questions" | "caption-result";
+type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result" | "resume-welcome" | "resume-questions" | "resume-result" | "resume-recap" | "caption-questions" | "caption-result";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
@@ -27,6 +30,8 @@ function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [alibiAnswers, setAlibiAnswers] = useState<string[]>([]);
   const [alibiQuestions, setAlibiQuestions] = useState<string[]>([]);
+  const [resumeAnswers, setResumeAnswers] = useState<string[]>([]);
+  const [resumeQuestions, setResumeQuestions] = useState<string[]>([]);
   const [captionAnswers, setCaptionAnswers] = useState<string[]>([]);
   const [captionQuestions, setCaptionQuestions] = useState<string[]>([]);
 
@@ -51,7 +56,7 @@ function App() {
     } else if (vibe === "alibi") {
       setAppState("alibi-welcome");
     } else if (vibe === "hired") {
-      setAppState("resume-result");
+      setAppState("resume-welcome");
     } else if (vibe === "famous") {
       setAppState("caption-questions");
     } else if (vibe === "gallery" || vibe === "recent") {
@@ -160,6 +165,44 @@ function App() {
     setAlibiQuestions([]);
   };
 
+  // Resume handlers
+  const handleResumeStart = () => {
+    setAppState("resume-questions");
+  };
+
+  const handleResumeComplete = (answers: string[], questions: string[]) => {
+    console.log('Resume answers:', answers);
+    setResumeAnswers(answers);
+    setResumeQuestions(questions);
+    setAppState("resume-recap");
+  };
+
+  const handleResumeQuestionsBack = () => {
+    setAppState("resume-welcome");
+  };
+
+  const handleResumeRecapEdit = (questionIndex: number) => {
+    // Inline editing is already implemented in the recap page
+  };
+
+  const handleResumeRecapBack = () => {
+    setAppState("resume-questions");
+  };
+
+  const handleResumeRecapNext = () => {
+    setAppState("resume-result");
+  };
+
+  const handleResumeResultBack = () => {
+    setAppState("resume-recap");
+  };
+
+  const handleResumeResultRestart = () => {
+    setAppState("resume-welcome");
+    setResumeAnswers([]);
+    setResumeQuestions([]);
+  };
+
   const handleCaptionComplete = (answers: string[], questions: string[]) => {
     console.log('Caption answers:', answers);
     setCaptionAnswers(answers);
@@ -212,8 +255,11 @@ function App() {
       case "alibi-recap":
       case "alibi-result":
         return "Gimmi Alibi Ara";
+      case "resume-welcome":
+      case "resume-questions":
       case "resume-result":
-        return "You Are Hired Ara";
+      case "resume-recap":
+        return "Your Hired Ara";
       case "caption-questions":
       case "caption-result":
         return "Make Me Famous Ara";
@@ -334,9 +380,36 @@ function App() {
               />
             )}
 
+            {appState === "resume-welcome" && (
+              <ResumeWelcomeScreen
+                onStart={handleResumeStart}
+              />
+            )}
+
+            {appState === "resume-questions" && (
+              <ResumeQuestionCards
+                onComplete={handleResumeComplete}
+                onBack={handleResumeQuestionsBack}
+              />
+            )}
+
+            {appState === "resume-recap" && (
+              <ResumeRecapPage
+                questions={resumeQuestions}
+                answers={resumeAnswers}
+                onBack={handleResumeRecapBack}
+                onRestart={handleResumeResultRestart}
+                username="User"
+              />
+            )}
+
             {appState === "resume-result" && (
               <ResumeResultPage
-                onBack={handleBackToLobby}
+                questions={resumeQuestions}
+                answers={resumeAnswers}
+                onBack={handleResumeResultBack}
+                onRestart={handleResumeResultRestart}
+                username="User"
               />
             )}
 
