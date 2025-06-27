@@ -24,8 +24,8 @@
   }
 }
 
-/* Animated Button Styles */
-.animated-button {
+/* From Uiverse.io by MuhammadHasann */ 
+.button {
   --black-700: hsla(0 0% 12% / 1);
   --border_radius: 9999px;
   --transtion: 0.3s ease-in-out;
@@ -50,7 +50,7 @@
   transition: transform var(--transtion);
 }
 
-.animated-button::before {
+.button::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -70,7 +70,7 @@
   z-index: 0;
 }
 
-.animated-button::after {
+.button::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -95,14 +95,14 @@
   z-index: 2;
 }
 
-.animated-button:is(:hover, :focus-visible) {
+.button:is(:hover, :focus-visible) {
   --active: 1;
 }
-.animated-button:active {
+.button:active {
   transform: scale(1);
 }
 
-.animated-button .dots_border {
+.button .dots_border {
   --size_border: calc(100% + 2px);
 
   overflow: hidden;
@@ -120,13 +120,14 @@
   z-index: -10;
 }
 
-.animated-button .dots_border::before {
+.button .dots_border::before {
   content: "";
   position: absolute;
   top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
   transform-origin: left;
+  transform: rotate(0deg);
 
   width: 100%;
   height: 2rem;
@@ -138,18 +139,18 @@
 
 @keyframes rotate {
   to {
-    transform: translate(-50%, -50%) rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
-.animated-button .sparkle {
+.button .sparkle {
   position: relative;
   z-index: 10;
 
   width: 1.75rem;
 }
 
-.animated-button .sparkle .path {
+.button .sparkle .path {
   fill: currentColor;
   stroke: currentColor;
 
@@ -158,17 +159,17 @@
   color: hsl(0, 0%, 100%);
 }
 
-.animated-button:is(:hover, :focus) .sparkle .path {
+.button:is(:hover, :focus) .sparkle .path {
   animation: path 1.5s linear 0.5s infinite;
 }
 
-.animated-button .sparkle .path:nth-child(1) {
+.button .sparkle .path:nth-child(1) {
   --scale_path_1: 1.2;
 }
-.animated-button .sparkle .path:nth-child(2) {
+.button .sparkle .path:nth-child(2) {
   --scale_path_2: 1.2;
 }
-.animated-button .sparkle .path:nth-child(3) {
+.button .sparkle .path:nth-child(3) {
   --scale_path_3: 1.2;
 }
 
@@ -190,7 +191,7 @@
   }
 }
 
-.animated-button .text_button {
+.button .text_button {
   position: relative;
   z-index: 10;
 
@@ -200,11 +201,9 @@
     hsla(0 0% 100% / var(--active, 0)) 120%
   );
   background-clip: text;
-  -webkit-background-clip: text;
 
   font-size: 1rem;
   color: transparent;
-  -webkit-text-fill-color: transparent;
 }
 
 * {

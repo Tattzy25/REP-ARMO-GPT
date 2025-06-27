@@ -286,7 +286,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
             onClick={onNext}
-            className="animated-button"
+            className="button"
           >
             <div className="dots_border"></div>
             <svg
