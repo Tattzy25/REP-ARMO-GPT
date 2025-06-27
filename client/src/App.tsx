@@ -122,6 +122,7 @@ function App() {
   };
 
   const closeMobileSidebar = () => {
+    console.log('closeMobileSidebar called, setting state to false');
     setIsMobileSidebarOpen(false);
   };
 
@@ -186,6 +187,8 @@ function App() {
           {/* Sidebar */}
           <div
             className={`sidebar transition-all duration-300 ${isMobile ? (isMobileSidebarOpen ? "open" : "") : isSidebarCollapsed ? "w-16" : "w-80"}`}
+            data-mobile={isMobile}
+            data-mobile-open={isMobileSidebarOpen}
           >
             <Sidebar
               currentVibe={currentVibe}
