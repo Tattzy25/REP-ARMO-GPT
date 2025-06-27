@@ -13,10 +13,10 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
         {/* Back Button */}
         <button
           onClick={onBack}
-          className="w-16 h-16 rounded-full flex items-center justify-center text-gray-600 hover:scale-105 transition-transform duration-200"
+          className="w-16 h-16 rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform duration-200"
           style={{
-            background: "#bbbbbb",
-            boxShadow: 'inset -8px -8px 16px #9f9f9f, inset 8px 8px 16px #d7d7d7'
+            background: '#3a3a3a',
+            boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
           }}
         >
           <ArrowLeft size={24} />
@@ -27,9 +27,10 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="rounded-[40px] p-12 max-w-2xl neumorphic"
+          className="rounded-2xl p-12 max-w-2xl"
           style={{
-            background: "#3a3a3a"
+            background: '#3a3a3a',
+            boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
           }}
         >
           {/* Title with gradient text */}
@@ -70,9 +71,10 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
             onClick={onStart}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="rounded-[20px] px-8 py-6 text-white font-semibold text-lg min-w-[160px] neumorphic-inset transition-all duration-300"
+            className="rounded-2xl px-8 py-6 text-white font-semibold text-lg min-w-[160px] transition-all duration-300"
             style={{
-              background: "#3a3a3a"
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
             }}
           >
             <div className="flex items-center justify-center gap-3">
