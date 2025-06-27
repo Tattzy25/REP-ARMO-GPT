@@ -198,26 +198,30 @@ export function CaptionResultPage({ questions, answers, onBack, onRestart, usern
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#bbbbbb' }}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 md:p-6">
+    <div className="min-h-screen flex flex-col pt-20" style={{ backgroundColor: '#bbbbbb' }}>
+      {/* Floating Action Buttons */}
+      <div className="fixed top-24 left-4 z-40">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-gray-700 hover:text-gray-900 transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{
+            background: '#bbbbbb',
+            boxShadow: '6px 6px 12px #9f9f9f, -6px -6px 12px #d7d7d7'
+          }}
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="hidden sm:inline">Back</span>
         </button>
-        
-        <div className="text-center">
-          <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
-            Hopar Gonna Make You Famous AF
-          </h1>
-        </div>
-        
+      </div>
+      
+      <div className="fixed top-24 right-4 z-40">
         <button
           onClick={() => setShowRestartConfirm(true)}
-          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-gray-700 hover:text-gray-900 transition-all duration-200 hover:scale-105 active:scale-95"
+          style={{
+            background: '#bbbbbb',
+            boxShadow: '6px 6px 12px #9f9f9f, -6px -6px 12px #d7d7d7'
+          }}
         >
           <RotateCcw className="w-5 h-5" />
           <span className="hidden sm:inline">Restart</span>

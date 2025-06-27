@@ -448,6 +448,21 @@ Additional Context:
         vibe: "make-me-famous"
       });
 
+      // Generate AI response using the persona system with user behavior tracking
+      const userId = 1; // Default user ID since no auth system
+      
+      // Analyze user input for behavior tracking
+      const userMessage = `User wants to be famous: ${answers.join('; ')}`;
+      await personaAI.analyzeUserMessage(
+        userId, 
+        captionSession.id, 
+        userMessage, 
+        userMessage.length,
+        Date.now()
+      );
+      
+      const personaContext = await personaAI.getPersonaContext(userId, captionSession.id, "make-me-famous-ara");
+      
       // Build the system prompt from the attached specification
       const systemPrompt = `You are Armo Hopar's **Fame Storyteller AI**—a wildly imaginative, slightly savage raconteur. Use the user's punchy answers below to spin a two-act blockbuster of fame: first a hilarious misfire, then the real epic rise.
 
@@ -498,8 +513,8 @@ Additional Context:
 - Address the user by their actual name, not "hopar"
 - Generate content in two sections: CAPTIONS first, then HASHTAGS`;
 
-      // Generate the full fame story first
-      let fullStory = await generateAIResponseFallback(enhancedPrompt, "make-me-famous");
+      // Generate the full fame story using persona-enhanced AI
+      let fullStory = await generateAIResponseWithPersonaContext(enhancedPrompt, "make-me-famous", personaContext);
       
       // Replace any remaining "hopar" references with the user's name
       if (username) {
@@ -523,9 +538,9 @@ Additional Context:
         const midpoint = Math.floor(fullStory.length / 2);
         captions = fullStory.substring(0, midpoint).trim();
         
-        // Generate hashtags separately
+        // Generate hashtags separately using persona context
         const hashtagPrompt = `Based on this fame story: "${answers[5]}" with talent "${answers[0]}" wanting to achieve "${answers[1]}" and impress "${answers[2]}", create engaging hashtags including "${answers[6]}". Make them viral-worthy and shareable.`;
-        hashtags = await generateAIResponseFallback(hashtagPrompt, "make-me-famous");
+        hashtags = await generateAIResponseWithPersonaContext(hashtagPrompt, "make-me-famous", personaContext);
       }
       
       // Save the user's answers and AI response as messages
@@ -806,6 +821,59 @@ Make it sound authentic and tailored to their target role. Address it for ${user
 }
 
 // Enhanced AI response with persona integration
+async function generateAIResponseWithPersonaContext(userMessage: string, vibe: string, personaContext: any): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY not configured");
+  }
+
+  // Use enhanced system prompt with persona context
+  const systemPrompt = personaAI.buildEnhancedSystemPrompt(personaContext);
+
+  try {
+    console.log(`Generating enhanced AI response for vibe: ${vibe}, persona level: ${personaContext.currentPersonaLevel}`);
+    
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 2000,
+        stream: false
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Groq API error:', response.status, errorText);
+      throw new Error(`Groq API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('AI Response received successfully');
+    
+    return data.choices?.[0]?.message?.content || "I couldn't generate a response right now. Try again!";
+  } catch (error) {
+    console.error('Error in generateAIResponseWithPersonaContext:', error);
+    throw error;
+  }
+}
+
 async function generateAIResponseStreamPersona(userMessage: string, vibe: string, personaContext: any) {
   const apiKey = process.env.GROQ_API_KEY;
   

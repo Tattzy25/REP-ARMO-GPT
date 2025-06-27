@@ -121,26 +121,7 @@ export function CaptionQuestionCards({ onComplete, onBack, username = "[Your Nam
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#bbbbbb' }}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 md:p-6">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="hidden sm:inline">Back</span>
-        </button>
-        
-        <div className="text-center">
-          <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
-            Make Me Famous Ara
-          </h1>
-        </div>
-        
-        <div className="w-16"></div>
-      </div>
-
+    <div className="min-h-screen flex flex-col pt-20" style={{ backgroundColor: '#bbbbbb' }}>
       {/* Progress Bar */}
       <div className="px-4 md:px-6 mb-6">
         <div className="w-full bg-gray-300 rounded-full h-2">

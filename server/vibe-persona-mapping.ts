@@ -52,6 +52,18 @@ export const VIBE_PERSONA_MAPPINGS: VibePersonaMapping[] = [
     description: 'Savage fame creator with edgy humor'
   },
   {
+    vibe: 'make-me-famous',
+    personaLevel: 3,
+    personaId: 'edgy',
+    description: 'Fame content creator with Level 1 profanity restrictions'
+  },
+  {
+    vibe: 'make-me-famous-ara',
+    personaLevel: 3,
+    personaId: 'edgy',
+    description: 'Fame content creator with Level 1 profanity restrictions'
+  },
+  {
     vibe: 'alibi',
     personaLevel: 3,
     personaId: 'edgy',
