@@ -63,6 +63,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import and register enhanced AI processing routes
   const enhancedAlibiRoutes = await import("./enhanced-alibi-routes");
   app.use("/api/enhanced", enhancedAlibiRoutes.default);
+  
+  // Import and register performance analytics routes
+  const performanceAnalyticsRoutes = await import("./performance-analytics-routes");
+  app.use("/api/performance", performanceAnalyticsRoutes.default);
 
   // Seed endpoint for initial persona data
   app.post("/api/seed-personas", async (req: Request, res: Response) => {

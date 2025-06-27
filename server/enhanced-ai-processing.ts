@@ -5,7 +5,7 @@ import {
   userAchievements,
   alibiTemplates,
   seasonalEvents,
-  type InsertBelievabilityMetric,
+  type InsertBelievabilityMetrics,
   type InsertUserAchievement,
   type Achievement,
   type AlibiTemplate
@@ -414,7 +414,7 @@ Generate the complete alibi story:`;
     improvementSuggestions: string[]
   ): Promise<void> {
     try {
-      const metricData: InsertBelievabilityMetric = {
+      const metricData: InsertBelievabilityMetrics = {
         userId,
         sessionId,
         alibiId,
