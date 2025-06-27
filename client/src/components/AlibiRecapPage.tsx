@@ -142,31 +142,33 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="p-4 text-center border-b border-gray-300"
+        className="p-4 text-center border-b border-gray-600/20"
         style={{ 
-          background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
+          background: '#3a3a3a',
+          boxShadow: '0 4px 8px #323232'
         }}
       >
-        <h1 className="text-4xl font-bold mb-2">Review Your Answers</h1>
-        <p className="text-lg text-gray-600">Make sure everything looks perfect</p>
+        <h1 className="text-4xl font-bold mb-2">
+          <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+            Review Your Answers
+          </span>
+        </h1>
+        <p className="text-lg text-gray-300">Make sure everything looks perfect</p>
         
         {/* Progress Bar */}
         <div className="mt-4 max-w-md mx-auto">
-          <div className="w-full bg-gray-300 rounded-full h-2">
+          <div className="w-full bg-gray-600 rounded-full h-2">
             <div
               className="h-2 rounded-full"
               style={{
                 width: '85%',
-                background: 'linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1)'
+                background: 'linear-gradient(90deg, #ef4444, #3b82f6, #f97316)'
               }}
             ></div>
           </div>
