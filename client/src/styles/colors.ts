@@ -68,11 +68,7 @@ export const COMMON_STYLES = {
     boxShadow: NEUMORPHIC_SHADOWS.BUTTON,
   },
   
-  // Gradient button (for primary actions)
-  GRADIENT_BUTTON: {
-    background: ARMO_COLORS.GRADIENT_PRIMARY,
-    boxShadow: NEUMORPHIC_SHADOWS.BUTTON,
-  },
+
   
   // Sidebar styling
   SIDEBAR: {

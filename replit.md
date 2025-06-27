@@ -261,14 +261,21 @@ Preferred communication style: Simple, everyday language.
 - **Muted Text**: #9ca3af (gray-400)
 
 ### Accent Colors:
-- **Primary Gradient**: `linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)`
 - **Red Accent**: #ff6b6b
 - **Blue Accent**: #4ecdc4
-- **Orange Accent**: #45b7d1
+- **Orange Accent**: #45b7d7
+- **Header Gradient**: `linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)` (for text only)
+
+### Button Standards:
+- **Regular Buttons**: Use dark neumorphic style (#3a3a3a background with shadows)
+- **Generate Buttons**: Use animated sparkle button with rotating border, purple hover effects, and sparkle animations
+- **Primary Action Buttons**: Use animated sparkle button design (AnimatedGenerateButton component)
+- **Action Buttons**: Use dark neumorphic style for secondary actions
 
 ### FORBIDDEN COLORS:
 - **NEVER USE**: #bbbbbb, #9f9f9f, #d7d7d7 (old gray system)
 - **NEVER USE**: #2e2e2e for anything except sidebar background
+- **NEVER USE**: Gradient backgrounds on buttons
 - **NEVER USE**: Any color not listed above
 
 **Reference File**: `/client/src/styles/colors.ts` contains the official color system.

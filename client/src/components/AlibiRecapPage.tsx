@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause } from 'lucide-react';
 import { COMMON_STYLES, NEUMORPHIC_SHADOWS, ARMO_COLORS } from '../styles/colors';
+import { AnimatedGenerateButton } from './AnimatedGenerateButton';
 
 interface AlibiRecapPageProps {
   questions: string[];
@@ -273,17 +274,16 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             Back
           </motion.button>
 
-          <motion.button
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
-            onClick={onNext}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
-            style={COMMON_STYLES.GRADIENT_BUTTON}
           >
-            Generate Alibi
-            <ArrowRight size={20} />
-          </motion.button>
+            <AnimatedGenerateButton onClick={onNext} className="flex items-center gap-2">
+              Generate Alibi
+              <ArrowRight size={20} />
+            </AnimatedGenerateButton>
+          </motion.div>
         </div>
       </motion.div>
 
