@@ -16,6 +16,7 @@ import { ResumeWelcomeScreen } from "@/components/ResumeWelcomeScreen";
 import { ResumeQuestionCards } from "@/components/ResumeQuestionCards";
 import { ResumeRecapPage } from "@/components/ResumeRecapPage";
 import { ResumeResultPage } from "@/components/ResumeResultPage";
+import { CallHoparInterface } from "@/components/CallHoparInterface";
 import { CaptionQuestionCards } from "@/components/CaptionQuestionCards";
 import { CaptionResultPage } from "@/components/CaptionResultPage";
 
@@ -382,7 +383,12 @@ function App() {
               />
             )}
 
-            {appState === "call" && <CallInterface onEndCall={handleEndCall} />}
+            {appState === "call" && (
+              <CallHoparInterface 
+                onBack={handleBackToLobby}
+                username="User"
+              />
+            )}
 
             {appState === "alibi-welcome" && (
               <AlibiWelcomeScreen
