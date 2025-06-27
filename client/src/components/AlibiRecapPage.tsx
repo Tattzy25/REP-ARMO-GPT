@@ -298,7 +298,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               e.currentTarget.style.boxShadow = '8px 8px 16px #2e2e2e, -8px -8px 16px #464646';
             }}
           >
-            Generate Alibi
+            Gimmi Alibi
             <ArrowRight size={20} />
           </motion.button>
         </div>
