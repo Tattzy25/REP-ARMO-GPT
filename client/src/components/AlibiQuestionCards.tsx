@@ -134,12 +134,12 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
   const canProceed = validation.isValid;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
+    <div className="min-h-screen flex flex-col mobile-content-padding" style={{ background: "#3a3a3a" }}>
       {/* Desktop Header */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="desktop-header flex items-center justify-between border-b border-gray-600/20 backdrop-blur p-4"
+        className="desktop-header flex items-center justify-between border-b border-gray-600/20 backdrop-blur p-3"
         style={{ 
           background: '#3a3a3a',
           boxShadow: '0 4px 8px #323232'
@@ -172,7 +172,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
       </motion.div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
+      <div className="flex-1 flex flex-col items-center justify-center p-2 pt-4">
         <div className="w-full max-w-4xl flex flex-col items-center">
         
         {/* Question Card */}

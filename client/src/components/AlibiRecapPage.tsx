@@ -85,7 +85,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: "#3a3a3a" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 mobile-content-padding" style={{ background: "#3a3a3a" }}>
       <div className="w-full max-w-4xl flex flex-col items-center">
         
         {/* Header */}
