@@ -6,10 +6,9 @@ interface ArmoLobbyProps {
 }
 
 export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
-  // Filter out buttons that start with "Armo" and exclude utility buttons
+  // Include all main features, excluding only specific utility buttons
   const features = Object.values(vibeConfigs).filter(feature => 
-    !feature.title.startsWith('Armo') && 
-    !['lobby', 'gallery', 'recent', 'therapy'].includes(feature.id)
+    !['lobby', 'recent', 'therapy'].includes(feature.id)
   );
 
   return (
