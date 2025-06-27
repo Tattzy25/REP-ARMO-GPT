@@ -23,9 +23,11 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
    * - Feature buttons background: #3a3a3a (Dark gray - neumorphic cards)
    * - Feature buttons border-radius: 24px
    * - Feature buttons shadows: inset 14px 14px 28px #313131, inset -14px -14px 28px #434343
+   * - Feature buttons hover glow: 0 0 20px rgba(147, 51, 234, 0.6) (Neon purple)
    * 
    * ⚠️ CRITICAL: These feature card styles are LOCKED and must NOT be modified
    * unless the user specifically requests changes to "those cards" or "feature cards"
+   * ⚠️ HOVER GLOW LOCKED: Neon purple glow effect is protected - DO NOT MODIFY
    * - Character circle background: Gradient from armo-red via blue-500 to orange-400
    * - Character name tag background: #404040
    * 
@@ -105,6 +107,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
                 background: '#3a3a3a',
                 boxShadow: 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343'
               }}
+              /* 🔒 LOCKED: Neon purple hover glow - DO NOT MODIFY this hover effect */
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343, 0 0 20px rgba(147, 51, 234, 0.6)';
               }}
