@@ -32,11 +32,16 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
    * HEADER TITLE: Should dynamically show "Armo Lobby" when appState === "lobby"
    */
   
-  // Filter out buttons that start with "Armo" and exclude utility buttons
-  const features = Object.values(vibeConfigs).filter(feature => 
+  // Get specific features in order: Armo-GPT first, then filtered features, then Gallery last
+  const filteredFeatures = Object.values(vibeConfigs).filter(feature => 
     !feature.title.startsWith('Armo') && 
-    !['lobby', 'gallery', 'recent', 'therapy'].includes(feature.id)
+    !['lobby', 'gallery', 'recent', 'therapy', 'default'].includes(feature.id)
   );
+  
+  const armoGptFeature = vibeConfigs.default; // Armo-GPT is the default vibe
+  const galleryFeature = vibeConfigs.gallery;
+  
+  const features = [armoGptFeature, ...filteredFeatures, galleryFeature];
 
   return (
     <div className="flex-1 flex items-center justify-center p-8">
