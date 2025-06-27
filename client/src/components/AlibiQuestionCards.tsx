@@ -245,10 +245,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             <ChevronLeft size={24} />
           </button>
 
-          {/* Question Counter */}
-          <div className="text-white text-lg font-semibold">
-            {currentQuestion + 1} / {questions.length}
-          </div>
+
 
           {/* Next Button */}
           <button
