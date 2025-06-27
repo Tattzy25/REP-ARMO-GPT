@@ -147,6 +147,8 @@ function App() {
       case "alibi-recap":
       case "alibi-result":
         return "Gimmi Alibi Ara";
+      case "resume-result":
+        return "You Are Hired Ara";
       default:
         return "Armo-GPT";
     }

@@ -231,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // console.log('Persona level:', personaContext.currentPersonaLevel);
 
         let stream;
-        if (hasImages && messageData.metadata && 'attachments' in messageData.metadata) {
+        if (hasImages && messageData.metadata && messageData.metadata !== null && typeof messageData.metadata === 'object' && 'attachments' in messageData.metadata) {
           // Use vision-enabled AI response
           console.log('Using vision API for image analysis');
           stream = await generateAIResponseWithVision(
@@ -468,9 +468,7 @@ Make it sound authentic and tailored to their target role. Address it for ${user
       // Create session for the resume
       const resumeSession = await storage.createChatSession({
         userId: null, 
-        vibe: "you-are-hired-ara",
-        title: "Resume Builder Session",
-        isActive: true
+        vibe: "you-are-hired-ara"
       });
 
       // Save the user's answers and AI response as messages
@@ -478,7 +476,7 @@ Make it sound authentic and tailored to their target role. Address it for ${user
         sessionId: resumeSession.id,
         sender: "user",
         content: `Resume Details: ${answers.join('; ')}`,
-        metadata: { answers, type: 'resume-request' }
+        metadata: { answers, type: 'resume-request' } as any
       });
 
       await storage.createMessage({
