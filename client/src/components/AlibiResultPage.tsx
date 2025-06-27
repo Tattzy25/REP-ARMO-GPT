@@ -69,7 +69,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
       setAlibiStory(data.alibi);
     } catch (error) {
       console.error('Error generating alibi:', error);
-      setAlibiStory("CUSTOM_ERROR");
+      setAlibiStory("Sorry, I couldn't generate your alibi. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -189,6 +189,35 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
     <div className="min-h-screen" style={{ background: '#3a3a3a' }}>
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-6">
+        {/* Header Card */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="w-full max-w-4xl mb-6"
+        >
+          <div
+            className="p-6 rounded-3xl text-center"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #424242'
+            }}
+          >
+            <h1 
+              className="text-3xl md:text-4xl text-white"
+              style={{ 
+                fontFamily: 'Audiowide, cursive',
+                background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              Hopar Got You<br />Here is Your Alibi
+            </h1>
+          </div>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
