@@ -150,18 +150,17 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="p-4 text-center border-b border-gray-600/20"
-        style={{ 
-          background: '#3a3a3a',
-          boxShadow: '0 4px 8px #323232'
-        }}
+        className="p-6 flex justify-center"
       >
-        <h1 className="text-4xl font-bold mb-2">
-          <span className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
-            Review Your Answers
-          </span>
-        </h1>
-        <p className="text-lg text-gray-300">Make sure everything looks perfect</p>
+        <div 
+          className="px-8 py-4 rounded-2xl"
+          style={{
+            background: '#3a3a3a',
+            boxShadow: '12px 12px 24px #272727, -12px -12px 24px #464646'
+          }}
+        >
+          <h1 className="text-2xl font-bold text-white">Recap</h1>
+        </div>
       </motion.div>
 
       {/* Main Content */}
