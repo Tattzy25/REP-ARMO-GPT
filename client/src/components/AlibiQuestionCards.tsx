@@ -375,6 +375,12 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
                 background: '#2e2e2e',
                 boxShadow: 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737'
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737, 0 0 20px rgba(147, 51, 234, 0.6)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737';
+              }}
             >
               Continue
             </motion.button>
