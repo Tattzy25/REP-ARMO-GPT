@@ -1,34 +1,61 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Play, Pause, RotateCcw, Copy, ChevronDown, ChevronUp } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause, Loader2 } from 'lucide-react';
 
 interface ResumeRecapPageProps {
-  answers: string[];
   questions: string[];
+  answers: string[];
+  onEdit: (questionIndex: number) => void;
   onBack: () => void;
-  onRestart: () => void;
+  onNext: () => void;
   username?: string;
 }
 
-export function ResumeRecapPage({ answers, questions, onBack, onRestart, username = "[Your Name]" }: ResumeRecapPageProps) {
-  const [resume, setResume] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
+export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, username = "[Your Name]" }: ResumeRecapPageProps) {
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [tempAnswer, setTempAnswer] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showConfirmRestart, setShowConfirmRestart] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    // Cleanup function to stop audio when component unmounts
+    return () => {
+      stopPlayback();
+    };
+  }, []);
+
+  const handleEditClick = (index: number) => {
+    setEditingIndex(index);
+    setTempAnswer(answers[index]);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingIndex !== null) {
+      onEdit(editingIndex);
+      setEditingIndex(null);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setTempAnswer("");
+  };
+
+  const handleRestart = () => {
+    window.location.reload();
+  };
+
   const stopPlayback = () => {
-    // Stop ElevenLabs audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
       setCurrentAudio(null);
     }
-    
     setIsPlaying(false);
+    setIsLoadingAudio(false);
   };
 
   const showErrorMessage = (message: string) => {
@@ -37,144 +64,35 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
     setTimeout(() => setShowError(false), 4000);
   };
 
-  useEffect(() => {
-    generateResume();
-    
-    // Cleanup function to stop audio when component unmounts
-    return () => {
-      stopPlayback();
-    };
-  }, []);
-
-  // Interactive Storytelling States
-  const [storyChunks, setStoryChunks] = useState<string[]>([]);
-  const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
-  const [showingProgressively, setShowingProgressively] = useState(false);
-  const [alternativeEndings, setAlternativeEndings] = useState<string[]>([]);
-  const [selectedEnding, setSelectedEnding] = useState<number | null>(null);
-  const [showBranching, setShowBranching] = useState(false);
-  
-  // Gamification States
-  const [professionalismScore, setProfessionalismScore] = useState<number | null>(null);
-  const [scoreAnalysis, setScoreAnalysis] = useState("");
-  const [achievements, setAchievements] = useState<string[]>([]);
-  const [showScoring, setShowScoring] = useState(false);
-
-  const startProgressiveReveal = (chunks: string[]) => {
-    let chunkIndex = 0;
-    setCurrentChunkIndex(0);
-    setResume(chunks[0]);
-    
-    const progressInterval = setInterval(() => {
-      chunkIndex++;
-      if (chunkIndex < chunks.length) {
-        setCurrentChunkIndex(chunkIndex);
-        setResume(chunks.slice(0, chunkIndex + 1).join('\n\n'));
-      } else {
-        setShowingProgressively(false);
-        clearInterval(progressInterval);
-        
-        // Show scoring after completion
-        setTimeout(() => setShowScoring(true), 1000);
-      }
-    }, 2500); // Slower pacing for professional content
-  };
-
-  const selectAlternativeEnding = (index: number) => {
-    setSelectedEnding(index);
-    setResume(resume + '\n\n--- Alternative Focus ---\n\n' + alternativeEndings[index]);
-    setShowBranching(false);
-  };
-
-  const generateResume = async () => {
-    setIsLoading(true);
-    setStoryChunks([]);
-    setCurrentChunkIndex(0);
-    setShowingProgressively(false);
-    setProfessionalismScore(null);
-    setScoreAnalysis("");
-    setAchievements([]);
-    setAlternativeEndings([]);
-    setSelectedEnding(null);
-    setShowScoring(false);
-    setShowBranching(false);
-    try {
-      const response = await fetch('/api/resume/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          answers,
-          questions,
-          username,
-          interactive: true
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate resume');
-      }
-
-      const data = await response.json();
-      
-      // Handle progressive storytelling if available
-      if (data.chunks && data.chunks.length > 1) {
-        setStoryChunks(data.chunks);
-        setShowingProgressively(true);
-        startProgressiveReveal(data.chunks);
-      } else {
-        setResume(data.resume);
-      }
-      
-      // Handle gamification features
-      if (data.professionalismScore !== undefined) {
-        setProfessionalismScore(data.professionalismScore);
-        setScoreAnalysis(data.scoreAnalysis || "");
-        setTimeout(() => setShowScoring(true), 2000);
-      }
-      
-      if (data.achievements && data.achievements.length > 0) {
-        setAchievements(data.achievements);
-      }
-      
-      // Handle alternative endings
-      if (data.alternativeEndings && data.alternativeEndings.length > 0) {
-        setAlternativeEndings(data.alternativeEndings);
-        setTimeout(() => setShowBranching(true), 5000);
-      }
-    } catch (error) {
-      console.error('Error generating resume:', error);
-      setResume("Hopar's resume machine is currently offline. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleReadAloud = () => {
+  const handlePlayPause = async () => {
     if (isPlaying) {
-      // Stop current playback
       stopPlayback();
-    } else if (resume) {
-      // Start new playback
-      playWithElevenLabs(resume);
+      return;
     }
-  };
 
-  const playWithElevenLabs = async (text: string) => {
+    const summaryText = questions.map((question, index) => 
+      `${question} ${answers[index]}`
+    ).join('. ');
+
+    if (!summaryText) {
+      showErrorMessage("No content to read aloud");
+      return;
+    }
+
+    setIsLoadingAudio(true);
+    setIsPlaying(true);
+
     try {
-      setIsPlaying(true);
-      
       const response = await fetch('/api/voice/speak', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: summaryText }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to synthesize speech');
+        throw new Error('Voice synthesis failed');
       }
 
       const audioBlob = await response.blob();
@@ -182,88 +100,109 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
       const audio = new Audio(audioUrl);
       
       setCurrentAudio(audio);
-      
+      setIsLoadingAudio(false);
+
       audio.onended = () => {
         setIsPlaying(false);
         setCurrentAudio(null);
         URL.revokeObjectURL(audioUrl);
       };
-      
+
       audio.onerror = () => {
         setIsPlaying(false);
+        setIsLoadingAudio(false);
         setCurrentAudio(null);
         URL.revokeObjectURL(audioUrl);
-        showErrorMessage('Audio playback failed. Please try again.');
+        showErrorMessage("Audio playback failed");
       };
-      
+
       await audio.play();
     } catch (error) {
-      console.error('ElevenLabs TTS failed:', error);
+      console.error('Error with audio:', error);
       setIsPlaying(false);
-      setCurrentAudio(null);
-      showErrorMessage(`Voice synthesis error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setIsLoadingAudio(false);
+      showErrorMessage("Voice synthesis unavailable");
     }
   };
 
   const handleCopy = async () => {
+    const summaryText = questions.map((question, index) => 
+      `${question}\n${answers[index]}\n`
+    ).join('\n');
+    
     try {
-      await navigator.clipboard.writeText(resume);
+      await navigator.clipboard.writeText(summaryText);
     } catch (error) {
       console.error('Failed to copy:', error);
     }
   };
 
-  const handleRestart = () => {
-    setShowConfirmRestart(true);
-  };
-
-  const confirmRestart = () => {
-    setShowConfirmRestart(false);
-    onRestart();
-  };
-
-  const cancelRestart = () => {
-    setShowConfirmRestart(false);
+  const handleDownload = () => {
+    const summaryText = questions.map((question, index) => 
+      `${question}\n${answers[index]}\n`
+    ).join('\n');
+    
+    const blob = new Blob([summaryText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${username.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_resume_answers.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#bbbbbb' }}>
-      {/* Header */}
+    <div className="min-h-screen mobile-content-padding" style={{ background: "#3a3a3a" }}>
+      {/* Fixed Header */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full p-4"
+        className="fixed top-0 left-0 right-0 z-40 px-4 py-3"
+        style={{
+          background: "#3a3a3a",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+        }}
       >
-        <div className="flex items-center">
+        <div className="flex items-center justify-between max-w-4xl mx-auto">
           <button
             onClick={onBack}
-            className="p-2 rounded-lg transition-all duration-200"
-            style={{
-              background: '#404040',
-              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#404040';
-            }}
+            className="flex items-center text-white hover:text-gray-300 transition-colors duration-200"
           >
-            <ArrowLeft size={20} className="text-white" />
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            <span className="text-sm font-medium">Back</span>
           </button>
-          <div className="flex-1 text-center">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent">
-              You Are Hired Ara
-            </h1>
+
+          <div className="flex-1 px-4">
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: "#2a2a2a" }}>
+              <motion.div
+                initial={{ width: "0%" }}
+                animate={{ width: "75%" }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="h-full rounded-full"
+                style={{
+                  background: "linear-gradient(90deg, #ff4444 0%, #4444ff 50%, #ff8800 100%)",
+                }}
+              />
+            </div>
           </div>
+
+          <button
+            onClick={handleRestart}
+            className="flex items-center text-white hover:text-gray-300 transition-colors duration-200"
+          >
+            <RotateCcw className="w-5 h-5 mr-2" />
+            <span className="text-sm font-medium">Restart</span>
+          </button>
         </div>
       </motion.div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center p-4">
+      <div className="flex-1 flex flex-col items-center p-4 pt-20">
         <div className="w-full max-w-4xl">
-          {/* Resume Card */}
+          {/* Title Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -274,276 +213,182 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
               boxShadow: '16px 16px 32px #323232, -16px -16px 32px #484848'
             }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Your Professional Resume</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-white">Review Your Career Info</h2>
               
               {/* Action Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleReadAloud}
-                  className="p-3 rounded-lg transition-all duration-200 text-white hover:scale-105"
+              <div className="flex gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handlePlayPause}
+                  disabled={isLoadingAudio}
+                  className="p-2 rounded-full text-white transition-all duration-200"
                   style={{
-                    background: '#404040',
-                    boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#404040';
+                    background: '#3a3a3a',
+                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
                   }}
                 >
-                  {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                </button>
+                  {isLoadingAudio ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : isPlaying ? (
+                    <Pause className="w-5 h-5" />
+                  ) : (
+                    <Volume2 className="w-5 h-5" />
+                  )}
+                </motion.button>
 
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleCopy}
-                  className="p-3 rounded-lg transition-all duration-200 text-white hover:scale-105"
+                  className="p-2 rounded-full text-white transition-all duration-200"
                   style={{
-                    background: '#404040',
-                    boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#404040';
+                    background: '#3a3a3a',
+                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
                   }}
                 >
-                  <Copy size={20} />
-                </button>
+                  <Copy className="w-5 h-5" />
+                </motion.button>
 
-                <button
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="p-3 rounded-lg transition-all duration-200 text-white hover:scale-105"
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleDownload}
+                  className="p-2 rounded-full text-white transition-all duration-200"
                   style={{
-                    background: '#404040',
-                    boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#404040';
+                    background: '#3a3a3a',
+                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
                   }}
                 >
-                  {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </button>
-
-                <button
-                  onClick={handleRestart}
-                  className="p-3 rounded-lg transition-all duration-200 text-white hover:scale-105"
-                  style={{
-                    background: '#404040',
-                    boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#404040';
-                  }}
-                >
-                  <RotateCcw size={20} />
-                </button>
+                  <Download className="w-5 h-5" />
+                </motion.button>
               </div>
             </div>
-
-            {/* Resume Content */}
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-                <p className="text-gray-300">Hopar is crafting your perfect resume...</p>
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className={`text-gray-200 leading-relaxed whitespace-pre-wrap ${
-                  isExpanded ? '' : 'max-h-96 overflow-hidden'
-                }`}
-              >
-                {resume}
-                {showingProgressively && currentChunkIndex < storyChunks.length - 1 && (
-                  <motion.span
-                    animate={{ opacity: [1, 0.3, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="text-blue-400 ml-2"
-                  >
-                    ●●●
-                  </motion.span>
-                )}
-              </motion.div>
-            )}
             
-            {/* Professionalism Score */}
-            {!isLoading && showScoring && professionalismScore !== null && (
+            <p className="text-gray-300">
+              Here's a summary of your career information. Make sure everything looks good before generating your resume.
+            </p>
+          </motion.div>
+
+          {/* Q&A Cards */}
+          <div className="space-y-4 mb-8">
+            {questions.map((question, index) => (
               <motion.div
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="mt-6 p-4 rounded-xl"
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                className="rounded-xl p-6"
                 style={{
-                  background: '#404040',
-                  boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+                  background: '#3a3a3a',
+                  boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
                 }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold text-white">Professionalism Score</h3>
-                  <div className="flex items-center">
-                    <span className="text-2xl font-bold text-green-400 mr-2">{professionalismScore}/10</span>
-                    <div className="flex">
-                      {[...Array(10)].map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-3 h-3 rounded-full mr-1 ${
-                            i < professionalismScore ? 'bg-green-400' : 'bg-gray-600'
-                          }`}
-                        />
-                      ))}
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Question {index + 1}
+                  </h3>
+                  <p className="text-gray-300">{question}</p>
+                </div>
+
+                {editingIndex === index ? (
+                  <div className="space-y-4">
+                    <textarea
+                      value={tempAnswer}
+                      onChange={(e) => setTempAnswer(e.target.value)}
+                      className="w-full h-24 p-4 rounded-lg text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      style={{
+                        background: '#2e2e2e',
+                        boxShadow: 'inset 8px 8px 16px #262626, inset -8px -8px 16px #363636'
+                      }}
+                      placeholder="Type your answer here..."
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSaveEdit}
+                        className="px-4 py-2 rounded-lg text-white font-medium"
+                        style={{
+                          background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                          boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="px-4 py-2 rounded-lg text-white font-medium"
+                        style={{
+                          background: '#3a3a3a',
+                          boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
+                        }}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
-                </div>
-                {scoreAnalysis && (
-                  <p className="text-sm text-gray-300">{scoreAnalysis}</p>
-                )}
-              </motion.div>
-            )}
-
-            {/* Achievements */}
-            {!isLoading && achievements.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="mt-4 flex flex-wrap gap-2"
-              >
-                {achievements.map((achievement, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="px-3 py-1 rounded-full text-sm text-white"
-                    style={{
-                      background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
-                    }}
-                  >
-                    🏆 {achievement}
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-
-            {/* Alternative Career Focus */}
-            {!isLoading && showBranching && alternativeEndings.length > 0 && selectedEnding === null && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="mt-6 p-4 rounded-xl border border-blue-400"
-                style={{
-                  background: '#404040',
-                  boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-                }}
-              >
-                <h3 className="text-lg font-semibold text-white mb-3">Choose Your Career Focus</h3>
-                <div className="space-y-3">
-                  {alternativeEndings.map((ending, index) => (
-                    <motion.button
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      onClick={() => selectAlternativeEnding(index)}
-                      className="w-full p-3 text-left rounded-lg text-white hover:bg-blue-600 transition-colors duration-200"
+                ) : (
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 mr-4">
+                      <div 
+                        className="p-4 rounded-lg text-gray-200 leading-relaxed"
+                        style={{
+                          background: '#2e2e2e',
+                          boxShadow: 'inset 4px 4px 8px #262626, inset -4px -4px 8px #363636'
+                        }}
+                      >
+                        {answers[index] || "No answer provided"}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleEditClick(index)}
+                      className="px-4 py-2 rounded-lg text-white font-medium hover:scale-105 transition-transform duration-200"
                       style={{
                         background: '#3a3a3a',
-                        boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
+                        boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
                       }}
                     >
-                      <span className="text-blue-400 font-semibold">Option {index + 1}:</span>
-                      <p className="mt-1 text-sm">{ending.substring(0, 100)}...</p>
-                    </motion.button>
-                  ))}
-                </div>
+                      Edit
+                    </button>
+                  </div>
+                )}
               </motion.div>
-            )}
-          </motion.div>
+            ))}
+          </div>
+
+          {/* Continue Button */}
+          <div className="flex justify-center">
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              onClick={onNext}
+              className="flex items-center px-8 py-4 rounded-xl text-white font-semibold text-lg hover:scale-105 transition-transform duration-200"
+              style={{
+                background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+                boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
+              }}
+            >
+              <span className="mr-3">Generate My Resume</span>
+              <ArrowRight className="w-6 h-6" />
+            </motion.button>
+          </div>
         </div>
       </div>
-
-      {/* Restart Confirmation Popup */}
-      {showConfirmRestart && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-        >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="max-w-md w-full rounded-2xl p-6 text-center"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '20px 20px 40px #2a2a2a, -20px -20px 40px #4a4a4a'
-            }}
-          >
-            <h3 className="text-xl font-bold text-white mb-4">Start Over?</h3>
-            <p className="text-gray-300 mb-6">
-              Are you sure you want to restart? This will clear your current resume and start fresh.
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={cancelRestart}
-                className="flex-1 py-3 rounded-lg text-white font-semibold hover:scale-105 transition-transform duration-200"
-                style={{
-                  background: '#404040',
-                  boxShadow: '8px 8px 16px #2a2a2a, -8px -8px 16px #4a4a4a'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmRestart}
-                className="flex-1 py-3 rounded-lg text-white font-semibold hover:scale-105 transition-transform duration-200"
-                style={{
-                  background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
-                  boxShadow: '8px 8px 16px #2a2a2a, -8px -8px 16px #4a4a4a'
-                }}
-              >
-                Restart
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
 
       {/* Error Popup */}
       {showError && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 50 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 50 }}
-          className="fixed bottom-6 right-6 z-50 max-w-sm"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 50 }}
+          className="fixed bottom-4 right-4 z-50 p-4 rounded-lg border-2 border-red-500 max-w-sm"
+          style={{
+            background: '#3a3a3a',
+            boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+          }}
         >
-          <div
-            className="p-4 rounded-xl text-white"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646',
-              border: '2px solid #ff4444'
-            }}
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
-              <div>
-                <h4 className="font-semibold text-red-400 mb-1">Error</h4>
-                <p className="text-sm text-gray-300">{errorMessage}</p>
-              </div>
-            </div>
-          </div>
+          <p className="text-white text-sm">{errorMessage}</p>
         </motion.div>
       )}
     </div>

@@ -397,8 +397,9 @@ function App() {
               <ResumeRecapPage
                 questions={resumeQuestions}
                 answers={resumeAnswers}
+                onEdit={handleResumeRecapEdit}
                 onBack={handleResumeRecapBack}
-                onRestart={handleResumeResultRestart}
+                onNext={handleResumeRecapNext}
                 username="User"
               />
             )}

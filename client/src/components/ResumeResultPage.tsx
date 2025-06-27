@@ -244,53 +244,9 @@ export function ResumeResultPage({ questions, answers, onBack, onRestart, userna
   };
 
   return (
-    <div className="min-h-screen mobile-content-padding" style={{ background: "#3a3a3a" }}>
-      {/* Fixed Header */}
-      <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="fixed top-0 left-0 right-0 z-40 px-4 py-3"
-        style={{
-          background: "#3a3a3a",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
-        }}
-      >
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
-          <button
-            onClick={onBack}
-            className="flex items-center text-white hover:text-gray-300 transition-colors duration-200"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            <span className="text-sm font-medium">Back</span>
-          </button>
-
-          <div className="flex-1 px-4">
-            <div className="h-2 rounded-full overflow-hidden" style={{ background: "#2a2a2a" }}>
-              <motion.div
-                initial={{ width: "0%" }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 1, delay: 0.5 }}
-                className="h-full rounded-full"
-                style={{
-                  background: "linear-gradient(90deg, #ff4444 0%, #4444ff 50%, #ff8800 100%)",
-                }}
-              />
-            </div>
-          </div>
-
-          <button
-            onClick={handleRestart}
-            className="flex items-center text-white hover:text-gray-300 transition-colors duration-200"
-          >
-            <RotateCcw className="w-5 h-5 mr-2" />
-            <span className="text-sm font-medium">Restart</span>
-          </button>
-        </div>
-      </motion.div>
-
+    <div className="min-h-screen" style={{ background: '#3a3a3a' }}>
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center p-4 pt-20">
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-4xl">
           {/* Resume Card */}
           <motion.div
@@ -303,95 +259,8 @@ export function ResumeResultPage({ questions, answers, onBack, onRestart, userna
               boxShadow: '16px 16px 32px #323232, -16px -16px 32px #484848'
             }}
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6">
               <h2 className="text-2xl font-bold text-white">Your Career Profile</h2>
-              
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handlePlayPause}
-                  disabled={isLoadingAudio}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  {isLoadingAudio ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : isPlaying ? (
-                    <Pause className="w-5 h-5" />
-                  ) : (
-                    <Volume2 className="w-5 h-5" />
-                  )}
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ 
-                    scale: 1.05,
-                    background: "linear-gradient(135deg, #ff4444, #4444ff, #ff8800)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  <Maximize2 className="w-5 h-5" />
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ 
-                    scale: 1.05,
-                    background: "linear-gradient(135deg, #ff4444, #4444ff, #ff8800)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleCopy}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  <Copy className="w-5 h-5" />
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ 
-                    scale: 1.05,
-                    background: "linear-gradient(135deg, #ff4444, #4444ff, #ff8800)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleDownload}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  <Download className="w-5 h-5" />
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ 
-                    scale: 1.05,
-                    background: "linear-gradient(135deg, #ff4444, #4444ff, #ff8800)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleShare}
-                  className="p-2 rounded-full text-white transition-all duration-200"
-                  style={{
-                    background: '#3a3a3a',
-                    boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
-                  }}
-                >
-                  <Share2 className="w-5 h-5" />
-                </motion.button>
-              </div>
             </div>
 
             {/* Resume Content */}
@@ -516,6 +385,105 @@ export function ResumeResultPage({ questions, answers, onBack, onRestart, userna
               </motion.div>
             )}
           </motion.div>
+
+        {/* Action Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex flex-wrap justify-center gap-4 mb-4"
+        >
+          <button
+            onClick={handleRestart}
+            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+            }}
+            title="Restart"
+          >
+            <RotateCcw size={24} />
+          </button>
+
+          <button
+            onClick={handlePlayPause}
+            disabled={isLoadingAudio}
+            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200 disabled:opacity-50"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+            }}
+            title={isPlaying ? "Pause" : "Read Aloud"}
+          >
+            {isLoadingAudio ? (
+              <Loader2 size={24} className="animate-spin" />
+            ) : isPlaying ? (
+              <Pause size={24} />
+            ) : (
+              <Volume2 size={24} />
+            )}
+          </button>
+
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+            }}
+            title={isExpanded ? "Show Less" : "Expand"}
+          >
+            <Maximize2 size={24} />
+          </button>
+
+          <button
+            onClick={handleCopy}
+            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+            }}
+            title="Copy"
+          >
+            <Copy size={24} />
+          </button>
+
+          <button
+            onClick={handleDownload}
+            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+            }}
+            title="Download"
+          >
+            <Download size={24} />
+          </button>
+
+          <button
+            onClick={handleShare}
+            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+            }}
+            title="Share"
+          >
+            <Share2 size={24} />
+          </button>
+
+          <button
+            onClick={onBack}
+            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #424242'
+            }}
+            title="Back"
+          >
+            <ArrowLeft size={24} />
+          </button>
+        </motion.div>
         </div>
       </div>
 
