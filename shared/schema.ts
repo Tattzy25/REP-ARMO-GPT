@@ -2,6 +2,28 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, rea
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+/**
+ * DATABASE SCHEMA FOR ARMO HOPAR FEATURES
+ * 
+ * "Your Hired Ara" Resume Generation Feature:
+ * - Uses chatSessions with vibe "you-are-hired-ara"
+ * - User answers stored in messages.metadata with type 'resume-request'
+ * - AI-generated resumes stored in messages.metadata with type 'resume-response'
+ * - Session restoration enables users to return to completed resumes
+ * - Integrates with 10+ persona tables for behavioral analysis and content personalization
+ * 
+ * "Gimmi Alibi Ara" Feature:
+ * - Uses chatSessions with vibe "gimmi-alibi-ara"
+ * - User answers stored in messages.metadata with type 'alibi-request'
+ * - AI-generated alibis stored in messages.metadata with type 'alibi-response'
+ * 
+ * Core Schema Pattern:
+ * - Each feature creates its own chat session with unique vibe identifier
+ * - User input and AI responses stored as separate messages with typed metadata
+ * - All sessions appear in Recent Chats for easy restoration
+ * - Persona system tables provide behavioral context for personalized responses
+ */
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -11,7 +33,7 @@ export const users = pgTable("users", {
 export const chatSessions = pgTable("chat_sessions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
-  vibe: text("vibe").notNull(),
+  vibe: text("vibe").notNull(), // "you-are-hired-ara" for resume sessions, "gimmi-alibi-ara" for alibi sessions
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -20,7 +42,7 @@ export const messages = pgTable("messages", {
   sessionId: integer("session_id").references(() => chatSessions.id),
   sender: text("sender").notNull(), // 'user' | 'armo'
   content: text("content").notNull(),
-  metadata: jsonb("metadata"), // for storing additional data like voice, images, etc.
+  metadata: jsonb("metadata"), // Resume: {answers: string[], type: 'resume-request'|'resume-response'}, Alibi: {answers: string[], type: 'alibi-request'|'alibi-response'}
   createdAt: timestamp("created_at").defaultNow(),
 });
 
