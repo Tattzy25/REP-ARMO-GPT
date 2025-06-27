@@ -264,7 +264,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
           initial={{ opacity: 0, scale: 0.8, y: 50 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: -50 }}
-          transition={{ duration: 0.5, ease: "easeOutBack" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: "rgba(0, 0, 0, 0.8)" }}
         >
