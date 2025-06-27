@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw, Download, Share2, User, Maximize2, Copy, Loader2 } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Download, Share2, Volume2, Maximize2, Copy, Loader2 } from 'lucide-react';
 
 interface AlibiResultPageProps {
   questions: string[];
@@ -13,6 +13,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart }: Alibi
   const [alibiStory, setAlibiStory] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false);
 
   useEffect(() => {
     generateAlibiStory();
@@ -73,7 +74,7 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
     const element = document.createElement('a');
     const file = new Blob([alibiStory], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = 'my-alibi.txt';
+    element.download = 'my-alibi-by-armo-hopar.txt';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -83,7 +84,7 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'My Alibi',
+          title: 'My Alibi by Armo Hopar',
           text: alibiStory,
         });
       } catch (error) {
@@ -95,8 +96,56 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
     }
   };
 
+  const handleReadAloud = async () => {
+    try {
+      const response = await fetch('/api/voice/speak', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: alibiStory,
+          voice: 'alloy'
+        }),
+      });
+
+      if (response.ok) {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+      } else {
+        // Fallback to browser speech synthesis
+        const utterance = new SpeechSynthesisUtterance(alibiStory);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        speechSynthesis.speak(utterance);
+      }
+    } catch (error) {
+      console.error('Error with text-to-speech:', error);
+      // Fallback to browser speech synthesis
+      const utterance = new SpeechSynthesisUtterance(alibiStory);
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleRestartClick = () => {
+    setShowRestartConfirm(true);
+  };
+
+  const confirmRestart = () => {
+    setShowRestartConfirm(false);
+    onRestart();
+  };
+
+  const cancelRestart = () => {
+    setShowRestartConfirm(false);
   };
 
   return (
@@ -153,7 +202,7 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
             
             {/* Restart Arrow - Desktop */}
             <button
-              onClick={onRestart}
+              onClick={handleRestartClick}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 p-3 rounded-full text-white hover:scale-110 transition-all duration-200 hidden md:block"
               style={{
                 background: '#3a3a3a',
@@ -209,7 +258,7 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
           className="flex flex-wrap justify-center gap-4 mb-4"
         >
           <button
-            onClick={onRestart}
+            onClick={handleRestartClick}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -245,14 +294,15 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
           </button>
           
           <button
+            onClick={handleReadAloud}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
               boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
             }}
-            title="Profile"
+            title="Read Out Loud"
           >
-            <User size={24} />
+            <Volume2 size={24} />
           </button>
           
           <button
@@ -299,7 +349,7 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
           </button>
           
           <button
-            onClick={onRestart}
+            onClick={handleRestartClick}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
             style={{
               background: '#3a3a3a',
@@ -310,6 +360,58 @@ Generate a complete, detailed alibi story that weaves all these elements togethe
           </button>
         </motion.div>
       </div>
+
+      {/* Restart Confirmation Popup */}
+      {showRestartConfirm && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={cancelRestart}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={(e) => e.stopPropagation()}
+            className="p-8 rounded-2xl max-w-md mx-4"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
+            }}
+          >
+            <h3 className="text-xl font-bold text-white mb-4 text-center">
+              Do you really want to restart?
+            </h3>
+            <p className="text-gray-300 mb-6 text-center">
+              This will clear all your answers and start over from the beginning.
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={confirmRestart}
+                className="flex-1 py-3 px-6 rounded-xl text-white font-semibold transition-all duration-200 hover:scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+                }}
+              >
+                Yes, Restart
+              </button>
+              <button
+                onClick={cancelRestart}
+                className="flex-1 py-3 px-6 rounded-xl text-white font-semibold transition-all duration-200 hover:scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, #6b7280, #4b5563)',
+                  boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+                }}
+              >
+                No, Cancel
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }

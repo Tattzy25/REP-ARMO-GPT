@@ -157,7 +157,11 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
                             boxShadow: 'inset 6px 6px 12px #222222, inset -6px -6px 12px #323232'
                           }}
                         >
-                          {answers[index] || "No answer provided"}
+                          {/* Add [Your Name] placeholder to specific questions */}
+                          {(index === 0 || index === 3) 
+                            ? `${answers[index] || "No answer provided"} - [Your Name]` 
+                            : (answers[index] || "No answer provided")
+                          }
                         </div>
                         <button
                           onClick={() => handleEditClick(index)}
@@ -180,6 +184,25 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               ))}
             </div>
           </div>
+        </motion.div>
+
+        {/* Next Button - Prominent */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="mb-6"
+        >
+          <button
+            onClick={onNext}
+            className="px-8 py-4 rounded-xl text-white font-bold text-lg hover:scale-105 transition-all duration-200"
+            style={{
+              background: 'linear-gradient(to right, #ef4444, #3b82f6, #f97316)',
+              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+            }}
+          >
+            Generate My Alibi →
+          </button>
         </motion.div>
 
         {/* Action Buttons */}

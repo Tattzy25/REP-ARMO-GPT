@@ -319,6 +319,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate AI joke for alibi questions
+  app.post("/api/joke", async (req, res) => {
+    try {
+      const { prompt, answers } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      const fullPrompt = `You are Armo Hopar, a witty Armenian AI. ${prompt} Keep it to 1-2 sentences maximum. Be clever and funny but not mean.`;
+      
+      const aiResponse = await generateAIResponseFallback(fullPrompt, "roast");
+      
+      res.json({ joke: aiResponse });
+    } catch (error) {
+      console.error('Error generating joke:', error);
+      res.status(500).json({ error: "Failed to generate joke" });
+    }
+  });
+
+  // Voice synthesis endpoint for read-aloud
+  app.post("/api/voice/speak", async (req, res) => {
+    try {
+      const { text, voice = 'alloy' } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ error: "Text is required" });
+      }
+
+      // Try ElevenLabs API first (if available)
+      // For now, return an error to trigger fallback to browser speech
+      res.status(500).json({ error: "Voice synthesis not available, using browser fallback" });
+    } catch (error) {
+      console.error('Error with voice synthesis:', error);
+      res.status(500).json({ error: "Voice synthesis failed" });
+    }
+  });
+
   // Search endpoint using Tavily API
   app.post("/api/search", async (req, res) => {
     try {

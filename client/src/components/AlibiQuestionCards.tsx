@@ -88,37 +88,43 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
     try {
       let contextPrompt = "";
       if (questionIndex === 2) { // After question 3
-        contextPrompt = `Someone is making an alibi. They got in trouble for: "${userAnswers[0] || "something vague"}", someone named "${userAnswers[1] || "someone mysterious"}" is after them, and "${userAnswers[2] || "nobody reliable"}" is their alibi partner. Roast this situation in 1-2 sentences without repeating their exact words.`;
+        contextPrompt = `Someone is making an alibi. They got in trouble for: "${userAnswers[0] || "something vague"}", someone named "${userAnswers[1] || "someone mysterious"}" is after them, and "${userAnswers[2] || "nobody reliable"}" is their alibi partner. Roast this situation in 1-2 sentences without repeating their exact words. Make it witty and Armenian-style humor.`;
       } else { // After question 6  
-        contextPrompt = `Someone's alibi continues: their excuse is "${userAnswers[3] || "something weak"}", they claim they were at "${userAnswers[4] || "nowhere specific"}", and their evidence is "${userAnswers[5] || "nothing solid"}". Roast how ridiculous this alibi is in 1-2 sentences without repeating their exact words.`;
+        contextPrompt = `Someone's alibi continues: their excuse is "${userAnswers[3] || "something weak"}", they claim they were at "${userAnswers[4] || "nowhere specific"}", and their evidence is "${userAnswers[5] || "nothing solid"}". Roast how ridiculous this complete alibi is in 1-2 sentences without repeating their exact words. Make it witty and Armenian-style humor.`;
       }
 
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/joke', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: `You are Armo Hopar, a witty Armenian AI that roasts people's alibis. ${contextPrompt} Be sarcastic and funny but not mean. Focus on the absurdity rather than repeating what they said.`,
-          vibe: "roast",
-          sessionId: Date.now() // Temporary session for joke generation
+          prompt: contextPrompt,
+          answers: userAnswers.slice(0, questionIndex + 1)
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        return data.response || "Your alibi game is weaker than week-old lavash bread! 🍞";
+        return data.joke || "Your alibi game is weaker than week-old lavash bread! 🍞";
       } else {
         throw new Error('Failed to generate joke');
       }
     } catch (error) {
       console.error('Error generating joke:', error);
-      // Fallback contextual jokes if API fails
-      if (questionIndex === 2) {
-        return "So far your alibi sounds like a soap opera plot twist! 🎭";
-      } else {
-        return "This alibi is more suspicious than a midnight kebab run! 🌙";
+      // Dynamic fallback jokes based on actual user answers
+      const answers = userAnswers.filter(a => a && a.trim().length > 0);
+      if (answers.length > 0) {
+        const randomResponses = [
+          "Your story has more holes than Armenian cheese! 🧀",
+          "This alibi is shakier than a Yerevan earthquake! 🌍", 
+          "Even my grandmother's conspiracy theories are more believable! 👵",
+          "Your excuse game is weaker than Armenian internet connection! 📡",
+          "This story has more plot twists than a telenovela! 📺"
+        ];
+        return randomResponses[Math.floor(Math.random() * randomResponses.length)];
       }
+      return "Your alibi game needs serious work, hopar! 💪";
     }
   };
 

@@ -91,8 +91,8 @@ function App() {
   };
 
   const handleRecapEdit = (questionIndex: number) => {
-    // For now, just go back to questions - later we can implement inline editing
-    setAppState("alibi-questions");
+    // Inline editing is already implemented in the recap page
+    // This function might be used for future enhancements
   };
 
   const handleRecapBack = () => {
