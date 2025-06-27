@@ -164,14 +164,14 @@ function App() {
               boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
             }}
           >
-            <div className="text-white font-bold text-lg">{getPageTitle()}</div>
             <button
               onClick={handleSidebarToggle}
-              className="absolute right-4 p-2 rounded-lg text-white"
+              className="absolute left-4 p-3 rounded-full text-white"
               style={{ background: "#2e2e2e" }}
             >
-              <Menu size={24} />
+              <Menu size={20} />
             </button>
+            <div className="text-white font-bold text-lg">{getPageTitle()}</div>
           </div>
 
           {/* Mobile Overlay */}
