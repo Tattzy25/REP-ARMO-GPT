@@ -19,21 +19,63 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   const [showCooldown, setShowCooldown] = useState(false);
   const [cooldownMessage, setCooldownMessage] = useState("");
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
+  const [turnTimeLeft, setTurnTimeLeft] = useState(15);
+  const [isUserTurn, setIsUserTurn] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Check for cooldown on component mount
   useEffect(() => {
     checkCooldownStatus();
     return () => {
       if (callTimerRef.current) clearInterval(callTimerRef.current);
+      if (turnTimerRef.current) clearInterval(turnTimerRef.current);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
   }, []);
+
+  // Automatic turn management for touchless experience
+  useEffect(() => {
+    if (isCallActive && !isRinging) {
+      // Start turn timer
+      turnTimerRef.current = setInterval(() => {
+        setTurnTimeLeft(prev => {
+          if (prev <= 1) {
+            // Switch turns
+            setIsUserTurn(current => !current);
+            return 15; // Reset to 15 seconds
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        if (turnTimerRef.current) clearInterval(turnTimerRef.current);
+      };
+    }
+  }, [isCallActive, isRinging]);
+
+  // Handle automatic recording based on turns
+  useEffect(() => {
+    if (isCallActive && !isRinging) {
+      if (isUserTurn && !isRecording) {
+        // Start user recording automatically
+        startAutomaticRecording();
+      } else if (!isUserTurn && isRecording) {
+        // Stop user recording and process
+        stopAutomaticRecording();
+      }
+      
+      // Update AI speaking state
+      setIsAiSpeaking(!isUserTurn);
+    }
+  }, [isUserTurn, isCallActive, isRinging]);
 
   const checkCooldownStatus = () => {
     // Cooldown disabled for development/testing - users can call multiple times
@@ -92,8 +134,71 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
       setIsRinging(false);
       setIsCallActive(true);
       setCallDuration(0);
-      startActualCall();
+      setIsUserTurn(false); // Hopar speaks first
+      setTurnTimeLeft(15);
+      setIsAiSpeaking(true);
+      
+      // Start call timer
+      callTimerRef.current = setInterval(() => {
+        setCallDuration(prev => prev + 1);
+      }, 1000);
+      
+      // Set up microphone
+      setupMicrophone();
+      
+      // Hopar answers with greeting: "Alo [username], what do you want..."
+      triggerHoparGreeting();
     }, 2500);
+  };
+
+  const triggerHoparGreeting = async () => {
+    try {
+      setIsAiSpeaking(true);
+      const response = await fetch('/api/call-hopar/greeting', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      
+      if (response.ok) {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        audio.onended = () => {
+          setIsAiSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+          // After greeting, switch to user turn
+          setIsUserTurn(true);
+        };
+        
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('Error playing greeting:', error);
+      setIsAiSpeaking(false);
+      setIsUserTurn(true);
+    }
+  };
+
+  const startAutomaticRecording = async () => {
+    try {
+      if (!mediaRecorderRef.current) return;
+      
+      audioChunksRef.current = [];
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+      startAudioVisualization();
+    } catch (error) {
+      console.error('Error starting automatic recording:', error);
+    }
+  };
+
+  const stopAutomaticRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   const startActualCall = async () => {
@@ -265,18 +370,54 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
     }
   };
 
+  const setupMicrophone = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      
+      mediaRecorderRef.current.ondataavailable = async (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        audioChunksRef.current = [];
+        await sendAudioForTranscription(audioBlob);
+      };
+      
+      // Set up audio visualization
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      source.connect(analyserRef.current);
+      
+    } catch (error) {
+      console.error('Error setting up microphone:', error);
+    }
+  };
+
   const endCall = () => {
     setIsCallActive(false);
     setIsRecording(false);
     setIsAiSpeaking(false);
+    setIsRinging(false);
+    setIsUserTurn(false);
     
     // Set cooldown
     localStorage.setItem('lastCallHoparTime', Date.now().toString());
     
-    // Cleanup
+    // Cleanup timers
     if (callTimerRef.current) {
       clearInterval(callTimerRef.current);
       callTimerRef.current = null;
+    }
+    
+    if (turnTimerRef.current) {
+      clearInterval(turnTimerRef.current);
+      turnTimerRef.current = null;
     }
     
     if (animationFrameRef.current) {
@@ -284,6 +425,7 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
       animationFrameRef.current = null;
     }
     
+    // Stop media recording
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
@@ -291,6 +433,9 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
     if (audioContextRef.current) {
       audioContextRef.current.close();
     }
+    
+    // Automatically return to lobby
+    onBack();
   };
 
   const formatTime = (seconds: number) => {
@@ -432,85 +577,114 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
             </div>
           </motion.div>
         ) : (
-          // Active call screen
+          // Active call screen with new design
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="text-center"
+            className="text-center relative h-screen flex flex-col justify-between py-16"
           >
-            {/* Call Header */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-white mb-2">Armo Hopar</h3>
-              <p className="text-gray-400">{formatTime(callDuration)}</p>
-            </div>
-
-            {/* Audio Visualization */}
-            <div className="mb-12">
-              <div className="w-40 h-40 mx-auto rounded-full flex items-center justify-center relative"
+            {/* Top Microphone - Hopar's state */}
+            <div className="flex flex-col items-center">
+              <div 
+                className="w-24 h-24 rounded-full flex items-center justify-center mb-4 transition-all duration-300"
                 style={{
-                  background: '#3a3a3a',
-                  boxShadow: '16px 16px 32px #323232, -16px -16px 32px #484848'
+                  background: isAiSpeaking ? 
+                    `radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 70%, transparent 100%)` :
+                    `radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, rgba(239, 68, 68, 0.1) 70%, transparent 100%)`,
+                  boxShadow: isAiSpeaking ? 
+                    `0 0 30px rgba(34, 197, 94, 0.8), inset 0 0 20px rgba(34, 197, 94, 0.2)` :
+                    `0 0 30px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(239, 68, 68, 0.2)`,
                 }}
               >
-                <AnimatePresence>
-                  {(isRecording || isAiSpeaking) && (
-                    <motion.div
-                      initial={{ scale: 1 }}
-                      animate={{ scale: 1 + audioLevel * 0.3 }}
-                      className="absolute inset-0 rounded-full"
+                <Mic className={`h-8 w-8 ${isAiSpeaking ? 'text-green-400' : 'text-red-400'}`} />
+              </div>
+              <h2 className="text-xl font-bold text-white">
+                {isAiSpeaking ? "HOPAR LAUGHING..." : "HOPAR ROASTING..."}
+              </h2>
+            </div>
+
+            {/* Central Audio Visualization */}
+            <div className="flex-1 flex items-center justify-center">
+              <div 
+                className="w-64 h-64 rounded-full flex items-center justify-center relative transition-all duration-300"
+                style={{
+                  background: `radial-gradient(circle, 
+                    rgba(59, 130, 246, 0.3) 0%, 
+                    rgba(147, 51, 234, 0.2) 30%, 
+                    rgba(239, 68, 68, 0.3) 60%, 
+                    rgba(34, 197, 94, 0.1) 80%, 
+                    transparent 100%)`,
+                  boxShadow: `
+                    0 0 60px rgba(59, 130, 246, 0.4),
+                    0 0 100px rgba(147, 51, 234, 0.3),
+                    0 0 140px rgba(239, 68, 68, 0.2),
+                    inset 0 0 40px rgba(0, 0, 0, 0.5)
+                  `,
+                }}
+              >
+                {/* Audio waveform bars */}
+                <div className="flex items-center justify-center space-x-1">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="transition-all duration-150"
                       style={{
-                        background: isAiSpeaking 
-                          ? 'linear-gradient(135deg, #ff4444, #ff8844)'
-                          : 'linear-gradient(135deg, #4444ff, #44ff44)',
-                        opacity: 0.3
+                        width: '3px',
+                        height: `${10 + Math.random() * 40 + audioLevel * 30}px`,
+                        background: `linear-gradient(to top, 
+                          #22c55e ${i < 5 ? '100%' : '0%'},
+                          #3b82f6 ${i >= 5 && i < 10 ? '100%' : '0%'},
+                          #8b5cf6 ${i >= 10 && i < 15 ? '100%' : '0%'},
+                          #ef4444 ${i >= 15 ? '100%' : '0%'}
+                        )`,
+                        opacity: 0.8,
+                        borderRadius: '2px',
+                        animation: `pulse ${0.5 + Math.random() * 0.5}s infinite alternate`
                       }}
                     />
-                  )}
-                </AnimatePresence>
-                
-                {isAiSpeaking ? (
-                  <Volume2 className="h-12 w-12 text-orange-500" />
-                ) : (
-                  <Mic className={`h-12 w-12 ${isRecording ? 'text-green-500' : 'text-gray-400'}`} />
-                )}
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Call Controls */}
-            <div className="flex justify-center space-x-8">
-              <button
-                onClick={toggleRecording}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 ${
-                  isRecording ? 'bg-red-500' : 'bg-gray-600'
-                }`}
-                style={{
-                  boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-                }}
-              >
-                {isRecording ? <MicOff className="h-6 w-6 text-white" /> : <Mic className="h-6 w-6 text-white" />}
-              </button>
-
-              <button
-                onClick={() => setIsMuted(!isMuted)}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 ${
-                  isMuted ? 'bg-red-500' : 'bg-gray-600'
-                }`}
-                style={{
-                  boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-                }}
-              >
-                {isMuted ? <VolumeX className="h-6 w-6 text-white" /> : <Volume2 className="h-6 w-6 text-white" />}
-              </button>
-
-              <button
-                onClick={endCall}
-                className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center transition-all duration-200 hover:bg-red-400"
-                style={{
-                  boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
-                }}
-              >
-                <PhoneOff className="h-6 w-6 text-white" />
-              </button>
+            {/* Bottom Section - User's state */}
+            <div className="flex flex-col items-center">
+              <h3 className="text-xl font-bold text-white mb-6">
+                {isRecording ? "YOUR ROASTING..." : "YOUR LISTENING..."}
+              </h3>
+              
+              <div className="flex items-center justify-center space-x-12">
+                {/* Speaker Icon */}
+                <div className="w-12 h-12 flex items-center justify-center">
+                  <Volume2 className="h-8 w-8 text-white opacity-70" />
+                </div>
+                
+                {/* User Microphone */}
+                <div 
+                  className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300"
+                  style={{
+                    background: isRecording ? 
+                      `radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 70%, transparent 100%)` :
+                      `radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, rgba(239, 68, 68, 0.1) 70%, transparent 100%)`,
+                    boxShadow: isRecording ? 
+                      `0 0 25px rgba(34, 197, 94, 0.8), inset 0 0 15px rgba(34, 197, 94, 0.2)` :
+                      `0 0 25px rgba(239, 68, 68, 0.8), inset 0 0 15px rgba(239, 68, 68, 0.2)`,
+                  }}
+                >
+                  <Mic className={`h-6 w-6 ${isRecording ? 'text-green-400' : 'text-red-400'}`} />
+                </div>
+                
+                {/* Hang Up Button */}
+                <button
+                  onClick={endCall}
+                  className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center hover:bg-red-400 transition-colors duration-200"
+                  style={{
+                    boxShadow: '0 0 20px rgba(239, 68, 68, 0.6)'
+                  }}
+                >
+                  <PhoneOff className="h-6 w-6 text-white" />
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

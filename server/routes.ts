@@ -850,6 +850,63 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
     }
   });
 
+  // Generate Hopar greeting when call starts
+  app.post("/api/call-hopar/greeting", async (req, res) => {
+    try {
+      const { username } = req.body;
+      
+      const greetings = [
+        `Alo ${username}, what the fuck do you want?`,
+        `Yo ${username}, you better have something good to say!`,
+        `${username}! Speak up, I don't have all day!`,
+        `Well well, ${username} decided to call... this better be worth my time!`,
+        `Alo ${username}, ready to get destroyed? Start talking!`
+      ];
+      
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+      
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      if (!apiKey) {
+        throw new Error('ElevenLabs API key not configured');
+      }
+
+      // Generate TTS audio
+      const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+      const audioResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey
+        },
+        body: JSON.stringify({
+          text: greeting,
+          model_id: 'eleven_monolingual_v1',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.8,
+            style: 0.8,
+            use_speaker_boost: true
+          }
+        })
+      });
+
+      if (!audioResponse.ok) {
+        const errorText = await audioResponse.text();
+        console.error('ElevenLabs API error in greeting:', audioResponse.status, errorText);
+        throw new Error(`ElevenLabs API failed: ${audioResponse.status}`);
+      }
+
+      const audioBuffer = await audioResponse.arrayBuffer();
+      res.setHeader('Content-Type', 'audio/mpeg');
+      res.send(Buffer.from(audioBuffer));
+
+    } catch (error) {
+      console.error('Error generating greeting:', error);
+      res.status(500).json({ error: 'Failed to generate greeting' });
+    }
+  });
+
   // Generate goodbye roast and return TTS audio
   app.post("/api/call-hopar/goodbye-roast", async (req, res) => {
     try {
