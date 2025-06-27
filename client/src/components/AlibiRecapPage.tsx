@@ -173,7 +173,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               }}
             >
               <div className="mb-4">
-                <h3 className="font-audiowide font-semibold mb-2" style={{ fontSize: '18px', color: '#9333ea' }}>
+                <h3 className="font-audiowide mb-2 font-medium" style={{ fontSize: '18px', color: '#9333ea' }}>
                   Question {index + 1}
                 </h3>
                 <p className="text-white">{question}</p>
