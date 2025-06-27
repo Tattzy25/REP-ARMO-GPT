@@ -16,10 +16,34 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
   const [isPlaying, setIsPlaying] = useState(false);
   const [showConfirmRestart, setShowConfirmRestart] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+
+  const stopPlayback = () => {
+    // Stop ElevenLabs audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+    
+    // Stop Web Speech API
+    if (currentUtterance) {
+      window.speechSynthesis.cancel();
+      setCurrentUtterance(null);
+    }
+    
+    setIsPlaying(false);
+  };
 
   useEffect(() => {
     generateResume();
-  }, []);
+    
+    // Cleanup function to stop audio when component unmounts
+    return () => {
+      stopPlayback();
+    };
+  }, [currentAudio, currentUtterance]);
 
   const generateResume = async () => {
     setIsLoading(true);
@@ -52,11 +76,10 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
 
   const handleReadAloud = () => {
     if (isPlaying) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      setIsPlaying(false);
-    } else {
+      // Stop current playback
+      stopPlayback();
+    } else if (resume) {
+      // Start new playback
       playWithElevenLabs(resume);
     }
   };
@@ -81,13 +104,17 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       
+      setCurrentAudio(audio);
+      
       audio.onended = () => {
         setIsPlaying(false);
+        setCurrentAudio(null);
         URL.revokeObjectURL(audioUrl);
       };
       
       audio.onerror = () => {
         setIsPlaying(false);
+        setCurrentAudio(null);
         URL.revokeObjectURL(audioUrl);
         fallbackToWebSpeech(text);
       };
@@ -96,6 +123,7 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
     } catch (error) {
       console.error('ElevenLabs TTS failed:', error);
       setIsPlaying(false);
+      setCurrentAudio(null);
       fallbackToWebSpeech(text);
     }
   };
@@ -108,12 +136,16 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
       
+      setCurrentUtterance(utterance);
+      
       utterance.onend = () => {
         setIsPlaying(false);
+        setCurrentUtterance(null);
       };
       
       utterance.onerror = () => {
         setIsPlaying(false);
+        setCurrentUtterance(null);
       };
       
       window.speechSynthesis.speak(utterance);
