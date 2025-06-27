@@ -332,8 +332,9 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
 
       console.log('Generating speech for text:', text.substring(0, 100) + '...');
 
-      // Use ElevenLabs API
-      const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB', {
+      // Use ElevenLabs API with environment variable voice ID
+      const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
         headers: {
           'Accept': 'audio/mpeg',

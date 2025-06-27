@@ -142,33 +142,39 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex flex-col">
-      {/* Header */}
+    <div className="min-h-screen" style={{ background: '#bbbbbb' }}>
+      {/* Header - Fixed as requested */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="p-4 text-center border-b border-gray-300"
-        style={{ 
-          background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
+        className="sticky top-0 p-4 z-10"
+        style={{
+          background: '#404040',
+          boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
         }}
       >
-        <h1 className="text-4xl font-bold mb-2">Review Your Answers</h1>
-        <p className="text-lg text-gray-600">Make sure everything looks perfect</p>
-        
-        {/* Progress Bar */}
-        <div className="mt-4 max-w-md mx-auto">
-          <div className="w-full bg-gray-300 rounded-full h-2">
-            <div
-              className="h-2 rounded-full"
-              style={{
-                width: '85%',
-                background: 'linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1)'
-              }}
-            ></div>
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <button
+            onClick={onBack}
+            className="p-2 rounded-lg transition-all duration-200"
+            style={{
+              background: '#404040',
+              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#404040';
+            }}
+          >
+            <ArrowLeft size={20} className="text-white" />
+          </button>
+          <div className="flex-1 text-center">
+            <h1 className="text-xl font-bold text-white">
+              Recap
+            </h1>
           </div>
         </div>
       </motion.div>
@@ -305,8 +311,14 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             onClick={onNext}
             className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
             style={{
-              background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
+              background: '#3a3a3a',
               boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '8px 8px 16px #2e2e2e, -8px -8px 16px #464646, 0 0 20px rgba(147, 51, 234, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '8px 8px 16px #2e2e2e, -8px -8px 16px #464646';
             }}
           >
             Generate Alibi

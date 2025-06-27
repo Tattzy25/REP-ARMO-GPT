@@ -239,10 +239,8 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             <ChevronLeft size={24} />
           </button>
 
-          {/* Question Counter */}
-          <div className="text-white text-lg font-semibold">
-            {currentQuestion + 1} / {questions.length}
-          </div>
+          {/* Empty space for centering */}
+          <div></div>
 
           {/* Next Button */}
           <button
@@ -277,7 +275,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
                   key={index}
                   className={`w-3 h-3 rounded-full transition-colors duration-300 ${
                     index <= currentQuestion
-                      ? 'bg-gradient-to-r from-red-500 via-blue-500 to-orange-500'
+                      ? 'bg-purple-500'
                       : 'bg-gray-600'
                   }`}
                 />
