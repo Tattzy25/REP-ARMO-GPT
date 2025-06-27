@@ -29,7 +29,9 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
     <>
       <div 
         className={`fixed left-0 top-0 h-screen border-r border-armo-accent/20 flex flex-col z-10 overflow-hidden transition-all duration-300`}
-        style={{
+        style={isMobile ? {
+          background: '#2e2e2e'
+        } : {
           background: '#2e2e2e',
           width: isCollapsed ? '0px' : '320px',
           transform: isCollapsed ? 'translateX(-100%)' : 'translateX(0)'
