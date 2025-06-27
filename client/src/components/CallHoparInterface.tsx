@@ -36,6 +36,9 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   }, []);
 
   const checkCooldownStatus = () => {
+    // Temporarily disabled for testing - remove this comment to re-enable cooldown
+    return false;
+    
     const lastCallTime = localStorage.getItem('lastCallHoparTime');
     if (lastCallTime) {
       const timeDiff = Date.now() - parseInt(lastCallTime);
