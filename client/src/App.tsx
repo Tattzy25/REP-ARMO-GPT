@@ -125,6 +125,29 @@ function App() {
     setIsMobileSidebarOpen(false);
   };
 
+  const getPageTitle = () => {
+    switch (appState) {
+      case "lobby":
+        return "Armo-GPT";
+      case "chat":
+        if (currentVibe === "default") return "Armo-GPT";
+        if (currentVibe === "roast") return "Smoke & Roast";
+        if (currentVibe === "therapy") return "Therapy Session";
+        if (currentVibe === "famous") return "Make Me Famous";
+        if (currentVibe === "job") return "You Are Hired";
+        return "Armo-GPT";
+      case "call":
+        return "Call Hopar";
+      case "alibi-welcome":
+      case "alibi-questions":
+      case "alibi-recap":
+      case "alibi-result":
+        return "Gimmi Alibi Ara";
+      default:
+        return "Armo-GPT";
+    }
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -141,7 +164,7 @@ function App() {
               boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
             }}
           >
-            <div className="text-white font-bold text-lg">Armo-GPT</div>
+            <div className="text-white font-bold text-lg">{getPageTitle()}</div>
             <button
               onClick={handleSidebarToggle}
               className="absolute right-4 p-2 rounded-lg text-white"

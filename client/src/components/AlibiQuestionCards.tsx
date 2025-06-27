@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { QuestionBubble } from "./QuestionBubble";
 
 interface AlibiQuestionCardsProps {
@@ -134,8 +134,46 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
   const canProceed = validation.isValid;
 
   return (
-    <div className="min-h-screen flex flex-col items-center pt-8 p-4" style={{ background: "#3a3a3a" }}>
-      <div className="w-full max-w-4xl flex flex-col items-center">
+    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
+      {/* Desktop Header */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="desktop-header flex items-center justify-between border-b border-gray-600/20 backdrop-blur p-4"
+        style={{ 
+          background: '#3a3a3a',
+          boxShadow: '0 4px 8px #323232'
+        }}
+      >
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <button
+            onClick={onBack}
+            className="p-2 rounded-lg transition-all duration-200"
+            style={{
+              background: '#404040',
+              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#404040';
+            }}
+          >
+            <ArrowLeft size={20} className="text-white" />
+          </button>
+          <div className="flex-1 text-center">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent">
+              Gimmi Alibi Ara
+            </h1>
+            <p className="text-gray-300 text-sm">Question {currentQuestion + 1} of {questions.length}</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-4xl flex flex-col items-center">
         
         {/* Question Card */}
         <motion.div
@@ -346,6 +384,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
           </motion.div>
         </motion.div>
       )}
+      </div>
     </div>
   );
 }
