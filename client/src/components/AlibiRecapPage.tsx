@@ -151,13 +151,13 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="p-4 rounded-2xl text-center mt-[0px] mb-[0px] pt-[16px] pb-[16px] ml-[0px] mr-[0px]"
+            className="p-6 rounded-3xl text-center"
             style={{
               background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
             }}
           >
-            <h2 className="text-lg font-semibold text-white">Recap</h2>
+            <h2 className="text-2xl font-bold text-white">Recap</h2>
           </motion.div>
 
           {questions.map((question, index) => (
