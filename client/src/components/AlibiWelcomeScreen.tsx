@@ -8,7 +8,7 @@ interface AlibiWelcomeScreenProps {
 
 export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#bbbbbb" }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#3a3a3a" }}>
       <div className="w-full max-w-6xl flex items-center justify-between">
         {/* Back Button */}
         <button
