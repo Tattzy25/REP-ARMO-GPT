@@ -51,6 +51,10 @@ if (!fs.existsSync('uploads')) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Register persona management API routes
   app.use("/api", personaApiRouter);
+  
+  // Import and register social sharing routes
+  const socialPersonaRoutes = await import("./social-persona-routes");
+  app.use("/api/social", socialPersonaRoutes.default);
 
   // Seed endpoint for initial persona data
   app.post("/api/seed-personas", async (req: Request, res: Response) => {

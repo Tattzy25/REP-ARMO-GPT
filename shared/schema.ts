@@ -651,3 +651,179 @@ export type FeatureError = typeof featureErrors.$inferSelect;
 
 export type InsertComponentUsage = z.infer<typeof insertComponentUsageSchema>;
 export type ComponentUsage = typeof componentUsage.$inferSelect;
+
+// Social & Sharing Feature Tables
+export const alibiGallery = pgTable("alibi_gallery", {
+  id: serial("id").primaryKey(),
+  alibiGenerationId: integer("alibi_generation_id").references(() => alibiGenerations.id),
+  anonymizedContent: text("anonymized_content").notNull(), // Privacy-protected version
+  category: text("category").notNull(), // work, family, health, cultural, etc.
+  believabilityScore: real("believability_score").notNull(),
+  funnyScore: real("funny_score").default(0.0).notNull(), // Community rating
+  reactionCount: integer("reaction_count").default(0).notNull(),
+  shareCount: integer("share_count").default(0).notNull(),
+  isPublic: boolean("is_public").default(false).notNull(),
+  isFeatured: boolean("is_featured").default(false).notNull(),
+  moderationStatus: text("moderation_status").default('pending').notNull(), // pending, approved, rejected
+  tags: text("tags").array(), // Array of tags for searchability
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const alibiReactions = pgTable("alibi_reactions", {
+  id: serial("id").primaryKey(),
+  galleryItemId: integer("gallery_item_id").references(() => alibiGallery.id),
+  userId: integer("user_id").references(() => users.id),
+  reactionType: text("reaction_type").notNull(), // 😂, 😱, 🤯, 👏, 🔥, 💯
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const shareTemplates = pgTable("share_templates", {
+  id: text("id").primaryKey(), // share_twitter_highlight, share_instagram_story
+  platform: text("platform").notNull(), // twitter, instagram, facebook, tiktok
+  templateName: text("template_name").notNull(),
+  templateContent: text("template_content").notNull(), // Template with placeholders
+  placeholders: jsonb("placeholders").notNull(), // Array of placeholder definitions
+  isActive: boolean("is_active").default(true).notNull(),
+  usageCount: integer("usage_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const socialShares = pgTable("social_shares", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  alibiGenerationId: integer("alibi_generation_id").references(() => alibiGenerations.id),
+  shareTemplateId: text("share_template_id").references(() => shareTemplates.id),
+  platform: text("platform").notNull(),
+  shareContent: text("share_content").notNull(), // Final formatted content
+  shareUrl: text("share_url"), // If platform provides URL
+  isSuccessful: boolean("is_successful").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Advanced Persona Learning Tables
+export const userPersonaProfiles = pgTable("user_persona_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).unique(),
+  humorStylePreference: text("humor_style_preference").default('balanced').notNull(), // savage, edgy, balanced, polite
+  topicPreferences: jsonb("topic_preferences").default('[]').notNull(), // Array of preferred topics
+  languageMixRatio: real("language_mix_ratio").default(0.5).notNull(), // 0-1, Armenian to English ratio
+  complexityLevel: integer("complexity_level").default(3).notNull(), // 1-5, alibi sophistication
+  responsePattern: text("response_pattern").default('detailed').notNull(), // detailed, concise, creative
+  timeOfDayPreferences: jsonb("time_of_day_preferences").default('{}').notNull(), // Object with time-based preferences
+  frequencyPattern: text("frequency_pattern").default('occasional').notNull(), // frequent, occasional, rare
+  recentTopics: jsonb("recent_topics").default('[]').notNull(), // Array of recent topics to avoid repetition
+  adaptationScore: real("adaptation_score").default(0.0).notNull(), // How well we understand this user
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+export const contextualFactors = pgTable("contextual_factors", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  timeOfDay: text("time_of_day").notNull(), // morning, afternoon, evening, late_night
+  dayOfWeek: text("day_of_week").notNull(), // monday, tuesday, etc.
+  seasonalContext: text("seasonal_context"), // holiday_season, summer, etc.
+  userMoodContext: text("user_mood_context"), // stressed, relaxed, playful, serious
+  usageFrequency: text("usage_frequency").notNull(), // daily, weekly, monthly, first_time
+  deviceType: text("device_type").notNull(), // mobile, desktop, tablet
+  locationContext: text("location_context"), // home, work, public, travel
+  socialContext: text("social_context"), // alone, with_friends, family_present
+  urgencyLevel: text("urgency_level").default('normal').notNull(), // low, normal, high, emergency
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const adaptiveLearning = pgTable("adaptive_learning", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  learningType: text("learning_type").notNull(), // humor_style, complexity, timing, topics
+  previousValue: text("previous_value").notNull(), // What it was before
+  newValue: text("new_value").notNull(), // What it changed to
+  triggerEvent: text("trigger_event").notNull(), // user_feedback, pattern_detection, performance_data
+  confidenceScore: real("confidence_score").notNull(), // 0-1, how confident we are in this adaptation
+  impactScore: real("impact_score"), // Measured improvement after change
+  adaptationReason: text("adaptation_reason").notNull(), // Why this change was made
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const crossSessionMemory = pgTable("cross_session_memory", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  memoryType: text("memory_type").notNull(), // preference, pattern, success_factor, failure_point
+  memoryKey: text("memory_key").notNull(), // Specific identifier for this memory
+  memoryValue: jsonb("memory_value").notNull(), // The actual data
+  contextTags: text("context_tags").array(), // Situational context for this memory
+  reinforcementCount: integer("reinforcement_count").default(1).notNull(), // How many times this has been reinforced
+  lastReinforced: timestamp("last_reinforced").defaultNow().notNull(),
+  decayScore: real("decay_score").default(1.0).notNull(), // 1.0 = fresh, approaches 0 as it gets stale
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Insert schemas for Social & Sharing tables
+export const insertAlibiGallerySchema = createInsertSchema(alibiGallery).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAlibiReactionSchema = createInsertSchema(alibiReactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertShareTemplateSchema = createInsertSchema(shareTemplates).omit({
+  createdAt: true,
+});
+
+export const insertSocialShareSchema = createInsertSchema(socialShares).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Insert schemas for Advanced Persona Learning tables
+export const insertUserPersonaProfileSchema = createInsertSchema(userPersonaProfiles).omit({
+  id: true,
+  lastUpdated: true,
+});
+
+export const insertContextualFactorSchema = createInsertSchema(contextualFactors).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAdaptiveLearningSchema = createInsertSchema(adaptiveLearning).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCrossSessionMemorySchema = createInsertSchema(crossSessionMemory).omit({
+  id: true,
+  lastReinforced: true,
+  createdAt: true,
+});
+
+// Types for Social & Sharing tables
+export type InsertAlibiGallery = z.infer<typeof insertAlibiGallerySchema>;
+export type AlibiGallery = typeof alibiGallery.$inferSelect;
+
+export type InsertAlibiReaction = z.infer<typeof insertAlibiReactionSchema>;
+export type AlibiReaction = typeof alibiReactions.$inferSelect;
+
+export type InsertShareTemplate = z.infer<typeof insertShareTemplateSchema>;
+export type ShareTemplate = typeof shareTemplates.$inferSelect;
+
+export type InsertSocialShare = z.infer<typeof insertSocialShareSchema>;
+export type SocialShare = typeof socialShares.$inferSelect;
+
+// Types for Advanced Persona Learning tables
+export type InsertUserPersonaProfile = z.infer<typeof insertUserPersonaProfileSchema>;
+export type UserPersonaProfile = typeof userPersonaProfiles.$inferSelect;
+
+export type InsertContextualFactor = z.infer<typeof insertContextualFactorSchema>;
+export type ContextualFactor = typeof contextualFactors.$inferSelect;
+
+export type InsertAdaptiveLearning = z.infer<typeof insertAdaptiveLearningSchema>;
+export type AdaptiveLearning = typeof adaptiveLearning.$inferSelect;
+
+export type InsertCrossSessionMemory = z.infer<typeof insertCrossSessionMemorySchema>;
+export type CrossSessionMemory = typeof crossSessionMemory.$inferSelect;
