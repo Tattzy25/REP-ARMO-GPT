@@ -331,8 +331,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             transition={{ duration: 0.6, delay: 0.2 }}
             className="max-w-2xl w-full rounded-2xl p-8 text-center"
             style={{
-              background: '#3a3a3a',
-              boxShadow: '20px 20px 40px #323232, -20px -20px 40px #484848'
+              background: '#2e2e2e'
             }}
           >
             {/* Hopar Avatar/Icon */}
@@ -373,8 +372,8 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
               onClick={handleContinueFromJoke}
               className="mt-6 px-6 py-3 rounded-xl text-white font-medium transition-all duration-200 hover:scale-105"
               style={{
-                background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8844)',
-                boxShadow: '6px 6px 12px #323232, -6px -6px 12px #484848'
+                background: '#2e2e2e',
+                boxShadow: 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737'
               }}
             >
               Continue
