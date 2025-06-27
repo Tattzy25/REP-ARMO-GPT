@@ -201,12 +201,6 @@ The application features multiple AI personality modes:
 - June 27, 2025. COMPLETE: Removed all fallback functionality from alibi and resume features as requested
 - June 27, 2025. COMPLETE: Added styled error popups matching app aesthetics for voice synthesis failures
 - June 27, 2025. COMPLETE: Error popups use neumorphic styling with red accent borders and 4-second auto-dismiss
-- June 27, 2025. COMPLETE: Implemented production-ready "Make Me Famous Ara" feature with real AI integration
-- June 27, 2025. COMPLETE: Fixed vibe-persona mapping to use Level 1 persona with Level 1 profanity restrictions as requested
-- June 27, 2025. COMPLETE: Added comprehensive user behavior tracking with all 18 database tables integration
-- June 27, 2025. COMPLETE: Removed duplicate headers and added floating action buttons for navigation
-- June 27, 2025. COMPLETE: All action buttons functional: copy, share, download, expand, voice synthesis
-- June 27, 2025. COMPLETE: Sessions save to recent chats as "make-me-famous" vibe for return access
 
 ## Production Implementation Summary
 
@@ -237,45 +231,6 @@ The application features multiple AI personality modes:
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-
-## CRITICAL COLOR SYSTEM REQUIREMENTS
-
-⚠️ **MANDATORY COLOR STANDARDS FOR ALL AI AGENTS** ⚠️
-
-**ONLY USE THESE EXACT COLORS - NO EXCEPTIONS:**
-
-### Core Background Colors:
-- **Sidebar Background**: #2e2e2e (dark sidebar only)
-- **Main Content Background**: #3a3a3a (all content areas)
-- **Card Background**: #3a3a3a (all cards, buttons, elements)
-
-### Neumorphic Shadows (Dark Theme):
-- **Dark Shadow**: #272727 (darker shadow)
-- **Light Shadow**: #464646 (lighter shadow)
-- **Card Shadow**: `12px 12px 24px #272727, -12px -12px 24px #464646`
-- **Button Shadow**: `8px 8px 16px #272727, -8px -8px 16px #464646`
-
-### Text Colors:
-- **Primary Text**: #ffffff (white)
-- **Secondary Text**: #d1d5db (gray-300)
-- **Muted Text**: #9ca3af (gray-400)
-
-### Accent Colors:
-- **Red Accent**: #ff6b6b
-- **Blue Accent**: #4ecdc4
-- **Orange Accent**: #45b7d7
-- **Header Gradient**: `linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)` (for text only)
-
-### Button Standards:
-- **Regular Buttons**: Use dark neumorphic style (#3a3a3a background with shadows)
-- **Generate Buttons**: Use animated sparkle button with rotating border, purple hover effects, and sparkle animations
-- **Primary Action Buttons**: Use animated sparkle button design (AnimatedGenerateButton component)
-- **Action Buttons**: Use dark neumorphic style for secondary actions
-
-### FORBIDDEN COLORS:
-- **NEVER USE**: #bbbbbb, #9f9f9f, #d7d7d7 (old gray system)
-- **NEVER USE**: #2e2e2e for anything except sidebar background
-- **NEVER USE**: Gradient backgrounds on buttons
-- **NEVER USE**: Any color not listed above
-
-**Reference File**: `/client/src/styles/colors.ts` contains the official color system.
+Color scheme preference: Gray backgrounds (#bbbbbb) with neumorphic shadows (#9f9f9f, #d7d7d7).
+Main content styling: Red-blue-orange gradients for headers and cards.
+Sidebar styling: Dark theme (#2e2e2e background, #272727/#353535 shadows).

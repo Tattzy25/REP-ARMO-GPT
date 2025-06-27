@@ -134,9 +134,44 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
   const canProceed = validation.isValid;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
+    <div className="min-h-screen flex flex-col mobile-content-padding" style={{ background: "#3a3a3a" }}>
+      {/* Desktop Header */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="desktop-header flex items-center justify-between border-b border-gray-600/20 backdrop-blur p-3"
+        style={{ 
+          background: '#3a3a3a',
+          boxShadow: '0 4px 8px #323232'
+        }}
+      >
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <button
+            onClick={onBack}
+            className="p-2 rounded-lg transition-all duration-200"
+            style={{
+              background: '#404040',
+              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#404040';
+            }}
+          >
+            <ArrowLeft size={20} className="text-white" />
+          </button>
+          <div className="flex-1 text-center">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent">
+              Gimmi Alibi Ara
+            </h1>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-2 pt-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-2 pt-4">
         <div className="w-full max-w-4xl flex flex-col items-center">
           {/* Question Card */}
         <motion.div
@@ -197,7 +232,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
         </motion.div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-center gap-8 w-full max-w-2xl mb-8">
+        <div className="flex items-center justify-between w-full max-w-2xl mb-8">
           {/* Previous Button */}
           <button
             onClick={handlePrevious}
@@ -210,7 +245,10 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             <ChevronLeft size={24} />
           </button>
 
-
+          {/* Question Counter */}
+          <div className="text-white text-lg font-semibold">
+            {currentQuestion + 1} / {questions.length}
+          </div>
 
           {/* Next Button */}
           <button
@@ -293,7 +331,8 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
             transition={{ duration: 0.6, delay: 0.2 }}
             className="max-w-2xl w-full rounded-2xl p-8 text-center"
             style={{
-              background: 'black'
+              background: '#3a3a3a',
+              boxShadow: '20px 20px 40px #323232, -20px -20px 40px #484848'
             }}
           >
             {/* Hopar Avatar/Icon */}

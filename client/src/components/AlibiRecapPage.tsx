@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause } from 'lucide-react';
-import { COMMON_STYLES, NEUMORPHIC_SHADOWS, ARMO_COLORS } from '../styles/colors';
-import { AnimatedGenerateButton } from './AnimatedGenerateButton';
 
 interface AlibiRecapPageProps {
   questions: string[];
@@ -144,22 +142,34 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
+    <div className="min-h-screen bg-gray-200 flex flex-col">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="p-6 flex justify-center"
+        className="p-4 text-center border-b border-gray-300"
+        style={{ 
+          background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}
       >
-        <div 
-          className="px-8 py-4 rounded-2xl"
-          style={{
-            background: '#3a3a3a',
-            boxShadow: '12px 12px 24px #272727, -12px -12px 24px #464646'
-          }}
-        >
-          <h1 className="text-2xl font-bold text-white">Recap</h1>
+        <h1 className="text-4xl font-bold mb-2">Review Your Answers</h1>
+        <p className="text-lg text-gray-600">Make sure everything looks perfect</p>
+        
+        {/* Progress Bar */}
+        <div className="mt-4 max-w-md mx-auto">
+          <div className="w-full bg-gray-300 rounded-full h-2">
+            <div
+              className="h-2 rounded-full"
+              style={{
+                width: '85%',
+                background: 'linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1)'
+              }}
+            ></div>
+          </div>
         </div>
       </motion.div>
 
@@ -173,17 +183,20 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="p-6 rounded-3xl"
-              style={COMMON_STYLES.CARD}
+              style={{
+                background: '#bbbbbb',
+                boxShadow: '12px 12px 24px #9f9f9f, -12px -12px 24px #d7d7d7'
+              }}
             >
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
                   Question {index + 1}
                 </h3>
-                <p className="text-gray-300">{question}</p>
+                <p className="text-gray-700">{question}</p>
               </div>
               
               <div>
-                <h4 className="text-md font-medium text-white mb-2">Your Answer:</h4>
+                <h4 className="text-md font-medium text-gray-800 mb-2">Your Answer:</h4>
                 {editingIndex === index ? (
                   <div className="space-y-3">
                     <textarea
@@ -209,7 +222,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
                   </div>
                 ) : (
                   <div className="flex items-start justify-between">
-                    <p className="text-gray-300 flex-1">{answers[index]}</p>
+                    <p className="text-gray-700 flex-1">{answers[index]}</p>
                     <button
                       onClick={() => handleEditClick(index)}
                       className="ml-4 px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -235,7 +248,10 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           <button
             onClick={handleDownload}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={COMMON_STYLES.BUTTON}
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+            }}
             title="Download Recap"
           >
             <Download size={24} />
@@ -244,7 +260,10 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           <button
             onClick={handleCopy}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={COMMON_STYLES.BUTTON}
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+            }}
             title="Copy to Clipboard"
           >
             <Copy size={24} />
@@ -253,7 +272,10 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           <button
             onClick={handleReadAloud}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={COMMON_STYLES.BUTTON}
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+            }}
             title={isPlaying ? "Pause" : "Read Aloud"}
           >
             {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
@@ -267,22 +289,29 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             transition={{ duration: 0.5, delay: 0.8 }}
             onClick={onBack}
             className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
-            style={COMMON_STYLES.BUTTON}
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+            }}
           >
             <ArrowLeft size={20} />
             Back
           </motion.button>
 
-          <motion.div
+          <motion.button
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
+            onClick={onNext}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
+            style={{
+              background: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+            }}
           >
-            <AnimatedGenerateButton onClick={onNext} className="flex items-center gap-2">
-              Generate Alibi
-              <ArrowRight size={20} />
-            </AnimatedGenerateButton>
-          </motion.div>
+            Generate Alibi
+            <ArrowRight size={20} />
+          </motion.button>
         </div>
       </motion.div>
 

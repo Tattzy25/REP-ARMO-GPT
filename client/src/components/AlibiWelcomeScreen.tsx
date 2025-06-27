@@ -8,7 +8,7 @@ interface AlibiWelcomeScreenProps {
 export function AlibiWelcomeScreen({ onStart }: AlibiWelcomeScreenProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 mobile-content-padding" style={{ background: "#3a3a3a" }}>
-      <div className="w-full max-w-6xl flex flex-col items-center justify-center gap-8">
+      <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center justify-center gap-8">
         {/* Main Content Card */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -51,7 +51,7 @@ export function AlibiWelcomeScreen({ onStart }: AlibiWelcomeScreenProps) {
         </motion.div>
 
         {/* Animated Start Button */}
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-8 lg:mt-0">
           <AnimatedButton onClick={onStart} />
         </div>
       </div>
