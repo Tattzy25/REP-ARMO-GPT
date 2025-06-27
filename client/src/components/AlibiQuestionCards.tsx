@@ -22,9 +22,27 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
   const questions = getPersonalizedQuestions(username);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<string[]>(new Array(questions.length).fill(""));
+  const [showJokePopup, setShowJokePopup] = useState(false);
+  const [jokeContent, setJokeContent] = useState("");
 
   const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
+    // Check if we should show a joke popup
+    if (currentQuestion === 2 || currentQuestion === 5) { // After questions 3 and 6
+      const joke = generateJoke(currentQuestion, answers);
+      setJokeContent(joke);
+      setShowJokePopup(true);
+      
+      // Auto-hide popup after 4 seconds
+      setTimeout(() => {
+        setShowJokePopup(false);
+        // Continue to next question or complete
+        if (currentQuestion < questions.length - 1) {
+          setCurrentQuestion(currentQuestion + 1);
+        } else {
+          onComplete(answers);
+        }
+      }, 4000);
+    } else if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       // All questions answered, proceed to completion
@@ -58,6 +76,35 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
       needsMoreChars: charCount < 15,
       needsMoreWords: wordCount < 3
     };
+  };
+
+  const generateJoke = (questionIndex: number, userAnswers: string[]) => {
+    if (questionIndex === 2) { // After question 3 (0-indexed)
+      const mess = userAnswers[0] || "something mysterious";
+      const investigator = userAnswers[1] || "someone scary";
+      const partner = userAnswers[2] || "their imaginary friend";
+      
+      const jokes = [
+        `So let me get this straight, ${username}... you're in trouble for "${mess}" and "${investigator}" is hunting you down? Good thing "${partner}" has your back - nothing says "trustworthy alibi" like that combo! 😏`,
+        `Ah yes, "${mess}" - truly the crime of the century! And with "${investigator}" breathing down your neck, you called in "${partner}" as your alibi? This is either genius or completely unhinged, ${username}! 🤔`,
+        `"${mess}" eh? Classic ${username} move! And now "${investigator}" is onto you, so you're banking on "${partner}" to save the day? This alibi is already legendary! 🎭`
+      ];
+      
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    } else if (questionIndex === 5) { // After question 6 (0-indexed)
+      const excuse = userAnswers[3] || "a totally believable story";
+      const location = userAnswers[4] || "somewhere definitely innocent";
+      const evidence = userAnswers[5] || "rock-solid proof";
+      
+      const jokes = [
+        `Wait, wait, wait... your excuse is "${excuse}" and you were at "${location}" with "${evidence}" as proof? ${username}, this alibi is so wild even I'm starting to believe it! 🤯`,
+        `Let me paint this picture: "${excuse}" happened while you were at "${location}" and your evidence is "${evidence}"... ${username}, you're either a criminal mastermind or completely insane! 🎨`,
+        `So your grand finale is "${excuse}" at "${location}" backed by "${evidence}"? ${username}, Hopar is both impressed and terrified by your creativity! 🎪`
+      ];
+      
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+    return "";
   };
 
   const currentAnswer = answers[currentQuestion];
@@ -210,6 +257,67 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
           </motion.button>
         )}
       </div>
+
+      {/* Animated Joke Popup */}
+      {showJokePopup && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: -50 }}
+          transition={{ duration: 0.5, ease: "easeOutBack" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0, 0, 0, 0.8)" }}
+        >
+          <motion.div
+            initial={{ rotateX: -90 }}
+            animate={{ rotateX: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-2xl w-full rounded-2xl p-8 text-center"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '20px 20px 40px #323232, -20px -20px 40px #484848'
+            }}
+          >
+            {/* Hopar Avatar/Icon */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              className="mb-6 text-6xl"
+            >
+              🎭
+            </motion.div>
+
+            {/* Joke Content */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+              className="text-white text-lg font-medium leading-relaxed mb-6"
+            >
+              {jokeContent}
+            </motion.p>
+
+            {/* Hopar Signature */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 1.2 }}
+              className="text-orange-400 font-bold text-sm"
+            >
+              - Armo Hopar
+            </motion.div>
+            
+            {/* Auto-close indicator */}
+            <motion.div
+              initial={{ width: "100%" }}
+              animate={{ width: "0%" }}
+              transition={{ duration: 4, ease: "linear" }}
+              className="mt-4 h-1 bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 rounded-full"
+            />
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
