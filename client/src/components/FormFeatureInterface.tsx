@@ -1,419 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Download, Share, User, Maximize2, Copy } from 'lucide-react';
-
-// Question configurations for each feature
-const FEATURE_QUESTIONS = {
-  alibi: [
-    {
-      id: 'mess',
-      question: 'What mess are you trying to cover up?',
-      placeholder: 'e.g. ghosting my rent payment, ditching work for a concert'
-    },
-    {
-      id: 'watcher',
-      question: "Who's breathing down your neck?",
-      placeholder: 'e.g. my landlord with a wrench, angry Karen at HR'
-    },
-    {
-      id: 'partner',
-      question: 'Which ride-or-die partner backs your alibi?',
-      placeholder: 'e.g. my cousin Vinny, my imaginary shark trainer'
-    },
-    {
-      id: 'excuse',
-      question: 'What "totally legit" excuse are you selling?',
-      placeholder: 'e.g. testing a jetpack prototype, judging a snail race'
-    },
-    {
-      id: 'location',
-      question: 'Where were you "definitely not" when the chaos went down?',
-      placeholder: 'e.g. deep-dive in Area 51, chilling at that Vegas penthouse'
-    },
-    {
-      id: 'evidence',
-      question: 'What "bulletproof" evidence seals the deal?',
-      placeholder: 'e.g. timestamped llama selfie, signed witness statement from a squirrel'
-    }
-  ],
-  famous: [
-    {
-      id: 'talent',
-      question: 'What jaw-dropping talent are you unleashing?',
-      placeholder: 'e.g. belting opera mid-backflip, painting portraits blindfolded'
-    },
-    {
-      id: 'badge',
-      question: 'What fame badge are you chasing?',
-      placeholder: 'e.g. viral TikTok dance, moon-discovered pink comet, world\'s best pizza'
-    },
-    {
-      id: 'bigshot',
-      question: "Who's the big-shot you gotta impress?",
-      placeholder: 'e.g. Beyoncé, The Rock, Tony Stark'
-    },
-    {
-      id: 'stunt',
-      question: 'Which insane stunt will break the internet?',
-      placeholder: 'e.g. skydiving into the Super Bowl, eating 100 hot dogs live'
-    },
-    {
-      id: 'line',
-      question: "What line won't you cross, even for clout?",
-      placeholder: 'e.g. posing naked with jellyfish, selling your best friend'
-    },
-    {
-      id: 'stagename',
-      question: 'Your legendary stage name?',
-      placeholder: 'e.g. DJ Thunderbolt, The Chocolate Queen, Captain Quirk'
-    },
-    {
-      id: 'catchphrase',
-      question: 'Your power catchphrase or hashtag?',
-      placeholder: 'e.g. #YOLOChamp, I came, I sang, I slayed, Stay weird!'
-    }
-  ],
-  hired: [
-    {
-      id: 'skill',
-      question: 'What kick-ass skill makes you tick?',
-      placeholder: 'e.g. demolishing pizza slices, owning Mario Kart, color-coding chaos'
-    },
-    {
-      id: 'soulsucker',
-      question: 'What soul-sucking task would make you nope right out?',
-      placeholder: 'e.g. dawn-alarm calls, wrestling spiders, wearing neckties'
-    },
-    {
-      id: 'title',
-      question: 'If you could pick any ridiculous title, what would it be?',
-      placeholder: 'e.g. Supreme Taco Taster, Meme Overlord, Chief Unicorn Wrangler'
-    },
-    {
-      id: 'hq',
-      question: "Where's your dream HQ?",
-      placeholder: 'e.g. hammock on a private beach, Mars colony lobby, Willy Wonka\'s chocolate room'
-    },
-    {
-      id: 'boss',
-      question: "Who's the boss or sidekick you'd actually survive with?",
-      placeholder: 'e.g. Batman, Elon Musk, my grandma (she\'s tough)'
-    },
-    {
-      id: 'perk',
-      question: 'What perk would make you swoon every morning?',
-      placeholder: 'e.g. endless free tacos, daily nap pods, company jet for pet goldfish'
-    }
-  ]
-};
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, RotateCcw, Download, Share, Copy } from 'lucide-react';
 
 interface FormFeatureInterfaceProps {
   featureId: 'alibi' | 'famous' | 'hired';
   onBack: () => void;
 }
 
-interface AnimatedStartButtonProps {
-  onClick: () => void;
-  children: string;
-}
-
-// Animated Start Button Component
-function AnimatedStartButton({ onClick, children }: AnimatedStartButtonProps) {
-  return (
-    <div className="flex justify-center items-center">
-      <button 
-        className="animated-start-button relative cursor-pointer border-none flex items-center justify-center 
-                   transition-all duration-300 min-w-[200px] p-5 h-[68px] 
-                   font-semibold text-lg text-white rounded-[14px]
-                   bg-[#2e2e2e] hover:scale-105 focus:scale-100
-                   shadow-[0_0.5px_0.5px_1px_rgba(0,0,0,0.2),0_10px_20px_rgba(0,0,0,0.2),0_4px_5px_0px_rgba(0,0,0,0.05)]
-                   hover:shadow-[0_0_1px_2px_rgba(255,255,255,0.3),0_15px_30px_rgba(0,0,0,0.3),0_10px_3px_-3px_rgba(0,0,0,0.04)]"
-        onClick={onClick}
-      >
-        <span className="relative z-10 flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="1em" width="1em" className="opacity-80">
-            <path fill="currentColor" d="M14.2199 21.63C13.0399 21.63 11.3699 20.8 10.0499 16.83L9.32988 14.67L7.16988 13.95C3.20988 12.63 2.37988 10.96 2.37988 9.78001C2.37988 8.61001 3.20988 6.93001 7.16988 5.60001L15.6599 2.77001C17.7799 2.06001 19.5499 2.27001 20.6399 3.35001C21.7299 4.43001 21.9399 6.21001 21.2299 8.33001L18.3999 16.82C17.0699 20.8 15.3999 21.63 14.2199 21.63Z" />
-          </svg>
-          {children}
-        </span>
-      </button>
-    </div>
-  );
-}
-
-export default function FormFeatureInterface({ featureId, onBack }: FormFeatureInterfaceProps) {
-  const [currentStep, setCurrentStep] = useState(0); // 0 = intro, 1-n = questions, n+1 = results
+export function FormFeatureInterface({ featureId, onBack }: FormFeatureInterfaceProps) {
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<any>(null);
-  
-  const questions = FEATURE_QUESTIONS[featureId];
-  const totalSteps = questions.length + 2; // intro + questions + results
-  
-  const featureTitles = {
-    alibi: 'Give Me an Alibi Ara',
-    famous: 'Make Me Famous Ara',
-    hired: 'You Are Hired Ara'
+
+  const features = {
+    alibi: {
+      title: "Give Me an Alibi Ara",
+      welcomeText: "You've summoned Armo Hopar's Alibi Maker.\nTime to cook up a cover story so wild\neven your landlord will believe it.\nReady? Hit \"Let's Roll.\"",
+      buttonText: "Let's Roll",
+      questions: [
+        { id: 'mess', label: 'What mess do you need to cover up?', placeholder: 'I accidentally...' },
+        { id: 'watcher', label: 'Who\'s watching/questioning you?', placeholder: 'My boss, my partner...' },
+        { id: 'partner', label: 'Who\'s your ride-or-die that can back you up?', placeholder: 'My best friend...' },
+        { id: 'excuse', label: 'What\'s your "totally legit" excuse?', placeholder: 'I was helping my grandma...' },
+        { id: 'location', label: 'Where were you "definitely not"?', placeholder: 'Definitely not at the casino...' },
+        { id: 'evidence', label: 'What\'s your bulletproof evidence?', placeholder: 'I have receipts, photos...' }
+      ]
+    },
+    famous: {
+      title: "Make Me Famous Ara",
+      welcomeText: "Welcome to Armo Hopar's Fame Factory.\nTime to turn your wild dreams into\nviral reality that breaks the internet.\nReady to blow up? Hit \"Make It Viral.\"",
+      buttonText: "Make It Viral",
+      questions: [
+        { id: 'talent', label: 'What\'s your secret talent?', placeholder: 'I can sing, dance, cook...' },
+        { id: 'badge', label: 'What kind of fame do you want?', placeholder: 'Viral TikTok star, Instagram influencer...' },
+        { id: 'bigshot', label: 'Which celebrity do you want to impress?', placeholder: 'The Rock, Taylor Swift...' },
+        { id: 'stunt', label: 'What\'s your internet-breaking stunt?', placeholder: 'Singing while skydiving...' },
+        { id: 'line', label: 'What line won\'t you cross for fame?', placeholder: 'Never embarrass my family...' },
+        { id: 'stagename', label: 'What\'s your stage name?', placeholder: 'DJ Awesome, The Real Deal...' },
+        { id: 'catchphrase', label: 'What\'s your catchphrase/hashtag?', placeholder: '#BossMode, "Let\'s get it"...' }
+      ]
+    },
+    hired: {
+      title: "You Are Hired Ara",
+      welcomeText: "Step into Armo Hopar's Career Command Center.\nTime to craft the resume that makes\nemployers fight over you like Black Friday.\nReady to get hired? Hit \"Build My Empire.\"",
+      buttonText: "Build My Empire",
+      questions: [
+        { id: 'skill', label: 'What skill makes you unstoppable?', placeholder: 'Problem solving, creativity...' },
+        { id: 'soulsucker', label: 'What task kills your soul?', placeholder: 'Paperwork, meetings...' },
+        { id: 'title', label: 'What\'s your dream job title?', placeholder: 'Chief Fun Officer, Dragon Slayer...' },
+        { id: 'hq', label: 'Where\'s your dream office?', placeholder: 'Beach house, space station...' },
+        { id: 'boss', label: 'Who\'s your ideal boss/teammate?', placeholder: 'Someone who gets it...' },
+        { id: 'perk', label: 'What perk would seal the deal?', placeholder: 'Unlimited coffee, pet-friendly...' }
+      ]
+    }
   };
 
-  const featureColors = {
-    alibi: 'from-red-500 to-blue-500',
-    famous: 'from-pink-500 to-purple-500',
-    hired: 'from-blue-500 to-green-500'
+  const currentFeature = features[featureId];
+  const totalSteps = currentFeature.questions.length;
+
+  // Handle starting the form from welcome screen
+  const handleStart = () => {
+    setShowWelcome(false);
   };
 
-  // Introduction screen
-  if (currentStep === 0) {
-    return (
-      <div className="min-h-screen bg-[#bbbbbb] flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full">
-          {/* Back button */}
-          <button
-            onClick={onBack}
-            className="mb-8 p-3 rounded-full bg-[#2e2e2e] text-white hover:bg-[#3a3a3a] 
-                       transition-colors shadow-[0_4px_8px_rgba(0,0,0,0.3)]"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
+  // Handle form navigation
+  const handleNext = () => {
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      handleGenerateResults();
+    }
+  };
 
-          {/* Feature title */}
-          <div className="text-center mb-12">
-            <h1 className={`text-4xl font-bold bg-gradient-to-r ${featureColors[featureId]} bg-clip-text text-transparent mb-4`}>
-              {featureTitles[featureId]}
-            </h1>
-          </div>
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    } else {
+      setShowWelcome(true);
+    }
+  };
 
-          {/* Introduction card */}
-          <div className="bg-[#3a3a3a] rounded-3xl p-8 mb-8 text-center text-white
-                         shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]">
-            <p className="text-lg leading-relaxed mb-6">
-              This screen would be the introduction screen, the very first screen we would 
-              briefly explain how this is going to work. The user has the option to either 
-              click back and leave or click start and continue.
-            </p>
-            <div className="text-sm opacity-80">
-              {featureId === 'alibi' && "I'll help you craft the perfect alibi story with savage edge and attitude."}
-              {featureId === 'famous' && "I'll create viral captions and hashtags to make you Instagram famous."}
-              {featureId === 'hired' && "I'll build you a killer resume that gets you hired with edgy humor."}
-            </div>
-          </div>
-
-          {/* Start button */}
-          <AnimatedStartButton onClick={() => setCurrentStep(1)}>
-            Start Adventure
-          </AnimatedStartButton>
-        </div>
-      </div>
-    );
-  }
-
-  // Questions screen
-  if (currentStep >= 1 && currentStep <= questions.length) {
-    const questionIndex = currentStep - 1;
-    const question = questions[questionIndex];
-    const progress = (currentStep / totalSteps) * 100;
-
-    return (
-      <div className="min-h-screen bg-[#bbbbbb] flex items-center justify-center p-4">
-        <div className="max-w-4xl w-full">
-          {/* Navigation arrows */}
-          <div className="flex justify-between items-center mb-8">
-            <button
-              onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-              className="p-4 rounded-full bg-[#2e2e2e] text-white hover:bg-[#3a3a3a] 
-                         transition-colors shadow-[0_4px_8px_rgba(0,0,0,0.3)]"
-            >
-              <ChevronLeft className="w-8 h-8" />
-            </button>
-
-            <button
-              onClick={() => {
-                if (currentStep < questions.length) {
-                  setCurrentStep(currentStep + 1);
-                } else {
-                  // Generate results
-                  handleGenerateResults();
-                }
-              }}
-              disabled={!answers[question.id]?.trim()}
-              className="p-4 rounded-full bg-[#2e2e2e] text-white hover:bg-[#3a3a3a] 
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         transition-colors shadow-[0_4px_8px_rgba(0,0,0,0.3)]"
-            >
-              <ChevronRight className="w-8 h-8" />
-            </button>
-          </div>
-
-          {/* Question card */}
-          <div className="bg-[#3a3a3a] rounded-3xl p-8 mb-8 text-center
-                         shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]">
-            {/* Question bubble */}
-            <div className="bg-[#2e2e2e] rounded-2xl p-6 mb-6 text-white">
-              <h2 className="text-xl font-semibold mb-2">
-                {question.question}
-              </h2>
-            </div>
-
-            {/* Answer input */}
-            <div className="bg-[#4a4a4a] rounded-2xl p-4 mb-4">
-              <textarea
-                value={answers[question.id] || ''}
-                onChange={(e) => setAnswers(prev => ({ ...prev, [question.id]: e.target.value }))}
-                placeholder={question.placeholder}
-                className="w-full bg-transparent text-white placeholder-gray-400 resize-none h-24 
-                          border-none outline-none text-lg"
-                autoFocus
-              />
-            </div>
-
-            {/* Edit note */}
-            <p className="text-sm text-gray-300">
-              In this area, we would have the questions and user answers. With available edit 
-              options if the user wants to change an answer they wouldn't need to go back.
-            </p>
-          </div>
-
-          {/* Progress bar */}
-          <div className="bg-[#2e2e2e] rounded-full h-3 mb-4 shadow-inner">
-            <div 
-              className={`h-full rounded-full bg-gradient-to-r ${featureColors[featureId]} transition-all duration-300`}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          <div className="text-center text-sm text-gray-600">
-            Question {currentStep} of {questions.length}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Results screen
-  return (
-    <div className="min-h-screen bg-[#bbbbbb] flex items-center justify-center p-4">
-      <div className="max-w-6xl w-full">
-        {/* Back button */}
-        <button
-          onClick={() => setCurrentStep(currentStep - 1)}
-          className="mb-8 p-3 rounded-full bg-[#2e2e2e] text-white hover:bg-[#3a3a3a] 
-                     transition-colors shadow-[0_4px_8px_rgba(0,0,0,0.3)]"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-
-        {/* Results header */}
-        <div className="text-center mb-8">
-          <h1 className={`text-3xl font-bold bg-gradient-to-r ${featureColors[featureId]} bg-clip-text text-transparent`}>
-            {featureId === 'alibi' && 'Hopar Got You - Here is Your Alibi'}
-            {featureId === 'famous' && 'Hopar Gonna Make You Famous AF'}
-            {featureId === 'hired' && 'You Are Hired - Here is Your Resume'}
-          </h1>
-        </div>
-
-        {featureId === 'famous' ? (
-          // Famous feature - Split screen layout
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Captions section */}
-            <div className="bg-[#3a3a3a] rounded-3xl p-6 text-white
-                           shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]">
-              <h3 className="text-xl font-semibold mb-4 text-center">Captions</h3>
-              <div className="bg-[#2e2e2e] rounded-2xl p-6 h-64 overflow-y-auto">
-                {isGenerating ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-gray-300">Generating captions...</div>
-                  </div>
-                ) : results && results.success ? (
-                  <div className="text-white whitespace-pre-wrap">
-                    {/* Extract captions from the full content */}
-                    {results.content.split('\n').slice(0, Math.ceil(results.content.split('\n').length / 2)).join('\n')}
-                  </div>
-                ) : (
-                  <p className="text-gray-300 text-center">
-                    The captions would go here that was generated with the ability to share 
-                    directly to their chosen social media, or copy or regenerate with the buttons below.
-                  </p>
-                )}
-              </div>
-              <ActionButtons />
-            </div>
-
-            {/* Hashtags section */}
-            <div className="bg-[#3a3a3a] rounded-3xl p-6 text-white
-                           shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]">
-              <h3 className="text-xl font-semibold mb-4 text-center">Hashtags</h3>
-              <div className="bg-[#2e2e2e] rounded-2xl p-6 h-64 overflow-y-auto">
-                {isGenerating ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-gray-300">Generating hashtags...</div>
-                  </div>
-                ) : results && results.success ? (
-                  <div className="text-white whitespace-pre-wrap">
-                    {/* Extract hashtags from the full content */}
-                    {results.content.split('\n').slice(Math.ceil(results.content.split('\n').length / 2)).join('\n')}
-                  </div>
-                ) : (
-                  <p className="text-gray-300 text-center">
-                    The hashtags would go here that was generated with the ability to share 
-                    directly to their chosen social media, or copy or regenerate with the buttons below.
-                  </p>
-                )}
-              </div>
-              <ActionButtons />
-            </div>
-          </div>
-        ) : (
-          // Alibi and Hired features - Single column layout
-          <div className="bg-[#3a3a3a] rounded-3xl p-8 mb-8 text-white
-                         shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-semibold mb-4">
-                {featureId === 'alibi' ? 'RECAP' : 'Your Complete Resume'}
-              </h3>
-            </div>
-            
-            <div className="bg-[#2e2e2e] rounded-2xl p-8 min-h-[400px]">
-              {isGenerating ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-gray-300">
-                    Generating your {featureId === 'alibi' ? 'alibi story' : 'resume'}...
-                  </div>
-                </div>
-              ) : results && results.success ? (
-                <div className="text-white whitespace-pre-wrap leading-relaxed">
-                  {results.content}
-                </div>
-              ) : (
-                <p className="text-gray-300 text-center leading-relaxed">
-                  In this area, we would have the {featureId === 'alibi' ? 'questions and user answers' : 'complete resume'}. 
-                  With available edit options if the user wants to change an answer they wouldn't need to 
-                  go back, and {featureId === 'alibi' ? 'each question and answer should be saved during each session' : 'the resume should be formatted professionally'} 
-                  just in case the user needs to go back and change an answer.
-                </p>
-              )}
-            </div>
-            
-            <ActionButtons showPDF={featureId === 'hired'} />
-          </div>
-        )}
-
-        {/* Regenerate button */}
-        <div className="text-center">
-          <button
-            onClick={() => setCurrentStep(1)}
-            className="px-8 py-4 bg-[#2e2e2e] text-white rounded-2xl hover:bg-[#3a3a3a] 
-                       transition-colors shadow-[0_4px_8px_rgba(0,0,0,0.3)] flex items-center gap-2 mx-auto"
-          >
-            <RotateCcw className="w-5 h-5" />
-            Start Over
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  const handleAnswerChange = (questionId: string, value: string) => {
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
+  };
 
   async function handleGenerateResults() {
     setIsGenerating(true);
-    setCurrentStep(totalSteps - 1);
     
     try {
       const response = await fetch(`/api/form/generate/${featureId}`, {
@@ -441,32 +114,243 @@ export default function FormFeatureInterface({ featureId, onBack }: FormFeatureI
       setIsGenerating(false);
     }
   }
-}
 
-// Action buttons component
-function ActionButtons({ showPDF = false }: { showPDF?: boolean }) {
-  return (
-    <div className="flex justify-center items-center gap-4 mt-6">
-      <button className="p-3 rounded-full bg-[#2e2e2e] hover:bg-[#4a4a4a] transition-colors">
-        <RotateCcw className="w-5 h-5 text-white" />
+  // Animated start button component
+  const AnimatedStartButton = ({ onClick, children }: { onClick: () => void; children: React.ReactNode }) => (
+    <button
+      onClick={onClick}
+      className="relative overflow-hidden px-12 py-4 text-xl font-semibold text-white
+                 bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 
+                 rounded-2xl shadow-[8px_8px_16px_#1a1a1a,-8px_-8px_16px_#4a4a4a]
+                 hover:shadow-[4px_4px_8px_#1a1a1a,-4px_-4px_8px_#4a4a4a]
+                 transform hover:scale-105 transition-all duration-300 ease-in-out
+                 before:absolute before:inset-0 before:bg-gradient-to-r 
+                 before:from-orange-500 before:via-red-500 before:to-blue-500 
+                 before:opacity-0 before:transition-opacity before:duration-300
+                 hover:before:opacity-20 active:scale-95"
+    >
+      <span className="relative z-10 bg-gradient-to-r from-red-400 via-blue-400 to-orange-400 bg-clip-text text-transparent">
+        {children}
+      </span>
+    </button>
+  );
+
+  // Action buttons component
+  const ActionButtons = ({ showPDF = false }: { showPDF?: boolean }) => (
+    <div className="flex flex-wrap justify-center gap-4 mt-6">
+      <button className="p-3 rounded-xl bg-[#3a3a3a] text-white hover:bg-gradient-to-r hover:from-red-500 hover:via-blue-500 hover:to-orange-500 transition-all duration-300 shadow-[4px_4px_8px_#1a1a1a,-4px_-4px_8px_#4a4a4a]">
+        <Copy className="h-5 w-5" />
+      </button>
+      <button className="p-3 rounded-xl bg-[#3a3a3a] text-white hover:bg-gradient-to-r hover:from-red-500 hover:via-blue-500 hover:to-orange-500 transition-all duration-300 shadow-[4px_4px_8px_#1a1a1a,-4px_-4px_8px_#4a4a4a]">
+        <Share className="h-5 w-5" />
+      </button>
+      <button className="p-3 rounded-xl bg-[#3a3a3a] text-white hover:bg-gradient-to-r hover:from-red-500 hover:via-blue-500 hover:to-orange-500 transition-all duration-300 shadow-[4px_4px_8px_#1a1a1a,-4px_-4px_8px_#4a4a4a]">
+        <RotateCcw className="h-5 w-5" />
       </button>
       {showPDF && (
-        <button className="p-3 rounded-full bg-[#2e2e2e] hover:bg-[#4a4a4a] transition-colors">
-          <Download className="w-5 h-5 text-white" />
+        <button className="p-3 rounded-xl bg-[#3a3a3a] text-white hover:bg-gradient-to-r hover:from-red-500 hover:via-blue-500 hover:to-orange-500 transition-all duration-300 shadow-[4px_4px_8px_#1a1a1a,-4px_-4px_8px_#4a4a4a]">
+          <Download className="h-5 w-5" />
         </button>
       )}
-      <button className="p-3 rounded-full bg-[#2e2e2e] hover:bg-[#4a4a4a] transition-colors">
-        <Share className="w-5 h-5 text-white" />
-      </button>
-      <button className="p-3 rounded-full bg-[#2e2e2e] hover:bg-[#4a4a4a] transition-colors">
-        <User className="w-5 h-5 text-white" />
-      </button>
-      <button className="p-3 rounded-full bg-[#2e2e2e] hover:bg-[#4a4a4a] transition-colors">
-        <Maximize2 className="w-5 h-5 text-white" />
-      </button>
-      <button className="p-3 rounded-full bg-[#2e2e2e] hover:bg-[#4a4a4a] transition-colors">
-        <Copy className="w-5 h-5 text-white" />
-      </button>
+    </div>
+  );
+
+  // Welcome Screen
+  if (showWelcome) {
+    return (
+      <div className="min-h-screen bg-[#bbbbbb] p-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={onBack}
+              className="p-3 rounded-xl bg-[#3a3a3a] text-white hover:bg-gradient-to-r hover:from-red-500 hover:via-blue-500 hover:to-orange-500 transition-all duration-300 shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+              {currentFeature.title}
+            </h1>
+            <div className="w-12" /> {/* Spacer */}
+          </div>
+
+          {/* Welcome Card */}
+          <div className="bg-[#3a3a3a] rounded-3xl p-16 text-center text-white shadow-[16px_16px_32px_#9f9f9f,-16px_-16px_32px_#d7d7d7]">
+            <div className="text-2xl leading-relaxed font-medium mb-12 whitespace-pre-line">
+              {currentFeature.welcomeText}
+            </div>
+            
+            <AnimatedStartButton onClick={handleStart}>
+              {currentFeature.buttonText}
+            </AnimatedStartButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Results Screen
+  if (results) {
+    return (
+      <div className="min-h-screen bg-[#bbbbbb] p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={() => setResults(null)}
+              className="p-3 rounded-xl bg-[#3a3a3a] text-white hover:bg-gradient-to-r hover:from-red-500 hover:via-blue-500 hover:to-orange-500 transition-all duration-300 shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+              {currentFeature.title}
+            </h1>
+            <div className="w-12" />
+          </div>
+
+          {/* Results Content */}
+          {featureId === 'famous' ? (
+            // Split screen for Make Me Famous
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Captions section */}
+              <div className="bg-[#3a3a3a] rounded-3xl p-6 text-white shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]">
+                <h3 className="text-xl font-semibold mb-4 text-center bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+                  Captions
+                </h3>
+                <div className="bg-[#2e2e2e] rounded-2xl p-6 h-64 overflow-y-auto">
+                  {isGenerating ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-gray-300">Generating captions...</div>
+                    </div>
+                  ) : results && results.success ? (
+                    <div className="text-white whitespace-pre-wrap">
+                      {results.content.split('\n').slice(0, Math.ceil(results.content.split('\n').length / 2)).join('\n')}
+                    </div>
+                  ) : (
+                    <p className="text-gray-300 text-center">Content will appear here...</p>
+                  )}
+                </div>
+                <ActionButtons />
+              </div>
+
+              {/* Hashtags section */}
+              <div className="bg-[#3a3a3a] rounded-3xl p-6 text-white shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]">
+                <h3 className="text-xl font-semibold mb-4 text-center bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+                  Hashtags
+                </h3>
+                <div className="bg-[#2e2e2e] rounded-2xl p-6 h-64 overflow-y-auto">
+                  {isGenerating ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-gray-300">Generating hashtags...</div>
+                    </div>
+                  ) : results && results.success ? (
+                    <div className="text-white whitespace-pre-wrap">
+                      {results.content.split('\n').slice(Math.ceil(results.content.split('\n').length / 2)).join('\n')}
+                    </div>
+                  ) : (
+                    <p className="text-gray-300 text-center">Content will appear here...</p>
+                  )}
+                </div>
+                <ActionButtons />
+              </div>
+            </div>
+          ) : (
+            // Single screen for Alibi and Resume
+            <div className="bg-[#3a3a3a] rounded-3xl p-8 text-white shadow-[16px_16px_32px_#9f9f9f,-16px_-16px_32px_#d7d7d7]">
+              <h3 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+                {featureId === 'alibi' ? 'Your Perfect Alibi' : 'Your Dream Resume'}
+              </h3>
+              
+              <div className="bg-[#2e2e2e] rounded-2xl p-8 min-h-[400px]">
+                {isGenerating ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-gray-300">
+                      Generating your {featureId === 'alibi' ? 'alibi story' : 'resume'}...
+                    </div>
+                  </div>
+                ) : results && results.success ? (
+                  <div className="text-white whitespace-pre-wrap leading-relaxed">
+                    {results.content}
+                  </div>
+                ) : (
+                  <p className="text-gray-300 text-center leading-relaxed">
+                    Content will appear here...
+                  </p>
+                )}
+              </div>
+              
+              <ActionButtons showPDF={featureId === 'hired'} />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Question Form Screens
+  const currentQuestion = currentFeature.questions[currentStep];
+
+  return (
+    <div className="min-h-screen bg-[#bbbbbb] p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={handlePrevious}
+            className="p-3 rounded-xl bg-[#3a3a3a] text-white hover:bg-gradient-to-r hover:from-red-500 hover:via-blue-500 hover:to-orange-500 transition-all duration-300 shadow-[8px_8px_16px_#9f9f9f,-8px_-8px_16px_#d7d7d7]"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 bg-clip-text text-transparent">
+            {currentFeature.title}
+          </h1>
+          <div className="w-12" />
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Question {currentStep + 1} of {totalSteps}</span>
+            <span>{Math.round(((currentStep + 1) / totalSteps) * 100)}%</span>
+          </div>
+          <div className="w-full bg-[#9f9f9f] rounded-full h-3 shadow-inner">
+            <div 
+              className="bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 h-3 rounded-full transition-all duration-300"
+              style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Question Card */}
+        <div className="bg-[#3a3a3a] rounded-3xl p-8 text-white shadow-[16px_16px_32px_#9f9f9f,-16px_-16px_32px_#d7d7d7]">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            {currentQuestion.label}
+          </h2>
+          
+          <textarea
+            value={answers[currentQuestion.id] || ''}
+            onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+            placeholder={currentQuestion.placeholder}
+            className="w-full h-32 p-4 bg-[#2e2e2e] border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none resize-none"
+          />
+          
+          <div className="flex justify-between mt-8">
+            <button
+              onClick={handlePrevious}
+              className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-500 transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={!answers[currentQuestion.id]?.trim()}
+              className="px-6 py-3 bg-gradient-to-r from-red-500 via-blue-500 to-orange-500 text-white rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+            >
+              {currentStep === totalSteps - 1 ? 'Generate!' : 'Next'}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
