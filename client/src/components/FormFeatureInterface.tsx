@@ -354,3 +354,5 @@ export function FormFeatureInterface({ featureId, onBack }: FormFeatureInterface
     </div>
   );
 }
+
+export default FormFeatureInterface;
