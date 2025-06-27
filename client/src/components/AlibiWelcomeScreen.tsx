@@ -8,13 +8,14 @@ interface AlibiWelcomeScreenProps {
 
 export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps) {
   return (
-    <div className="min-h-screen bg-[#bbbbbb] flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl flex items-center justify-center relative">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#bbbbbb" }}>
+      <div className="w-full max-w-6xl flex items-center justify-between">
         {/* Back Button */}
         <button
           onClick={onBack}
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-16 bg-[#bbbbbb] rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform duration-200"
+          className="w-16 h-16 rounded-full flex items-center justify-center text-gray-600 hover:scale-105 transition-transform duration-200"
           style={{
+            background: "#bbbbbb",
             boxShadow: 'inset -8px -8px 16px #9f9f9f, inset 8px 8px 16px #d7d7d7'
           }}
         >
@@ -26,8 +27,9 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-[#bbbbbb] rounded-[40px] p-12 max-w-2xl w-full mx-16"
+          className="rounded-[40px] p-12 max-w-2xl"
           style={{
+            background: "#bbbbbb",
             boxShadow: 'inset -20px -20px 40px #9f9f9f, inset 20px 20px 40px #d7d7d7'
           }}
         >
@@ -51,7 +53,7 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           </div>
 
           {/* Description Text */}
-          <div className="text-center mb-8">
+          <div className="text-center">
             <p className="text-white text-xl leading-relaxed font-medium">
               this screen would be the. introduction<br />
               screen. the very first screen we would<br />
@@ -63,21 +65,22 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           </div>
         </motion.div>
 
-        {/* Start Button */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2">
+        {/* Start Button Area */}
+        <div className="flex flex-col items-center">
           <motion.button
             onClick={onStart}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-[#bbbbbb] rounded-[20px] px-8 py-6 text-white font-semibold text-lg min-w-[200px] hover:shadow-lg transition-all duration-300"
+            className="rounded-[20px] px-8 py-6 text-white font-semibold text-lg min-w-[160px] hover:shadow-lg transition-all duration-300"
             style={{
+              background: "#bbbbbb",
               boxShadow: 'inset -12px -12px 24px #9f9f9f, inset 12px 12px 24px #d7d7d7'
             }}
           >
             <div className="flex items-center justify-center gap-3">
               <svg 
-                width="24" 
-                height="24" 
+                width="20" 
+                height="20" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 className="text-white"
@@ -92,7 +95,7 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           </motion.button>
           
           <div className="mt-4 text-center">
-            <p className="text-white text-sm opacity-80">
+            <p className="text-white text-sm opacity-90 max-w-[180px]">
               I will provide a<br />
               animated start button<br />
               code. That will be<br />
