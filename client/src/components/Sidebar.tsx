@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { vibeConfigs } from '@/lib/vibes';
 import RecentChatsList from './RecentChatsList';
 import logoImage from '@assets/logo - armo gpt_1750839826863.png';
@@ -10,9 +11,10 @@ interface SidebarProps {
   onSidebarToggle?: (isCollapsed: boolean) => void;
   isMobile?: boolean;
   onSelectChat?: (sessionId: number, vibe: string) => void;
+  onMobileClose?: () => void;
 }
 
-export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false, onSelectChat }: SidebarProps) {
+export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, isMobile = false, onSelectChat, onMobileClose }: SidebarProps) {
   const features = Object.values(vibeConfigs);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -33,33 +35,48 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
           transform: isCollapsed ? 'translateX(-100%)' : 'translateX(0)'
         }}
       >
-        {/* Toggle Switch */}
-        <div className="absolute top-4 right-4 z-50">
-          <label className="inline-flex items-center cursor-pointer">
-            <div 
-              className="relative h-7 w-14 rounded-full overflow-hidden"
-              style={{
-                boxShadow: '-6px -3px 6px rgb(50, 50, 50), 6px 3px 9px rgb(25, 25, 25), 3px 3px 3px rgb(25, 25, 25) inset, -3px -3px 3px rgb(50, 50, 50) inset'
-              }}
+        {/* Close Button for Mobile */}
+        {isMobile && (
+          <div className="absolute top-4 right-4 z-50">
+            <button
+              onClick={onMobileClose}
+              className="p-2 rounded-lg text-white hover:bg-gray-600 transition-colors duration-200"
+              style={{ background: "#3a3a3a" }}
             >
-              <input 
-                type="checkbox" 
-                className="sr-only"
-                checked={isCollapsed}
-                onChange={(e) => handleToggle(e.target.checked)}
-              />
+              <X size={20} />
+            </button>
+          </div>
+        )}
+        
+        {/* Toggle Switch for Desktop */}
+        {!isMobile && (
+          <div className="absolute top-4 right-4 z-50">
+            <label className="inline-flex items-center cursor-pointer">
               <div 
-                className="h-full w-full rounded-full transition-transform duration-400"
+                className="relative h-7 w-14 rounded-full overflow-hidden"
                 style={{
-                  background: '#262626',
-                  width: '200%',
-                  transform: isCollapsed ? 'translate3d(25%, 0, 0)' : 'translate3d(-75%, 0, 0)',
-                  boxShadow: '-6px -3px 6px rgb(25, 25, 25), 6px 3px 9px rgb(25, 25, 25)'
+                  boxShadow: '-6px -3px 6px rgb(50, 50, 50), 6px 3px 9px rgb(25, 25, 25), 3px 3px 3px rgb(25, 25, 25) inset, -3px -3px 3px rgb(50, 50, 50) inset'
                 }}
-              />
-            </div>
-          </label>
-        </div>
+              >
+                <input 
+                  type="checkbox" 
+                  className="sr-only"
+                  checked={isCollapsed}
+                  onChange={(e) => handleToggle(e.target.checked)}
+                />
+                <div 
+                  className="h-full w-full rounded-full transition-transform duration-400"
+                  style={{
+                    background: '#262626',
+                    width: '200%',
+                    transform: isCollapsed ? 'translate3d(25%, 0, 0)' : 'translate3d(-75%, 0, 0)',
+                    boxShadow: '-6px -3px 6px rgb(25, 25, 25), 6px 3px 9px rgb(25, 25, 25)'
+                  }}
+                />
+              </div>
+            </label>
+          </div>
+        )}
 
         {/* Header */}
         <motion.div

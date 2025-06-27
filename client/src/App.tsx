@@ -115,7 +115,7 @@ function App() {
 
   const handleSidebarToggle = () => {
     if (isMobile) {
-      setIsMobileSidebarOpen(!isMobileSidebarOpen);
+      setIsMobileSidebarOpen(true); // Always open on mobile
     } else {
       setIsSidebarCollapsed(!isSidebarCollapsed);
     }
@@ -170,7 +170,7 @@ function App() {
               className="absolute right-4 p-2 rounded-lg text-white"
               style={{ background: "#2e2e2e" }}
             >
-              {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+              <Menu size={24} />
             </button>
           </div>
 
@@ -193,6 +193,7 @@ function App() {
               onSidebarToggle={setIsSidebarCollapsed}
               isMobile={isMobile}
               onSelectChat={handleSelectChat}
+              onMobileClose={closeMobileSidebar}
             />
           </div>
 
