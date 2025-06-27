@@ -151,7 +151,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="p-4 rounded-2xl text-center mt-[0px] mb-[0px] pt-[16px] pb-[16px] ml-[200px] mr-[200px]"
+            className="p-4 rounded-2xl text-center mt-[0px] mb-[0px] pt-[16px] pb-[16px] ml-[0px] mr-[0px]"
             style={{
               background: '#3a3a3a',
               boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
