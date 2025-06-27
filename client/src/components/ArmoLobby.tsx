@@ -106,7 +106,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
                 boxShadow: 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343, 0 0 8px rgba(255, 68, 68, 0.15)';
+                e.currentTarget.style.boxShadow = 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343, 0 0 20px rgba(147, 51, 234, 0.6)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = 'inset 14px 14px 28px #313131, inset -14px -14px 28px #434343';
