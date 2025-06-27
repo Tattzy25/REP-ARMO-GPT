@@ -134,7 +134,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
   const canProceed = validation.isValid;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: "#3a3a3a" }}>
+    <div className="min-h-screen flex flex-col items-center pt-8 p-4" style={{ background: "#3a3a3a" }}>
       <div className="w-full max-w-4xl flex flex-col items-center">
         
         {/* Question Card */}
@@ -144,7 +144,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 0.3 }}
-          className="w-full max-w-2xl mb-8"
+          className="w-full max-w-2xl mb-4"
         >
           <div 
             className="rounded-2xl p-8 lg:p-12"
