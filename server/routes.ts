@@ -59,6 +59,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import and register smart caching & seamless experience routes
   const smartSeamlessRoutes = await import("./smart-seamless-routes");
   app.use("/api/smart", smartSeamlessRoutes.default);
+  
+  // Import and register enhanced AI processing routes
+  const enhancedAlibiRoutes = await import("./enhanced-alibi-routes");
+  app.use("/api/enhanced", enhancedAlibiRoutes.default);
 
   // Seed endpoint for initial persona data
   app.post("/api/seed-personas", async (req: Request, res: Response) => {
