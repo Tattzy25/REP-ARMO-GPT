@@ -142,7 +142,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
   };
 
   return (
-    <div className="min-h-screen" style={{ background: '#bbbbbb' }}>
+    <div className="min-h-screen" style={{ background: '#2e2e2e' }}>
       {/* Main Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
