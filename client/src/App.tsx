@@ -12,8 +12,9 @@ import { AlibiWelcomeScreen } from "@/components/AlibiWelcomeScreen";
 import { AlibiQuestionCards } from "@/components/AlibiQuestionCards";
 import { AlibiRecapPage } from "@/components/AlibiRecapPage";
 import { AlibiResultPage } from "@/components/AlibiResultPage";
+import { ResumeResultPage } from "@/components/ResumeResultPage";
 
-type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result";
+type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result" | "resume-result";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
@@ -45,6 +46,8 @@ function App() {
       setAppState("call");
     } else if (vibe === "alibi") {
       setAppState("alibi-welcome");
+    } else if (vibe === "hired") {
+      setAppState("resume-result");
     } else if (vibe === "gallery" || vibe === "recent") {
       setAppState("chat"); // For now, these will use the chat interface
     } else {
@@ -258,6 +261,12 @@ function App() {
                 onBack={handleResultBack}
                 onRestart={handleResultRestart}
                 username="User"
+              />
+            )}
+
+            {appState === "resume-result" && (
+              <ResumeResultPage
+                onBack={handleBackToLobby}
               />
             )}
           </div>

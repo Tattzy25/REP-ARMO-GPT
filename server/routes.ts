@@ -429,6 +429,81 @@ Additional Context:
     }
   });
 
+  app.post("/api/resume/generate", async (req: Request, res: Response) => {
+    try {
+      const { answers, questions, username } = req.body;
+
+      if (!answers || !Array.isArray(answers) || answers.length !== 6) {
+        return res.status(400).json({ 
+          error: "Please provide all 6 answers to generate your resume" 
+        });
+      }
+
+      console.log('Generating resume for user:', username);
+      console.log('User answers:', answers);
+
+      // Generate AI response using the persona system
+      const personaContext = await personaAI.getPersonaContext(1, 1, "you-are-hired-ara");
+      const enhancedPrompt = `Create a professional, compelling resume based on these details:
+- Target job/position: ${answers[0]}
+- Target company/industry: ${answers[1]}
+- Key skills/experience: ${answers[2]}
+- Biggest achievement: ${answers[3]}
+- Weakness turned strength: ${answers[4]}
+- Salary expectations: ${answers[5]}
+
+Write this as Armo Hopar would - professional but with personality, confident, and marketable. Create a complete resume with:
+1. Professional Summary (2-3 sentences)
+2. Key Skills (bullet points)
+3. Professional Experience (1-2 relevant positions with achievements)
+4. Education section
+5. Notable Achievements
+
+Make it sound authentic and tailored to their target role. Address it for ${username || 'the candidate'}.`;
+
+      const resume = await generateAIResponseFallback(enhancedPrompt, "you-are-hired-ara");
+
+      console.log('Generated resume for:', username);
+
+      // Create session for the resume
+      const resumeSession = await storage.createChatSession({
+        userId: null, 
+        vibe: "you-are-hired-ara",
+        title: "Resume Builder Session",
+        isActive: true
+      });
+
+      // Save the user's answers and AI response as messages
+      await storage.createMessage({
+        sessionId: resumeSession.id,
+        sender: "user",
+        content: `Resume Details: ${answers.join('; ')}`,
+        metadata: { answers, type: 'resume-request' }
+      });
+
+      await storage.createMessage({
+        sessionId: resumeSession.id,
+        sender: "armo",
+        content: resume,
+        metadata: { type: 'resume-response' }
+      });
+
+      console.log('Generated resume:', resume.substring(0, 100) + '...');
+      console.log('Saved to session:', resumeSession.id);
+
+      res.json({ 
+        resume,
+        sessionId: resumeSession.id 
+      });
+
+    } catch (error) {
+      console.error('Resume generation error:', error);
+      res.status(500).json({ 
+        error: "Hopar's resume machine is temporarily offline. Please try again." 
+      });
+    }
+  });
+
   // Search endpoint using Tavily API
   app.post("/api/search", async (req, res) => {
     try {

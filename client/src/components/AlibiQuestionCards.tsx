@@ -173,8 +173,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-2 pt-4">
         <div className="w-full max-w-4xl flex flex-col items-center">
-        
-        {/* Question Card */}
+          {/* Question Card */}
         <motion.div
           key={currentQuestion}
           initial={{ opacity: 0, x: 50 }}
