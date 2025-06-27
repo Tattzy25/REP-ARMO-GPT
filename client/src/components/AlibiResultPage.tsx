@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw, Download, Share2, Volume2, Maximize2, Copy, Loader2, Pause } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Download, Share2, Maximize2, Copy } from 'lucide-react';
+import { AudioButton } from './ui/AudioButton';
 
 interface AlibiResultPageProps {
   questions: string[];
@@ -15,9 +16,6 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   const [isGenerating, setIsGenerating] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
