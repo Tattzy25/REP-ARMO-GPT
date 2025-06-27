@@ -177,7 +177,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
               }}
             >
               <div className="mb-4">
-                <h3 className="text-xl font-bold font-audiowide text-white mb-2">
+                <h3 className="text-xl font-bold font-audiowide mb-2 text-[#9333ea]">
                   Question {index + 1}
                 </h3>
                 <p className="text-gray-300">{question}</p>
@@ -221,7 +221,6 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
           ))}
         </div>
       </div>
-      
       {/* Action Buttons */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -304,7 +303,6 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
           </motion.button>
         </div>
       </motion.div>
-
       {/* Error Popup */}
       {showError && (
         <motion.div
