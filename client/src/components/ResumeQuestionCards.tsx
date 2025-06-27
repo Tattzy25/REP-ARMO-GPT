@@ -277,16 +277,16 @@ export function ResumeQuestionCards({ onComplete, onBack, username = "[Your Name
             <p className="text-gray-300 mb-6 leading-relaxed">{jokeContent}</p>
             <button
               onClick={handleContinueFromJoke}
-              className="px-6 py-3 rounded-lg text-white font-semibold transition-all duration-200"
+              className="px-6 py-3 rounded-lg text-white font-semibold hover:scale-105 transition-transform duration-200"
               style={{
                 background: '#3a3a3a',
                 boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#8b5cf6';
+                e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848, 0 0 20px rgba(147, 51, 234, 0.6)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#3a3a3a';
+                e.currentTarget.style.boxShadow = '8px 8px 16px #323232, -8px -8px 16px #484848';
               }}
             >
               Continue
