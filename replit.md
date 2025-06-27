@@ -196,10 +196,10 @@ The application features multiple AI personality modes:
 - **Non-streaming AI**: Dedicated fallback function for jokes and alibi generation
 
 ### Persona System Integration:
-- **Gimmi Alibi Ara Feature**: Uses "roast" vibe mapping to Savage Persona (Level 4)
-- **System Prompt**: "You are Armo Hopar helping create detailed, believable alibis. Be creative, witty, and help craft convincing stories. Use your Armenian personality but focus on creating realistic scenarios."
-- **Profanity Level**: Savage (Level 4) - allows strong language and edgy humor
-- **Language Rules**: Armenian-English mix, uses "ախպեր", "Հո՛յ, խելք տուր!", profanity permitted
+- **Gimmi Alibi Ara Feature**: Uses Edgy Persona (Level 3) with Level 1 profanity restrictions
+- **System Prompt**: Edgy Armenian personality with moderate profanity (damn, hell, shit, crap) for creative alibi crafting
+- **Profanity Level**: Level 1 (Limited) - moderate swears only, no strong profanity
+- **Language Rules**: Armenian-English mix, uses "ախպեր", "Listen hopar", "Inch es anum?", sarcastic but supportive tone
 
 ### Database Schema Used:
 - **Chat Sessions**: vibe = "gimmi-alibi-ara" for alibi sessions  

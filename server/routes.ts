@@ -306,27 +306,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Generating joke with prompt:', prompt);
       console.log('User answers:', answers);
 
-      // Use user detection for contextual humor
-      const userId = 1; // Anonymous user for alibi features
-      const sessionId = Date.now(); // Temporary session for analysis
+      // Enhanced prompt for roasting with Level 4 Savage persona (jokes use Savage, alibis use Edgy)
+      const enhancedPrompt = `You are Armo Hopar roasting alibis. ${prompt} 
       
-      // Analyze user input for better joke targeting
-      await personaAI.analyzeUserMessage(userId, sessionId, prompt, prompt.length, 5);
-      
-      // Get user context for enhanced joke generation
-      const personaContext = await personaAI.getPersonaContext(userId, sessionId, "roast");
-      
-      // Enhanced prompt with user detection insights
-      const enhancedPrompt = `You are Armo Hopar roasting alibis. ${prompt}
-      
-User Profile Analysis:
-- Mood: ${personaContext.userProfile.recentMood}
-- Emotion: ${personaContext.userProfile.dominantEmotion}
-- Behavior: ${personaContext.userProfile.behaviorPattern}
-- Engagement: ${personaContext.userProfile.engagementLevel}
-- Intent: ${personaContext.userProfile.primaryIntent}
-
-Use this psychological profile to make the roast more targeted and effective. Be savage but clever. Keep it to 1-2 sentences max.`;
+Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roasting.`;
       
       const joke = await generateAIResponseFallback(enhancedPrompt, "roast");
       
@@ -400,30 +383,17 @@ Use this psychological profile to make the roast more targeted and effective. Be
         vibe: "gimmi-alibi-ara"
       });
 
-      // Use user detection for enhanced alibi generation
-      const userId = alibiSession.id; // Use session ID as user ID for this alibi session
-      const sessionId = alibiSession.id;
-      
-      // Analyze combined user input for personality insights
-      const combinedInput = `${prompt} ${answers.join(' ')}`;
-      await personaAI.analyzeUserMessage(userId, sessionId, combinedInput, combinedInput.length, 10);
-      
-      // Get comprehensive user context
-      const personaContext = await personaAI.getPersonaContext(userId, sessionId, "gimmi-alibi-ara");
-      
-      // Enhanced prompt with user detection insights for better alibi creation
+      // For now, use basic enhanced prompt with Level 3 persona without user detection
       const enhancedPrompt = `${prompt}
       
-User Psychological Profile:
-- Mood State: ${personaContext.userProfile.recentMood}
-- Emotional State: ${personaContext.userProfile.dominantEmotion}
-- Behavior Pattern: ${personaContext.userProfile.behaviorPattern}
-- Engagement Style: ${personaContext.userProfile.engagementLevel}
-- Primary Intent: ${personaContext.userProfile.primaryIntent}
+Additional Context:
+- Use Level 3 Edgy persona with moderate profanity (damn, hell, shit, crap only)
+- Be creative and detailed in alibi construction
+- Use Armenian expressions naturally
+- Keep sarcastic but supportive tone
+- Focus on realistic, believable scenarios`;
 
-Use this psychological analysis to craft a more believable, personalized alibi that matches their communication style and emotional state. Make the story feel authentic to their personality.`;
-
-      // Use existing AI system with Savage persona (Level 4) for roast vibe
+      // Use existing AI system with Edgy persona (Level 3) for alibi generation
       const alibi = await generateAIResponseFallback(enhancedPrompt, "gimmi-alibi-ara");
       
       // Save the user's answers and AI response as messages
@@ -1209,9 +1179,25 @@ async function generateAIResponseFallback(userMessage: string, vibe: string): Pr
 
   // Define personality prompts for each vibe
   const vibePrompts: Record<string, string> = {
-    default: "You are Armo Hopar, a friendly Armenian-American AI assistant from Glendale. Mix Armenian and English naturally. Be helpful, warm, and occasionally use Armenian phrases. Use 'ախպեր' (akhper) sometimes.",
+    default: "You are Armo Hopar, a friendly Armenian-American AI assistant from Glendale. Mix Armenian and English naturally. Be helpful, warm, and occasionally use Armenian phrases. Use 'ახპեր' (akhper) sometimes.",
     roast: "You are Armo Hopar in roast mode - a savage, hilarious Armenian-American from Glendale who roasts people mercilessly but with love. Use profanity, Armenian slang, be brutally honest but funny. Call people 'bruh', use 'Հո՛յ, խելք տուր!' and roast like you're at a family BBQ.",
-    "gimmi-alibi-ara": "You are Armo Hopar helping create detailed, believable alibis. Be creative, witty, and help craft convincing stories. Use your Armenian personality but focus on creating realistic scenarios."
+    "gimmi-alibi-ara": `You are Armo Hopar, an edgy and witty Armenian-American AI helping create detailed, believable alibis.
+    
+Core Identity:
+- Be clever, sarcastic, and quick-witted when crafting alibis
+- Use moderate profanity naturally (damn, hell, shit, crap)
+- Push boundaries while staying supportive of the user's situation
+- Be brutally honest about the quality of alibis but ultimately helpful
+- Represent Armenian attitude - we don't sugarcoat things
+
+Communication Style for Alibis:
+- Sharp humor with sarcastic edge when describing situations
+- Use moderate swears (shit, damn, hell) naturally in the story
+- Call out obvious BS but help craft better alternatives
+- Be creative and detailed in alibi construction
+- Use Armenian expressions like "Listen hopar", "Inch es anum?" for authenticity
+
+Create believable, detailed alibi stories with your edgy personality while focusing on realistic scenarios.`
   };
 
   const systemPrompt = vibePrompts[vibe] || vibePrompts.default;
