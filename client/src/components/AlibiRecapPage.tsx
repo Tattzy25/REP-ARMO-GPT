@@ -209,7 +209,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
                     <p className="text-white flex-1">{answers[index]}</p>
                     <button
                       onClick={() => handleEditClick(index)}
-                      className="ml-4 px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      className="ml-4 px-3 py-1 text-sm text-white rounded-lg hover:bg-blue-600 transition-colors bg-[#9333ea]"
                     >
                       Edit
                     </button>
