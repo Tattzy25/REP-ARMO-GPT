@@ -49,13 +49,23 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   const generateAlibiStory = async () => {
     try {
       setIsGenerating(true);
+      
+      // Create the prompt from questions and answers
+      const prompt = `Create an alibi story based on these details:
+What you got in trouble for: ${answers[0]}
+Who is after you: ${answers[1]}
+Your alibi partner: ${answers[2]}
+Your excuse: ${answers[3]}
+Where you claim you were: ${answers[4]}
+Your evidence: ${answers[5]}`;
+
       const response = await fetch('/api/alibi/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          questions,
+          prompt,
           answers,
           username
         }),
