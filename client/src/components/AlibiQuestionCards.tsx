@@ -134,11 +134,9 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
   const canProceed = validation.isValid;
 
   return (
-    <div className="min-h-screen flex flex-col mobile-content-padding" style={{ background: "#3a3a3a" }}>
-
-
+    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-2 pt-4">
+      <div className="flex-1 flex flex-col items-center justify-center p-2 pt-8">
         <div className="w-full max-w-4xl flex flex-col items-center">
           {/* Question Card */}
         <motion.div
