@@ -46,8 +46,24 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
     setAnswers(newAnswers);
   };
 
+  const validateAnswer = (answer: string) => {
+    const trimmed = answer.trim();
+    const wordCount = trimmed.split(/\s+/).filter(word => word.length > 0).length;
+    const charCount = trimmed.length;
+    
+    return {
+      isValid: charCount >= 15 && wordCount >= 3,
+      charCount,
+      wordCount,
+      needsMoreChars: charCount < 15,
+      needsMoreWords: wordCount < 3
+    };
+  };
+
+  const currentAnswer = answers[currentQuestion];
+  const validation = validateAnswer(currentAnswer);
   const isLastQuestion = currentQuestion === questions.length - 1;
-  const canProceed = answers[currentQuestion].trim().length > 0;
+  const canProceed = validation.isValid;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: "#3a3a3a" }}>
@@ -80,12 +96,33 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
                 value={answers[currentQuestion]}
                 onChange={(e) => handleAnswerChange(e.target.value)}
                 placeholder="Type your answer here..."
-                className="w-full h-32 p-4 rounded-xl text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full h-32 p-4 rounded-xl text-white placeholder-gray-400 resize-none focus:outline-none transition-all duration-200 ${
+                  currentAnswer && !validation.isValid 
+                    ? 'focus:ring-2 focus:ring-red-500 border-2 border-red-500' 
+                    : 'focus:ring-2 focus:ring-blue-500'
+                }`}
                 style={{
                   background: '#2e2e2e',
                   boxShadow: 'inset 8px 8px 16px #262626, inset -8px -8px 16px #363636'
                 }}
               />
+              
+              {/* Validation Message */}
+              {currentAnswer && !validation.isValid && (
+                <div className="text-orange-400 text-sm font-medium">
+                  Give me at least 3 words (15+ characters) so Hopar can spin a good yarn.
+                  <div className="text-xs text-gray-400 mt-1">
+                    Current: {validation.wordCount} word{validation.wordCount !== 1 ? 's' : ''}, {validation.charCount} character{validation.charCount !== 1 ? 's' : ''}
+                  </div>
+                </div>
+              )}
+              
+              {/* Success indicator */}
+              {validation.isValid && currentAnswer && (
+                <div className="text-green-400 text-sm font-medium">
+                  Perfect! Hopar has enough to work with ✓
+                </div>
+              )}
             </div>
           </div>
         </motion.div>
@@ -156,7 +193,13 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "hopar" }: A
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={() => onComplete(answers)}
+            onClick={() => {
+              // Validate all answers before completing
+              const allValid = answers.every(answer => validateAnswer(answer).isValid);
+              if (allValid) {
+                onComplete(answers);
+              }
+            }}
             className="mt-6 px-8 py-3 rounded-xl text-white font-semibold hover:scale-105 transition-transform duration-200"
             style={{
               background: 'linear-gradient(to right, #ef4444, #3b82f6, #f97316)',
