@@ -36,7 +36,21 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
         setJokeContent(joke);
       } catch (error) {
         console.error('Error generating joke:', error);
-        setJokeContent("Hopar's roast machine is taking a coffee break! ☕");
+        // Generate dynamic fallback based on user answers
+        const userAnswers = answers.filter(a => a && a.trim().length > 0);
+        let dynamicFallback = "Hopar's roast machine is taking a coffee break! ☕";
+        
+        if (userAnswers.length > 0) {
+          const dynamicResponses = [
+            `Your story about "${userAnswers[0] || "that situation"}" has more holes than Armenian cheese! 🧀`,
+            `Even my grandmother would roast this alibi better than me right now! 👵`,
+            `This excuse involving "${userAnswers[1] || "someone"}" is shakier than a Yerevan earthquake! 🌍`,
+            `Your alibi game is weaker than Armenian internet connection, especially with "${userAnswers[2] || "that partner"}"! 📡`
+          ];
+          dynamicFallback = dynamicResponses[Math.floor(Math.random() * dynamicResponses.length)];
+        }
+        
+        setJokeContent(dynamicFallback);
       }
     } else if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
