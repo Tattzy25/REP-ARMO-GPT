@@ -5,27 +5,31 @@ import phoneRingAudio from '@assets/11L-PHONE_RINGING_CALLIN-1751063550449_17510
 
 // AudioWaveform Component for Large Animated Equalizer
 function AudioWaveform({ isActive }: { isActive: boolean }) {
-  const [animationKey, setAnimationKey] = useState(0);
+  const [bars, setBars] = useState<number[]>(Array(32).fill(8));
   
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isActive) {
       interval = setInterval(() => {
-        setAnimationKey(prev => prev + 1);
-      }, 100);
+        setBars(prev => prev.map((_, i) => {
+          const baseHeight = 8;
+          const maxHeight = 120;
+          return baseHeight + Math.random() * maxHeight + Math.sin(Date.now() * 0.005 + i * 0.3) * 15;
+        }));
+      }, 50); // Very fast animation when active
+    } else {
+      // When not active, slowly settle to baseline
+      setBars(prev => prev.map(height => {
+        const baseline = 12;
+        return height > baseline ? Math.max(baseline, height - 2) : baseline;
+      }));
     }
     return () => clearInterval(interval);
   }, [isActive]);
 
   return (
     <div className="flex items-center justify-center space-x-1">
-      {Array.from({ length: 32 }).map((_, i) => {
-        const baseHeight = 8;
-        const maxHeight = isActive ? 120 : 20;
-        const animatedHeight = isActive 
-          ? baseHeight + Math.random() * maxHeight + Math.sin(Date.now() * 0.01 + i * 0.5) * 20
-          : baseHeight + 4;
-        
+      {bars.map((height, i) => {
         // Color gradient based on position
         const colorIntensity = isActive ? 1 : 0.3;
         let barColor;
@@ -41,17 +45,16 @@ function AudioWaveform({ isActive }: { isActive: boolean }) {
         
         return (
           <div
-            key={`${i}-${animationKey}`}
-            className="transition-all duration-75 ease-in-out"
+            key={i}
+            className="transition-all duration-100 ease-out"
             style={{
               width: '5px',
-              height: `${Math.max(animatedHeight, baseHeight)}px`,
+              height: `${Math.max(height, 8)}px`,
               background: isActive ? 
-                `linear-gradient(to top, ${barColor}, rgba(255, 255, 255, 0.8))` :
+                `linear-gradient(to top, ${barColor}, rgba(255, 255, 255, 0.9))` :
                 barColor,
               borderRadius: '2px',
-              boxShadow: isActive ? `0 0 8px ${barColor}` : 'none',
-              transform: isActive ? `scaleY(${1 + Math.random() * 0.3})` : 'scaleY(1)',
+              boxShadow: isActive ? `0 0 6px ${barColor}` : 'none',
             }}
           />
         );
@@ -200,16 +203,12 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
     // Start ringing phase
     setIsRinging(true);
     
-    // Play phone ringing sound
-    const ringAudio = new Audio(phoneRingAudio);
-    ringAudio.loop = true;
-    ringAudio.volume = 0.5;
-    ringAudio.play();
+    // Skip phone ringing audio to avoid loading issues
+    console.log('Call ringing - audio skipped for compatibility');
     
     // Ring for 2-3 seconds before "answering"
     setTimeout(() => {
-      ringAudio.pause();
-      ringAudio.currentTime = 0;
+      // No audio to pause since we skipped it
       setIsRinging(false);
       setIsCallActive(true);
       setCallDuration(0);
@@ -234,10 +233,9 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
     try {
       setIsGeneratingResponse(true);
       
-      // Always use Web Speech API since ElevenLabs credits are depleted
-      console.log('Using Web Speech API for greeting');
+      // Add delay to show generating state
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Fallback to Web Speech API
       const greetings = [
         `Alo ${username}, what the fuck do you want?`,
         `Yo ${username}, you better have something good to say!`,
@@ -248,27 +246,77 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
       
       const greeting = greetings[Math.floor(Math.random() * greetings.length)];
       
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(greeting);
-        utterance.rate = 1.1;
-        utterance.pitch = 0.8;
-        utterance.volume = 1;
-        
+      // Mobile speech synthesis requires careful handling
+      try {
+        if ('speechSynthesis' in window && speechSynthesis.getVoices().length > 0) {
+          speechSynthesis.cancel();
+          
+          const utterance = new SpeechSynthesisUtterance(greeting);
+          utterance.rate = 1.1;
+          utterance.pitch = 0.9;
+          utterance.volume = 1;
+          
+          // Use first available voice for better mobile compatibility
+          const voices = speechSynthesis.getVoices();
+          if (voices.length > 0) {
+            utterance.voice = voices[0];
+          }
+          
+          setIsGeneratingResponse(false);
+          setIsAiSpeaking(true);
+          
+          utterance.onend = () => {
+            setIsAiSpeaking(false);
+            setIsUserTurn(true);
+          };
+          
+          utterance.onerror = (e) => {
+            console.log('Speech error:', e);
+            setIsAiSpeaking(false);
+            setIsUserTurn(true);
+          };
+          
+          speechSynthesis.speak(utterance);
+        } else {
+          // Wait for voices to load on mobile
+          speechSynthesis.addEventListener('voiceschanged', () => {
+            const voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+              const utterance = new SpeechSynthesisUtterance(greeting);
+              utterance.voice = voices[0];
+              utterance.rate = 1.1;
+              utterance.pitch = 0.9;
+              utterance.volume = 1;
+              
+              setIsGeneratingResponse(false);
+              setIsAiSpeaking(true);
+              
+              utterance.onend = () => {
+                setIsAiSpeaking(false);
+                setIsUserTurn(true);
+              };
+              
+              speechSynthesis.speak(utterance);
+            }
+          }, { once: true });
+          
+          // Fallback if voices don't load
+          setTimeout(() => {
+            if (isGeneratingResponse) {
+              setIsGeneratingResponse(false);
+              setIsUserTurn(true);
+            }
+          }, 3000);
+        }
+      } catch (error) {
+        console.log('Speech synthesis failed:', error);
         setIsGeneratingResponse(false);
-        setIsAiSpeaking(true);
-        
-        utterance.onend = () => {
-          setIsAiSpeaking(false);
-          setIsUserTurn(true);
-        };
-        
-        speechSynthesis.speak(utterance);
-      } else {
-        throw new Error('Speech synthesis not supported');
+        setIsUserTurn(true);
       }
     } catch (error) {
-      console.error('Error playing greeting:', error);
-      showErrorPopup('Voice synthesis failed. Please check your browser compatibility.');
+      console.error('Error in greeting:', error);
+      setIsGeneratingResponse(false);
+      setIsUserTurn(true);
     }
   };
 
@@ -454,9 +502,12 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
       
       // Use Web Speech API to speak the response
       if ('speechSynthesis' in window) {
+        // Cancel any existing speech
+        speechSynthesis.cancel();
+        
         const utterance = new SpeechSynthesisUtterance(roastResponse);
-        utterance.rate = 1.1;
-        utterance.pitch = 0.8;
+        utterance.rate = 1.2;
+        utterance.pitch = 0.9;
         utterance.volume = 1;
         
         setIsProcessingAudio(false);
@@ -467,9 +518,18 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
           setIsUserTurn(true);
         };
         
+        utterance.onerror = () => {
+          console.log('Speech synthesis error, continuing anyway');
+          setIsAiSpeaking(false);
+          setIsUserTurn(true);
+        };
+        
         speechSynthesis.speak(utterance);
       } else {
-        throw new Error('Speech synthesis not supported');
+        // If speech synthesis not supported, just continue
+        console.log('Speech synthesis not supported, continuing without audio');
+        setIsProcessingAudio(false);
+        setIsUserTurn(true);
       }
     } catch (error) {
       console.error('Error processing speech:', error);
