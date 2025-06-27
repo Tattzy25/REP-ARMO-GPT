@@ -27,10 +27,9 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="rounded-[40px] p-12 max-w-2xl"
+          className="rounded-[40px] p-12 max-w-2xl neumorphic"
           style={{
-            background: "#bbbbbb",
-            boxShadow: 'inset -20px -20px 40px #9f9f9f, inset 20px 20px 40px #d7d7d7'
+            background: "#bbbbbb"
           }}
         >
           {/* Title with gradient text */}
@@ -71,10 +70,9 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
             onClick={onStart}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="rounded-[20px] px-8 py-6 text-white font-semibold text-lg min-w-[160px] hover:shadow-lg transition-all duration-300"
+            className="rounded-[20px] px-8 py-6 text-white font-semibold text-lg min-w-[160px] neumorphic-inset transition-all duration-300"
             style={{
-              background: "#bbbbbb",
-              boxShadow: 'inset -12px -12px 24px #9f9f9f, inset 12px 12px 24px #d7d7d7'
+              background: "#bbbbbb"
             }}
           >
             <div className="flex items-center justify-center gap-3">
