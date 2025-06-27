@@ -429,6 +429,131 @@ Additional Context:
     }
   });
 
+  app.post("/api/caption/generate", async (req: Request, res: Response) => {
+    try {
+      const { answers, questions, username } = req.body;
+
+      if (!answers || !Array.isArray(answers) || answers.length !== 7) {
+        return res.status(400).json({ 
+          error: "Please provide all 7 answers to generate your fame content" 
+        });
+      }
+
+      console.log('Generating fame content for user:', username);
+      console.log('User answers:', answers);
+
+      // Create a chat session for this caption generation to save in recent chats
+      const captionSession = await storage.createChatSession({
+        userId: null,
+        vibe: "make-me-famous"
+      });
+
+      // Build the system prompt from the attached specification
+      const systemPrompt = `You are Armo Hopar's **Fame Storyteller AI**—a wildly imaginative, slightly savage raconteur. Use the user's punchy answers below to spin a two-act blockbuster of fame: first a hilarious misfire, then the real epic rise.
+
+**User's Fame Blueprint:**
+- Talent unleashed: ${answers[0]}
+- Fame badge desired: ${answers[1]}
+- Big-shot idol to wow: ${answers[2]}
+- Internet-breaking stunt: ${answers[3]}
+- Line they refuse to cross: ${answers[4]}
+- Legendary stage name: ${answers[5]}
+- Power catchphrase/hashtag: ${answers[6]}
+
+**Your Mission:**
+1. **Wrong Star Debut (Joke):**  
+   - Kick off with a totally bogus fame story that flips at least one detail upside-down—maybe make them famous for doing exactly the thing they *refuse* to do, or call them by a ridiculous fake name like "Baron von Cloutchaser."  
+   - Deliver it with savage flair ("Newsflash: You just became the Jellyfish Poseur!").  
+   - Then drop a quick "…my bad, wrong legend" to pivot.
+
+2. **True Celebrity Saga:**  
+   - Reintroduce them as **${answers[5]}** and launch into their real rise.  
+   - Show how **${answers[0]}** kicks off the journey toward **${answers[1]}**—"you flipped the world on its head with that move."  
+   - Stage their big moment with **${answers[3]}**, framing it as the viral climax.  
+   - Include a cameo by **${answers[2]}**—maybe they handshake on the red carpet or drop a tweet.  
+   - Highlight that they *didn't* cross **${answers[4]}**, making them a class act.  
+   - Weave in **${answers[6]}** as the hashtag that floods feeds ("${answers[6]} just exploded").  
+   - Close with triumphant, comedic style: "And that, my friend, is how **${answers[5]}** became the legend we never saw coming. Hell yeah!"
+
+**Style Rules:**  
+- Keep it punchy, energetic, and a tad sassy.  
+- Use Level 1 profanity words ("hell yeah," "crap," "damn") sparingly for emphasis.  
+- Speak directly to the user: "you," "your."  
+- Channel Armo Hopar's vibe: zero mercy on the wrong story, then unbridled hype on the real one.  
+- Make it so absurdly fun they'll screenshot and share it immediately.
+
+Now—lights, camera, action: botch it hard, then make them *actually* famous.
+
+IMPORTANT: Generate both CAPTIONS and HASHTAGS separately. First write engaging social media captions based on the story, then create relevant hashtags.`;
+
+      // Use Level 1 Polite persona with Level 1 profanity for this feature
+      const enhancedPrompt = `${systemPrompt}
+      
+Additional Context:
+- Use Level 1 Polite persona with light profanity (hell yeah, crap, damn only)
+- Be creative and detailed in caption and hashtag creation
+- Replace "hopar" with the actual user's name: ${username || "[Your Name]"}
+- Keep energetic but supportive tone
+- Focus on shareable, viral-worthy content
+- Address the user by their actual name, not "hopar"
+- Generate content in two sections: CAPTIONS first, then HASHTAGS`;
+
+      // Generate the full fame story first
+      let fullStory = await generateAIResponseFallback(enhancedPrompt, "make-me-famous");
+      
+      // Replace any remaining "hopar" references with the user's name
+      if (username) {
+        fullStory = fullStory.replace(/\bhopar\b/gi, username);
+        fullStory = fullStory.replace(/Listen hopar/gi, `Listen ${username}`);
+      }
+
+      // Split the story into captions and hashtags
+      let captions = "";
+      let hashtags = "";
+      
+      // Try to parse the AI response to separate captions and hashtags
+      const captionsMatch = fullStory.match(/CAPTIONS?[:\s]*([\s\S]*?)(?=HASHTAGS?|$)/i);
+      const hashtagsMatch = fullStory.match(/HASHTAGS?[:\s]*([\s\S]*?)$/i);
+      
+      if (captionsMatch && hashtagsMatch) {
+        captions = captionsMatch[1].trim();
+        hashtags = hashtagsMatch[1].trim();
+      } else {
+        // If parsing fails, use the first half as captions and generate hashtags
+        const midpoint = Math.floor(fullStory.length / 2);
+        captions = fullStory.substring(0, midpoint).trim();
+        
+        // Generate hashtags separately
+        const hashtagPrompt = `Based on this fame story: "${answers[5]}" with talent "${answers[0]}" wanting to achieve "${answers[1]}" and impress "${answers[2]}", create engaging hashtags including "${answers[6]}". Make them viral-worthy and shareable.`;
+        hashtags = await generateAIResponseFallback(hashtagPrompt, "make-me-famous");
+      }
+      
+      // Save the user's answers and AI response as messages
+      await storage.createMessage({
+        sessionId: captionSession.id,
+        sender: "user",
+        content: `Fame Details: ${answers.join('; ')}`,
+        metadata: { answers, type: 'caption-request' }
+      });
+
+      await storage.createMessage({
+        sessionId: captionSession.id,
+        sender: "armo",
+        content: `Captions: ${captions}\n\nHashtags: ${hashtags}`,
+        metadata: { type: 'caption-response' }
+      });
+      
+      console.log('Generated captions:', captions.substring(0, 100) + '...');
+      console.log('Generated hashtags:', hashtags.substring(0, 100) + '...');
+      console.log('Saved to session:', captionSession.id);
+      
+      res.json({ captions, hashtags, sessionId: captionSession.id });
+    } catch (error) {
+      console.error('Error generating captions:', error);
+      res.status(500).json({ error: "AI caption generation failed - check your GROQ_API_KEY and try again" });
+    }
+  });
+
   app.post("/api/resume/generate", async (req: Request, res: Response) => {
     try {
       const { answers, questions, username } = req.body;

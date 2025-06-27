@@ -13,8 +13,10 @@ import { AlibiQuestionCards } from "@/components/AlibiQuestionCards";
 import { AlibiRecapPage } from "@/components/AlibiRecapPage";
 import { AlibiResultPage } from "@/components/AlibiResultPage";
 import { ResumeResultPage } from "@/components/ResumeResultPage";
+import { CaptionQuestionCards } from "@/components/CaptionQuestionCards";
+import { CaptionResultPage } from "@/components/CaptionResultPage";
 
-type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result" | "resume-result";
+type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-recap" | "alibi-result" | "resume-result" | "caption-questions" | "caption-result";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
@@ -25,6 +27,8 @@ function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [alibiAnswers, setAlibiAnswers] = useState<string[]>([]);
   const [alibiQuestions, setAlibiQuestions] = useState<string[]>([]);
+  const [captionAnswers, setCaptionAnswers] = useState<string[]>([]);
+  const [captionQuestions, setCaptionQuestions] = useState<string[]>([]);
 
   // Mobile detection
   useEffect(() => {
@@ -48,6 +52,8 @@ function App() {
       setAppState("alibi-welcome");
     } else if (vibe === "hired") {
       setAppState("resume-result");
+    } else if (vibe === "famous") {
+      setAppState("caption-questions");
     } else if (vibe === "gallery" || vibe === "recent") {
       setAppState("chat"); // For now, these will use the chat interface
     } else {
@@ -116,6 +122,27 @@ function App() {
     setAlibiQuestions([]);
   };
 
+  const handleCaptionComplete = (answers: string[], questions: string[]) => {
+    console.log('Caption answers:', answers);
+    setCaptionAnswers(answers);
+    setCaptionQuestions(questions);
+    setAppState("caption-result");
+  };
+
+  const handleCaptionBack = () => {
+    setAppState("lobby");
+  };
+
+  const handleCaptionResultBack = () => {
+    setAppState("caption-questions");
+  };
+
+  const handleCaptionResultRestart = () => {
+    setAppState("caption-questions");
+    setCaptionAnswers([]);
+    setCaptionQuestions([]);
+  };
+
   const handleSidebarToggle = () => {
     if (isMobile) {
       setIsMobileSidebarOpen(true); // Always open on mobile
@@ -149,6 +176,9 @@ function App() {
         return "Gimmi Alibi Ara";
       case "resume-result":
         return "You Are Hired Ara";
+      case "caption-questions":
+      case "caption-result":
+        return "Make Me Famous Ara";
       default:
         return "Armo-GPT";
     }
@@ -269,6 +299,24 @@ function App() {
             {appState === "resume-result" && (
               <ResumeResultPage
                 onBack={handleBackToLobby}
+              />
+            )}
+
+            {appState === "caption-questions" && (
+              <CaptionQuestionCards
+                onComplete={handleCaptionComplete}
+                onBack={handleCaptionBack}
+                username="User"
+              />
+            )}
+
+            {appState === "caption-result" && (
+              <CaptionResultPage
+                questions={captionQuestions}
+                answers={captionAnswers}
+                onBack={handleCaptionResultBack}
+                onRestart={handleCaptionResultRestart}
+                username="User"
               />
             )}
           </div>
