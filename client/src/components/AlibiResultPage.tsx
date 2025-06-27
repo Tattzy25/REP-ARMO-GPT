@@ -235,7 +235,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-8 rounded-3xl"
             style={{
               background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646'
+              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #424242'
             }}
           >
             <div className="text-center">
@@ -384,7 +384,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-6 rounded-xl max-w-md w-full mx-4"
             style={{
               background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646'
+              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #424242'
             }}
           >
             <h3 className="text-lg font-semibold mb-4 text-white">Restart Confirmation</h3>
@@ -421,7 +421,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
             className="p-4 rounded-xl text-white"
             style={{
               background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #2e2e2e, -12px -12px 24px #464646',
+              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #424242',
               border: '2px solid #ff4444'
             }}
           >
