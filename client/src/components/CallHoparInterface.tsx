@@ -36,9 +36,9 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
   }, []);
 
   const checkCooldownStatus = () => {
-    // Temporarily disabled for testing - remove this comment to re-enable cooldown
-    return false;
-    
+    // Cooldown disabled for development/testing - users can call multiple times
+    // For production, uncomment the lines below to enable 1-hour cooldown:
+    /*
     const lastCallTime = localStorage.getItem('lastCallHoparTime');
     if (lastCallTime) {
       const timeDiff = Date.now() - parseInt(lastCallTime);
@@ -50,6 +50,7 @@ export function CallHoparInterface({ onBack, username = "User" }: CallHoparInter
         return true;
       }
     }
+    */
     return false;
   };
 

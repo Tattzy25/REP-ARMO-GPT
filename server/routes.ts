@@ -807,13 +807,19 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       
       const welcomeRoast = welcomePrompts[Math.floor(Math.random() * welcomePrompts.length)];
       
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      if (!apiKey) {
+        throw new Error('ElevenLabs API key not configured');
+      }
+
       // Generate TTS audio
-      const audioResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB', {
+      const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+      const audioResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
         headers: {
           'Accept': 'audio/mpeg',
           'Content-Type': 'application/json',
-          'xi-api-key': process.env.ELEVENLABS_API_KEY || ''
+          'xi-api-key': apiKey
         },
         body: JSON.stringify({
           text: welcomeRoast,
@@ -828,7 +834,9 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       });
 
       if (!audioResponse.ok) {
-        throw new Error('ElevenLabs API failed');
+        const errorText = await audioResponse.text();
+        console.error('ElevenLabs API error:', audioResponse.status, errorText);
+        throw new Error(`ElevenLabs API failed: ${audioResponse.status}`);
       }
 
       const audioBuffer = await audioResponse.arrayBuffer();
@@ -858,13 +866,19 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       
       const goodbyeRoast = goodbyePrompts[Math.floor(Math.random() * goodbyePrompts.length)];
       
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      if (!apiKey) {
+        throw new Error('ElevenLabs API key not configured');
+      }
+
       // Generate TTS audio
-      const audioResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB', {
+      const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+      const audioResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
         headers: {
           'Accept': 'audio/mpeg',
           'Content-Type': 'application/json',
-          'xi-api-key': process.env.ELEVENLABS_API_KEY || ''
+          'xi-api-key': apiKey
         },
         body: JSON.stringify({
           text: goodbyeRoast,
@@ -879,7 +893,9 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       });
 
       if (!audioResponse.ok) {
-        throw new Error('ElevenLabs API failed');
+        const errorText = await audioResponse.text();
+        console.error('ElevenLabs API error:', audioResponse.status, errorText);
+        throw new Error(`ElevenLabs API failed: ${audioResponse.status}`);
       }
 
       const audioBuffer = await audioResponse.arrayBuffer();
@@ -903,6 +919,10 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       const { username, callDuration } = req.body;
       
       // Step 1: Transcribe user speech using Gemini
+      if (!process.env.GEMINI_API_KEY) {
+        throw new Error('Gemini API key not configured');
+      }
+
       const audioData = fs.readFileSync(req.file.path);
       
       const transcriptionResponse = await ai.models.generateContent({
@@ -923,6 +943,50 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
 
       const userTranscript = transcriptionResponse.text || "";
       console.log('User said:', userTranscript);
+
+      if (!userTranscript.trim()) {
+        // If no transcription, use a generic roast
+        const fallbackRoasts = [
+          "What the fuck was that mumbling? Speak up, you coward!",
+          "I can't hear your weak ass voice! Say something worth my time!",
+          "Silent treatment? That's the smartest thing you've done all day, dipshit!"
+        ];
+        const fallbackText = fallbackRoasts[Math.floor(Math.random() * fallbackRoasts.length)];
+        
+        // Generate TTS for fallback
+        const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
+        const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+        if (elevenLabsKey) {
+          const audioResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+            method: 'POST',
+            headers: {
+              'Accept': 'audio/mpeg',
+              'Content-Type': 'application/json',
+              'xi-api-key': elevenLabsKey
+            },
+            body: JSON.stringify({
+              text: fallbackText,
+              model_id: 'eleven_monolingual_v1',
+              voice_settings: {
+                stability: 0.4,
+                similarity_boost: 0.9,
+                style: 0.9,
+                use_speaker_boost: true
+              }
+            })
+          });
+
+          if (audioResponse.ok) {
+            const audioBuffer = await audioResponse.arrayBuffer();
+            fs.unlinkSync(req.file.path);
+            res.setHeader('Content-Type', 'audio/mpeg');
+            return res.send(Buffer.from(audioBuffer));
+          }
+        }
+        
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({ error: "Could not process speech" });
+      }
       
       // Step 2: Generate Level 4 Savage roast response using Groq
       const userId = 1; // For now, using default user
@@ -982,12 +1046,18 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       console.log('AI roast response:', roastText);
       
       // Step 3: Convert roast to speech using ElevenLabs
-      const audioResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB', {
+      const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
+      if (!elevenLabsKey) {
+        throw new Error('ElevenLabs API key not configured');
+      }
+
+      const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
+      const audioResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
         headers: {
           'Accept': 'audio/mpeg',
           'Content-Type': 'application/json',
-          'xi-api-key': process.env.ELEVENLABS_API_KEY || ''
+          'xi-api-key': elevenLabsKey
         },
         body: JSON.stringify({
           text: roastText,
@@ -1002,7 +1072,9 @@ Format as JSON array: ["focus1", "focus2", "focus3"]`;
       });
 
       if (!audioResponse.ok) {
-        throw new Error('ElevenLabs API failed');
+        const errorText = await audioResponse.text();
+        console.error('ElevenLabs API error in speech processing:', audioResponse.status, errorText);
+        throw new Error(`ElevenLabs API failed: ${audioResponse.status}`);
       }
 
       const audioBuffer = await audioResponse.arrayBuffer();
