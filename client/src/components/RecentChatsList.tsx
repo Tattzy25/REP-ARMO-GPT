@@ -134,6 +134,7 @@ export default function RecentChatsList({ onSelectChat }: RecentChatsListProps) 
       'roast': 'Roast Session',
       'famous': 'Fame Strategy',
       'call': 'Voice Call',
+      'gimmi-alibi-ara': 'Alibi Story',
     };
     
     const baseName = vibeNames[chat.vibe] || 'Chat';

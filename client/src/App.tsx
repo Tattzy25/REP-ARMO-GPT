@@ -61,10 +61,48 @@ function App() {
     }
   };
 
-  const handleSelectChat = (sessionId: number, vibe: string) => {
+  const handleSelectChat = async (sessionId: number, vibe: string) => {
     console.log('Selecting chat session:', { sessionId, vibe });
     setCurrentVibe(vibe);
     setCurrentSessionId(sessionId);
+    
+    // Special handling for alibi sessions - route back to result page
+    if (vibe === "gimmi-alibi-ara") {
+      try {
+        // Fetch the session messages to get the alibi data
+        const response = await fetch(`/api/chat/session/${sessionId}/messages`);
+        if (response.ok) {
+          const messages = await response.json();
+          
+          // Find the user request and AI response
+          const userMessage = messages.find((m: any) => m.sender === 'user' && m.metadata?.type === 'alibi-request');
+          const aiMessage = messages.find((m: any) => m.sender === 'armo' && m.metadata?.type === 'alibi-response');
+          
+          if (userMessage && aiMessage) {
+            // Extract answers from metadata
+            const answers = userMessage.metadata?.answers || [];
+            const questions = [
+              "Yo User, what mess are you trying to cover up?",
+              "Who's breathing down your neck?",
+              "Which ride-or-die partner backs your alibi?",
+              "What \"totally legit\" excuse are you selling?",
+              "Where were you \"definitely not\" when the chaos went down?",
+              "What \"bulletproof\" evidence seals the deal?"
+            ];
+            
+            // Set the alibi data and route to result page
+            setAlibiAnswers(answers);
+            setAlibiQuestions(questions);
+            setAppState("alibi-result");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading alibi session:', error);
+      }
+    }
+    
+    // Default behavior for other vibes
     if (appState === "lobby") {
       setAppState("chat");
     }
