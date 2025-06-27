@@ -46,8 +46,58 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
     };
   }, []);
 
+  // Interactive Storytelling States
+  const [storyChunks, setStoryChunks] = useState<string[]>([]);
+  const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
+  const [showingProgressively, setShowingProgressively] = useState(false);
+  const [alternativeEndings, setAlternativeEndings] = useState<string[]>([]);
+  const [selectedEnding, setSelectedEnding] = useState<number | null>(null);
+  const [showBranching, setShowBranching] = useState(false);
+  
+  // Gamification States
+  const [professionalismScore, setProfessionalismScore] = useState<number | null>(null);
+  const [scoreAnalysis, setScoreAnalysis] = useState("");
+  const [achievements, setAchievements] = useState<string[]>([]);
+  const [showScoring, setShowScoring] = useState(false);
+
+  const startProgressiveReveal = (chunks: string[]) => {
+    let chunkIndex = 0;
+    setCurrentChunkIndex(0);
+    setResume(chunks[0]);
+    
+    const progressInterval = setInterval(() => {
+      chunkIndex++;
+      if (chunkIndex < chunks.length) {
+        setCurrentChunkIndex(chunkIndex);
+        setResume(chunks.slice(0, chunkIndex + 1).join('\n\n'));
+      } else {
+        setShowingProgressively(false);
+        clearInterval(progressInterval);
+        
+        // Show scoring after completion
+        setTimeout(() => setShowScoring(true), 1000);
+      }
+    }, 2500); // Slower pacing for professional content
+  };
+
+  const selectAlternativeEnding = (index: number) => {
+    setSelectedEnding(index);
+    setResume(resume + '\n\n--- Alternative Focus ---\n\n' + alternativeEndings[index]);
+    setShowBranching(false);
+  };
+
   const generateResume = async () => {
     setIsLoading(true);
+    setStoryChunks([]);
+    setCurrentChunkIndex(0);
+    setShowingProgressively(false);
+    setProfessionalismScore(null);
+    setScoreAnalysis("");
+    setAchievements([]);
+    setAlternativeEndings([]);
+    setSelectedEnding(null);
+    setShowScoring(false);
+    setShowBranching(false);
     try {
       const response = await fetch('/api/resume/generate', {
         method: 'POST',
@@ -57,7 +107,8 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
         body: JSON.stringify({
           answers,
           questions,
-          username
+          username,
+          interactive: true
         }),
       });
 
@@ -66,7 +117,32 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
       }
 
       const data = await response.json();
-      setResume(data.resume);
+      
+      // Handle progressive storytelling if available
+      if (data.chunks && data.chunks.length > 1) {
+        setStoryChunks(data.chunks);
+        setShowingProgressively(true);
+        startProgressiveReveal(data.chunks);
+      } else {
+        setResume(data.resume);
+      }
+      
+      // Handle gamification features
+      if (data.professionalismScore !== undefined) {
+        setProfessionalismScore(data.professionalismScore);
+        setScoreAnalysis(data.scoreAnalysis || "");
+        setTimeout(() => setShowScoring(true), 2000);
+      }
+      
+      if (data.achievements && data.achievements.length > 0) {
+        setAchievements(data.achievements);
+      }
+      
+      // Handle alternative endings
+      if (data.alternativeEndings && data.alternativeEndings.length > 0) {
+        setAlternativeEndings(data.alternativeEndings);
+        setTimeout(() => setShowBranching(true), 5000);
+      }
     } catch (error) {
       console.error('Error generating resume:', error);
       setResume("Hopar's resume machine is currently offline. Please try again later.");
@@ -289,6 +365,109 @@ export function ResumeRecapPage({ answers, questions, onBack, onRestart, usernam
                 }`}
               >
                 {resume}
+                {showingProgressively && currentChunkIndex < storyChunks.length - 1 && (
+                  <motion.span
+                    animate={{ opacity: [1, 0.3, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="text-blue-400 ml-2"
+                  >
+                    ●●●
+                  </motion.span>
+                )}
+              </motion.div>
+            )}
+            
+            {/* Professionalism Score */}
+            {!isLoading && showScoring && professionalismScore !== null && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mt-6 p-4 rounded-xl"
+                style={{
+                  background: '#404040',
+                  boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+                }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-semibold text-white">Professionalism Score</h3>
+                  <div className="flex items-center">
+                    <span className="text-2xl font-bold text-green-400 mr-2">{professionalismScore}/10</span>
+                    <div className="flex">
+                      {[...Array(10)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-3 h-3 rounded-full mr-1 ${
+                            i < professionalismScore ? 'bg-green-400' : 'bg-gray-600'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {scoreAnalysis && (
+                  <p className="text-sm text-gray-300">{scoreAnalysis}</p>
+                )}
+              </motion.div>
+            )}
+
+            {/* Achievements */}
+            {!isLoading && achievements.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mt-4 flex flex-wrap gap-2"
+              >
+                {achievements.map((achievement, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className="px-3 py-1 rounded-full text-sm text-white"
+                    style={{
+                      background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+                    }}
+                  >
+                    🏆 {achievement}
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Alternative Career Focus */}
+            {!isLoading && showBranching && alternativeEndings.length > 0 && selectedEnding === null && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mt-6 p-4 rounded-xl border border-blue-400"
+                style={{
+                  background: '#404040',
+                  boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+                }}
+              >
+                <h3 className="text-lg font-semibold text-white mb-3">Choose Your Career Focus</h3>
+                <div className="space-y-3">
+                  {alternativeEndings.map((ending, index) => (
+                    <motion.button
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      onClick={() => selectAlternativeEnding(index)}
+                      className="w-full p-3 text-left rounded-lg text-white hover:bg-blue-600 transition-colors duration-200"
+                      style={{
+                        background: '#3a3a3a',
+                        boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
+                      }}
+                    >
+                      <span className="text-blue-400 font-semibold">Option {index + 1}:</span>
+                      <p className="mt-1 text-sm">{ending.substring(0, 100)}...</p>
+                    </motion.button>
+                  ))}
+                </div>
               </motion.div>
             )}
           </motion.div>
