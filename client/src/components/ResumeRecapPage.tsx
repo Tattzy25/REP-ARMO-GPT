@@ -177,7 +177,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
               }}
             >
               <div className="mb-4">
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3 className="text-xl font-bold font-audiowide text-white mb-2">
                   Question {index + 1}
                 </h3>
                 <p className="text-gray-300">{question}</p>
