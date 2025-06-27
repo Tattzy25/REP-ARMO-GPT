@@ -93,15 +93,6 @@ export function AlibiWelcomeScreen({ onStart, onBack }: AlibiWelcomeScreenProps)
               <span>START</span>
             </div>
           </motion.button>
-          
-          <div className="mt-4 text-center">
-            <p className="text-white text-sm opacity-90 max-w-[180px]">
-              I will provide a<br />
-              animated start button<br />
-              code. That will be<br />
-              placed here.
-            </p>
-          </div>
         </div>
       </div>
     </div>
