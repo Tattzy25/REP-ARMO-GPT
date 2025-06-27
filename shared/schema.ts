@@ -53,7 +53,203 @@ export const errorLogs = pgTable("error_logs", {
   errorType: text("error_type").notNull(),
   errorMessage: text("error_message").notNull(),
   stackTrace: text("stack_trace"),
-  requestData: text("request_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Phase 2 & 3 Feature Tables
+export const alibiTemplates = pgTable("alibi_templates", {
+  id: text("id").primaryKey(), // e.g., 'work-emergency', 'family-obligation'
+  category: text("category").notNull(), // Work, Family, Health, Transportation, Cultural, Technology, Seasonal
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  scenario: text("scenario").notNull(),
+  questions: jsonb("questions").notNull(), // Array of questions
+  isActive: boolean("is_active").default(true),
+  isseasonal: boolean("is_seasonal").default(false),
+  seasonalMonths: jsonb("seasonal_months"), // Array of month numbers [11, 0] for winter
+  culturalRelevance: text("cultural_relevance"), // armenian, general, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const userPreferences = pgTable("user_preferences", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).unique(),
+  humorStyle: text("humor_style").default('balanced'), // savage, edgy, balanced, polite
+  preferredTopics: jsonb("preferred_topics").default('[]'), // Array of topics
+  profanityLevel: text("profanity_level").default('moderate'), // none, light, moderate, heavy
+  preferredPersonaLevel: integer("preferred_persona_level").default(2), // 1-4
+  voicePreference: text("voice_preference").default('elevenlabs'), // elevenlabs, browser
+  rapidModeEnabled: boolean("rapid_mode_enabled").default(true),
+  templatesEnabled: boolean("templates_enabled").default(true),
+  achievementsEnabled: boolean("achievements_enabled").default(true),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+});
+
+export const alibiGenerations = pgTable("alibi_generations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  templateId: text("template_id").references(() => alibiTemplates.id),
+  generationType: text("generation_type").notNull(), // standard, rapid, template, interactive
+  userAnswers: jsonb("user_answers").notNull(), // Array of user responses
+  generatedAlibi: text("generated_alibi").notNull(),
+  aiModel: text("ai_model").notNull(), // groq, openai, ensemble
+  believabilityScore: real("believability_score"), // 1.0 - 10.0
+  scoreAnalysis: text("score_analysis"),
+  achievements: jsonb("achievements"), // Array of achievement IDs earned
+  alternativeEndings: jsonb("alternative_endings"), // Array of alternative story endings
+  storyChunks: jsonb("story_chunks"), // For progressive revelation
+  processingTimeMs: integer("processing_time_ms"),
+  username: text("username"), // User's preferred name for the alibi
+  interactiveMode: boolean("interactive_mode").default(false),
+  ensembleMode: boolean("ensemble_mode").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const achievements = pgTable("achievements", {
+  id: text("id").primaryKey(), // detail-master, cultural-authentic, edgy-storyteller
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // creativity, detail, cultural, speed, consistency
+  badgeIcon: text("badge_icon"), // Icon name or emoji
+  badgeColor: text("badge_color").default('#4F46E5'), // Hex color
+  criteria: jsonb("criteria").notNull(), // Conditions for earning
+  rarity: text("rarity").default('common'), // common, uncommon, rare, legendary
+  pointValue: integer("point_value").default(10),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userAchievements = pgTable("user_achievements", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  achievementId: text("achievement_id").references(() => achievements.id),
+  alibiGenerationId: integer("alibi_generation_id").references(() => alibiGenerations.id),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  context: text("context"), // How they earned it
+});
+
+export const belivaibilityMetrics = pgTable("believability_metrics", {
+  id: serial("id").primaryKey(),
+  alibiGenerationId: integer("alibi_generation_id").references(() => alibiGenerations.id),
+  detailScore: real("detail_score"), // Based on answer length and specificity
+  consistencyScore: real("consistency_score"), // Cross-reference consistency
+  creativityScore: real("creativity_score"), // Uniqueness vs generic responses
+  plausibilityScore: real("plausibility_score"), // How realistic it sounds
+  evidenceScore: real("evidence_score"), // Quality of supporting evidence
+  timelineScore: real("timeline_score"), // Temporal consistency
+  overallScore: real("overall_score").notNull(), // Final weighted score
+  factorsAnalyzed: jsonb("factors_analyzed"), // Array of analysis factors
+  improvementSuggestions: jsonb("improvement_suggestions"), // Array of suggestions
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const rapidAlibiHistory = pgTable("rapid_alibi_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  situation: text("situation").notNull(), // User's emergency situation
+  generatedAlibi: text("generated_alibi").notNull(),
+  aiModel: text("ai_model").notNull(), // Which AI model was used
+  generationTimeMs: integer("generation_time_ms").notNull(),
+  wasSuccessful: boolean("was_successful").default(true),
+  fallbackUsed: boolean("fallback_used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const voiceTranscriptions = pgTable("voice_transcriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  alibiGenerationId: integer("alibi_generation_id").references(() => alibiGenerations.id),
+  audioFilename: text("audio_filename").notNull(),
+  transcriptionText: text("transcription_text").notNull(),
+  transcriptionMethod: text("transcription_method").notNull(), // gemini, whisper, browser
+  confidenceScore: real("confidence_score"), // 0.0 - 1.0
+  processingTimeMs: integer("processing_time_ms"),
+  questionIndex: integer("question_index"), // Which alibi question this answers
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const templateUsageStats = pgTable("template_usage_stats", {
+  id: serial("id").primaryKey(),
+  templateId: text("template_id").references(() => alibiTemplates.id),
+  userId: integer("user_id").references(() => users.id),
+  usageDate: timestamp("usage_date").defaultNow(),
+  completionRate: real("completion_rate"), // How many questions answered
+  satisfactionRating: integer("satisfaction_rating"), // 1-5 stars
+  timeSpentSeconds: integer("time_spent_seconds"),
+  wasSuccessful: boolean("was_successful").default(true),
+});
+
+export const aiModelPerformance = pgTable("ai_model_performance", {
+  id: serial("id").primaryKey(),
+  model: text("model").notNull(), // groq, openai, ensemble
+  requestType: text("request_type").notNull(), // alibi, rapid, alternative_endings
+  responseTimeMs: integer("response_time_ms").notNull(),
+  tokenCount: integer("token_count"),
+  wasSuccessful: boolean("was_successful").default(true),
+  errorType: text("error_type"),
+  userSatisfaction: integer("user_satisfaction"), // 1-5 if provided
+  believabilityScore: real("believability_score"), // If applicable
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const seasonalEvents = pgTable("seasonal_events", {
+  id: text("id").primaryKey(), // armenian-genocide-day, christmas, etc.
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // armenian, american, religious, cultural
+  startMonth: integer("start_month").notNull(), // 0-11
+  endMonth: integer("end_month"), // For multi-month events
+  specificDays: jsonb("specific_days"), // Array of specific dates
+  alibiScenarios: jsonb("alibi_scenarios"), // Pre-written scenarios for this event
+  isRecurring: boolean("is_recurring").default(true),
+  culturalImportance: text("cultural_importance").default('medium'), // low, medium, high
+  templateSuggestions: jsonb("template_suggestions"), // Suggested template modifications
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userSessions = pgTable("user_sessions", {
+  id: text("id").primaryKey(), // UUID or session token
+  userId: integer("user_id").references(() => users.id),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  deviceType: text("device_type"), // mobile, desktop, tablet
+  browserInfo: text("browser_info"),
+  sessionStarted: timestamp("session_started").defaultNow(),
+  lastActivity: timestamp("last_activity").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  alibiGenerationsCount: integer("alibi_generations_count").default(0),
+  achievementsEarned: integer("achievements_earned").default(0),
+});
+
+// Error tracking for specific features
+export const featureErrors = pgTable("feature_errors", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  featureName: text("feature_name").notNull(), // voice_input, rapid_mode, ensemble, etc.
+  errorCode: text("error_code"),
+  errorMessage: text("error_message").notNull(),
+  errorContext: jsonb("error_context"), // Additional error details
+  wasResolved: boolean("was_resolved").default(false),
+  resolutionNotes: text("resolution_notes"),
+  severity: text("severity").default('medium'), // low, medium, high, critical
+  createdAt: timestamp("created_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+// Component reusability table for tracking UI elements
+export const componentUsage = pgTable("component_usage", {
+  id: serial("id").primaryKey(),
+  componentName: text("component_name").notNull(), // AlibiResultPage, TemplateSelector, etc.
+  userId: integer("user_id").references(() => users.id),
+  sessionId: integer("session_id").references(() => chatSessions.id),
+  actionType: text("action_type").notNull(), // view, click, interact, share, download
+  targetElement: text("target_element"), // button_id, link_id, etc.
+  interactionData: jsonb("interaction_data"), // Additional interaction details
+  deviceType: text("device_type"), // mobile, desktop
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -342,3 +538,116 @@ export type ContentReuseRules = typeof contentReuseRules.$inferSelect;
 
 export type InsertContentUsageTracking = z.infer<typeof insertContentUsageTrackingSchema>;
 export type ContentUsageTracking = typeof contentUsageTracking.$inferSelect;
+
+// Insert schemas for Phase 2 & 3 feature tables
+export const insertAlibiTemplateSchema = createInsertSchema(alibiTemplates).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({
+  id: true,
+  lastUpdated: true,
+});
+
+export const insertAlibiGenerationSchema = createInsertSchema(alibiGenerations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  createdAt: true,
+});
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  earnedAt: true,
+});
+
+export const insertBelievabilityMetricsSchema = createInsertSchema(belivaibilityMetrics).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertRapidAlibiHistorySchema = createInsertSchema(rapidAlibiHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertVoiceTranscriptionSchema = createInsertSchema(voiceTranscriptions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTemplateUsageStatsSchema = createInsertSchema(templateUsageStats).omit({
+  id: true,
+  usageDate: true,
+});
+
+export const insertAiModelPerformanceSchema = createInsertSchema(aiModelPerformance).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSeasonalEventSchema = createInsertSchema(seasonalEvents).omit({
+  createdAt: true,
+});
+
+export const insertUserSessionSchema = createInsertSchema(userSessions).omit({
+  sessionStarted: true,
+  lastActivity: true,
+});
+
+export const insertFeatureErrorSchema = createInsertSchema(featureErrors).omit({
+  id: true,
+  createdAt: true,
+  resolvedAt: true,
+});
+
+export const insertComponentUsageSchema = createInsertSchema(componentUsage).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for Phase 2 & 3 feature tables  
+export type InsertAlibiTemplate = z.infer<typeof insertAlibiTemplateSchema>;
+export type AlibiTemplate = typeof alibiTemplates.$inferSelect;
+
+export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
+export type UserPreferences = typeof userPreferences.$inferSelect;
+
+export type InsertAlibiGeneration = z.infer<typeof insertAlibiGenerationSchema>;
+export type AlibiGeneration = typeof alibiGenerations.$inferSelect;
+
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;
+
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+export type UserAchievement = typeof userAchievements.$inferSelect;
+
+export type InsertBelievabilityMetrics = z.infer<typeof insertBelievabilityMetricsSchema>;
+export type BelievabilityMetrics = typeof belivaibilityMetrics.$inferSelect;
+
+export type InsertRapidAlibiHistory = z.infer<typeof insertRapidAlibiHistorySchema>;
+export type RapidAlibiHistory = typeof rapidAlibiHistory.$inferSelect;
+
+export type InsertVoiceTranscription = z.infer<typeof insertVoiceTranscriptionSchema>;
+export type VoiceTranscription = typeof voiceTranscriptions.$inferSelect;
+
+export type InsertTemplateUsageStats = z.infer<typeof insertTemplateUsageStatsSchema>;
+export type TemplateUsageStats = typeof templateUsageStats.$inferSelect;
+
+export type InsertAiModelPerformance = z.infer<typeof insertAiModelPerformanceSchema>;
+export type AiModelPerformance = typeof aiModelPerformance.$inferSelect;
+
+export type InsertSeasonalEvent = z.infer<typeof insertSeasonalEventSchema>;
+export type SeasonalEvent = typeof seasonalEvents.$inferSelect;
+
+export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
+export type UserSession = typeof userSessions.$inferSelect;
+
+export type InsertFeatureError = z.infer<typeof insertFeatureErrorSchema>;
+export type FeatureError = typeof featureErrors.$inferSelect;
+
+export type InsertComponentUsage = z.infer<typeof insertComponentUsageSchema>;
+export type ComponentUsage = typeof componentUsage.$inferSelect;

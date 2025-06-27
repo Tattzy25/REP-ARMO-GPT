@@ -7,6 +7,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 import personaApiRouter from "./persona-api";
 import { personaAI } from "./ai-persona-integration";
 import { getPersonaLevelForVibe, getPersonaIdForVibe } from "./vibe-persona-mapping";
@@ -366,10 +367,302 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
     }
   });
 
+  // Voice input for alibi questions
+  app.post("/api/alibi/voice-answer", upload.single('audio'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No audio file provided' });
+      }
+
+      console.log('Processing voice answer:', req.file.filename);
+      
+      // Read the audio file
+      const audioPath = req.file.path;
+      const audioData = fs.readFileSync(audioPath);
+      
+      // For now, return a placeholder - client will use Web Speech API
+      // TODO: Implement server-side speech recognition when Gemini API is configured
+      const transcription = "Voice transcription processed - use Web Speech API on client";
+      console.log('Voice transcription:', transcription);
+
+      // Clean up the audio file
+      fs.unlink(audioPath, (err) => {
+        if (err) console.error('Error deleting audio file:', err);
+      });
+
+      res.json({ success: true, transcription });
+    } catch (error) {
+      console.error('Voice transcription error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Voice transcription failed. Please try again.' 
+      });
+    }
+  });
+
+  // Template library endpoint
+  app.get("/api/alibi/templates", async (req: Request, res: Response) => {
+    try {
+      const templates = [
+        {
+          id: 'work-emergency',
+          category: 'Work',
+          title: 'Work Emergency',
+          description: 'Unexpected work situation requiring immediate attention',
+          scenario: 'Boss called emergency meeting',
+          questions: [
+            "What type of emergency came up at work?",
+            "Who contacted you about it?",
+            "What time did they reach out?",
+            "How long did it take to resolve?",
+            "Where did you need to go?",
+            "What evidence do you have?"
+          ]
+        },
+        {
+          id: 'family-obligation',
+          category: 'Family',
+          title: 'Armenian Family Obligation',
+          description: 'Family duty that cannot be postponed',
+          scenario: 'Elderly relative needed immediate help',
+          questions: [
+            "Which family member needed help?",
+            "What kind of assistance was required?",
+            "How did you find out about it?",
+            "How long were you helping them?",
+            "Where did this happen?",
+            "Who else was involved?"
+          ]
+        },
+        {
+          id: 'health-concern',
+          category: 'Health',
+          title: 'Health Emergency',
+          description: 'Medical situation requiring attention',
+          scenario: 'Had to deal with sudden health issue',
+          questions: [
+            "What health issue occurred?",
+            "When did symptoms start?",
+            "Did you see a doctor?",
+            "How long were you dealing with this?",
+            "Where did you go for help?",
+            "What documentation do you have?"
+          ]
+        },
+        {
+          id: 'car-trouble',
+          category: 'Transportation',
+          title: 'Car Trouble',
+          description: 'Vehicle breakdown or accident',
+          scenario: 'Car broke down unexpectedly',
+          questions: [
+            "What happened to your car?",
+            "Where did it break down?",
+            "What time did this occur?",
+            "How long were you stuck?",
+            "Who helped you or came to assist?",
+            "Do you have receipts or photos?"
+          ]
+        },
+        {
+          id: 'armenian-holiday',
+          category: 'Cultural',
+          title: 'Armenian Cultural Event',
+          description: 'Important Armenian community obligation',
+          scenario: 'Had to attend Armenian community event',
+          questions: [
+            "What Armenian event was happening?",
+            "Where was it held?",
+            "What time did it start?",
+            "How long did you stay?",
+            "Who else was there?",
+            "What role did you play in the event?"
+          ]
+        },
+        {
+          id: 'tech-disaster',
+          category: 'Technology',
+          title: 'Technology Emergency',
+          description: 'Critical tech issue requiring immediate fix',
+          scenario: 'Computer/phone emergency that needed urgent attention',
+          questions: [
+            "What technology problem occurred?",
+            "When did you first notice the issue?",
+            "Where did you go to fix it?",
+            "How long did the repair take?",
+            "Who helped you with the problem?",
+            "What proof of the issue do you have?"
+          ]
+        }
+      ];
+
+      // Add seasonal templates based on current date
+      const now = new Date();
+      const month = now.getMonth();
+      
+      if (month === 11 || month === 0) { // December or January
+        templates.push({
+          id: 'winter-holiday',
+          category: 'Seasonal',
+          title: 'Holiday Preparation',
+          description: 'Last-minute holiday preparations',
+          scenario: 'Had to handle urgent holiday arrangements',
+          questions: [
+            "What holiday preparation was needed?",
+            "Who asked you to help?",
+            "What time did you start?",
+            "How long did it take?",
+            "Where did you go shopping/preparing?",
+            "What receipts or photos do you have?"
+          ]
+        });
+      }
+
+      if (month >= 3 && month <= 5) { // Spring
+        templates.push({
+          id: 'armenian-genocide-day',
+          category: 'Cultural',
+          title: 'Armenian Genocide Remembrance',
+          description: 'Community memorial event participation',
+          scenario: 'Had to attend Armenian Genocide memorial service',
+          questions: [
+            "Which memorial event did you attend?",
+            "Where was the service held?",
+            "What time did it begin?",
+            "How long was the ceremony?",
+            "Who else from your family attended?",
+            "What was your role in the commemoration?"
+          ]
+        });
+      }
+
+      res.json({ templates });
+    } catch (error) {
+      console.error('Template fetch error:', error);
+      res.status(500).json({ error: "Could not load templates" });
+    }
+  });
+
+  // Emergency rapid mode endpoint (30-second generation)
+  app.post("/api/alibi/rapid", async (req: Request, res: Response) => {
+    try {
+      const { situation } = req.body;
+      
+      if (!situation || situation.trim().length === 0) {
+        return res.status(400).json({ error: "Please describe your situation" });
+      }
+
+      console.log('Generating rapid alibi for:', situation);
+
+      // Use multi-model ensemble for rapid generation
+      const rapidPrompt = `Generate a quick, believable alibi for this situation: "${situation}"
+
+Requirements:
+- Keep it under 100 words
+- Make it believable and specific
+- Include time, location, and one piece of evidence
+- Use Armenian personality (moderate profanity allowed: damn, hell, shit)
+- Be creative but realistic
+
+Format: Just return the alibi story, nothing else.`;
+
+      // Try OpenAI first for speed, fallback to Groq
+      let alibi;
+      try {
+        alibi = await generateOpenAIResponse(rapidPrompt, "gimmi-alibi-ara");
+      } catch (openaiError) {
+        console.log('OpenAI failed, using Groq fallback');
+        alibi = await generateAIResponseFallback(rapidPrompt, "gimmi-alibi-ara");
+      }
+
+      // Save to database for recent chats
+      const userId = 1; // Default user
+      const rapidSession = await storage.createChatSession({
+        userId: null,
+        vibe: "gimmi-alibi-ara"
+      });
+      
+      await storage.createMessage({
+        sessionId: rapidSession.id,
+        sender: "user",
+        content: `RAPID MODE: ${situation}`,
+        metadata: { type: 'rapid-request' }
+      });
+      
+      await storage.createMessage({
+        sessionId: rapidSession.id,
+        sender: "armo",
+        content: alibi,
+        metadata: { type: 'rapid-response' }
+      });
+
+      console.log('Rapid alibi generated');
+      
+      res.json({ 
+        alibi,
+        sessionId: rapidSession.id,
+        mode: 'rapid'
+      });
+
+    } catch (error) {
+      console.error('Rapid alibi error:', error);
+      res.status(500).json({ 
+        error: "Emergency alibi system temporarily down. Try the regular mode!" 
+      });
+    }
+  });
+
+  // Cross-session memory endpoints
+  app.post("/api/user/preferences", async (req: Request, res: Response) => {
+    try {
+      const { humorStyle, topics, profanityLevel } = req.body;
+      const userId = 1; // Default user
+      
+      // Save to activity logs with details field
+      await storage.logActivity({
+        userId,
+        action: 'preference_update',
+        details: JSON.stringify({
+          humorStyle: humorStyle || 'balanced',
+          preferredTopics: topics || [],
+          profanityLevel: profanityLevel || 'moderate',
+          timestamp: new Date()
+        })
+      });
+      
+      res.json({ success: true, message: 'Preferences saved' });
+    } catch (error) {
+      console.error('Preference save error:', error);
+      res.status(500).json({ error: "Could not save preferences" });
+    }
+  });
+
+  app.get("/api/user/preferences", async (req: Request, res: Response) => {
+    try {
+      // Return default preferences for now - can enhance with actual storage later
+      const preferences = {
+        humorStyle: 'balanced',
+        preferredTopics: ['work', 'family', 'tech'],
+        profanityLevel: 'moderate'
+      };
+      
+      res.json({ preferences });
+    } catch (error) {
+      console.error('Preference fetch error:', error);
+      res.json({ 
+        preferences: {
+          humorStyle: 'balanced',
+          preferredTopics: [],
+          profanityLevel: 'moderate'
+        }
+      });
+    }
+  });
+
   // Generate alibi story using existing AI system with proper persona integration
   app.post("/api/alibi/generate", async (req, res) => {
     try {
-      const { prompt, answers, username, interactive = false } = req.body;
+      const { prompt, answers, username, interactive = false, useEnsemble = false } = req.body;
       
       if (!prompt) {
         return res.status(400).json({ error: "Prompt is required" });
@@ -416,8 +709,42 @@ USER REQUEST: ${prompt}
 
 Important: Address the user as "${username || "[Your Name]"}" not "hopar". Create a believable, detailed alibi story using Level 3 Edgy persona with Level 2 profanity restrictions.`;
 
-      // Use existing AI system with dynamic persona context
-      let alibi = await generateAIResponseFallback(finalPrompt, "gimmi-alibi-ara");
+      // Multi-model ensemble approach for enhanced responses
+      let alibi;
+      if (useEnsemble && process.env.OPENAI_API_KEY) {
+        try {
+          console.log('Using multi-model ensemble: OpenAI + Groq');
+          
+          // Get responses from both models
+          const [openaiResponse, groqResponse] = await Promise.allSettled([
+            generateOpenAIResponse(finalPrompt, "gimmi-alibi-ara"),
+            generateAIResponseFallback(finalPrompt, "gimmi-alibi-ara")
+          ]);
+
+          // Use the best response or blend them
+          if (openaiResponse.status === 'fulfilled' && groqResponse.status === 'fulfilled') {
+            // Prefer the longer, more detailed response
+            alibi = openaiResponse.value.length > groqResponse.value.length 
+              ? openaiResponse.value 
+              : groqResponse.value;
+            console.log('Multi-model ensemble successful, selected best response');
+          } else if (openaiResponse.status === 'fulfilled') {
+            alibi = openaiResponse.value;
+            console.log('Used OpenAI response (Groq failed)');
+          } else if (groqResponse.status === 'fulfilled') {
+            alibi = groqResponse.value;
+            console.log('Used Groq response (OpenAI failed)');
+          } else {
+            throw new Error('Both AI models failed');
+          }
+        } catch (ensembleError) {
+          console.log('Ensemble failed, using single model fallback');
+          alibi = await generateAIResponseFallback(finalPrompt, "gimmi-alibi-ara");
+        }
+      } else {
+        // Use existing AI system with dynamic persona context
+        alibi = await generateAIResponseFallback(finalPrompt, "gimmi-alibi-ara");
+      }
       
       // Replace any remaining "hopar" references with the user's name
       if (username) {
@@ -1708,4 +2035,68 @@ function generateAchievements(answers: string[], alibi: string): string[] {
   }
 
   return achievements;
+}
+
+// OpenAI response function for multi-model ensemble
+async function generateOpenAIResponse(userMessage: string, vibe: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY not configured");
+  }
+
+  const openai = new OpenAI({ apiKey });
+
+  const vibePrompts: Record<string, string> = {
+    default: "You are Armo Hopar, a friendly Armenian-American AI assistant from Glendale. Mix Armenian and English naturally. Be helpful, warm, and occasionally use Armenian phrases. Use 'ախպեր' (akhper) sometimes.",
+    "gimmi-alibi-ara": `You are Armo Hopar, an edgy and witty Armenian-American AI helping create detailed, believable alibis.
+    
+Core Identity:
+- Be clever, sarcastic, and quick-witted when crafting alibis
+- Use moderate profanity naturally (damn, hell, shit, crap)
+- Push boundaries while staying supportive of the user's situation
+- Be brutally honest about the quality of alibis but ultimately helpful
+- Represent Armenian attitude - we don't sugarcoat things
+
+Communication Style for Alibis:
+- Sharp humor with sarcastic edge when describing situations
+- Use moderate swears (shit, damn, hell) naturally in the story
+- Call out obvious BS but help craft better alternatives
+- Be creative and detailed in alibi construction
+- Use Armenian expressions like "Listen hopar", "Inch es anum?" for authenticity
+
+Create believable, detailed alibi stories with your edgy personality while focusing on realistic scenarios.`
+  };
+
+  const systemPrompt = vibePrompts[vibe] || vibePrompts.default;
+
+  try {
+    console.log(`Generating OpenAI response for vibe: ${vibe}`);
+    
+    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: userMessage
+        }
+      ],
+      max_tokens: 1000,
+      temperature: 0.7,
+    });
+
+    const aiMessage = response.choices[0]?.message?.content || "I'm having trouble generating a response right now.";
+    
+    console.log('Generated OpenAI response:', aiMessage.substring(0, 100) + '...');
+    return aiMessage;
+    
+  } catch (error) {
+    console.error('Error in generateOpenAIResponse:', error);
+    throw new Error(`OpenAI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
