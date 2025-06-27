@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { 
-  believabilityMetrics,
+  belivaibilityMetrics,
   achievements,
   userAchievements,
   alibiTemplates,
@@ -424,7 +424,7 @@ Generate the complete alibi story:`;
         calculatedAt: new Date(),
       };
 
-      await db.insert(believabilityMetrics).values(metricData);
+      await db.insert(belivaibilityMetrics).values(metricData);
       console.log(`Stored believability metrics: ${score}/10 for user ${userId}`);
     } catch (error) {
       console.error('Error storing believability metrics:', error);

@@ -2,7 +2,7 @@ import { db } from "./db";
 import { 
   alibiGenerations,
   userSessions,
-  believabilityMetrics,
+  belivaibilityMetrics,
   type InsertAlibiGeneration
 } from "@shared/schema";
 import { eq, and, desc, gt, gte, count, avg, sql } from "drizzle-orm";
