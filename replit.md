@@ -212,12 +212,6 @@ The application features multiple AI personality modes:
 - June 27, 2025. COMPLETE: Integrated edgy persona system with Level 1 profanity controls and Armenian cultural references
 - June 27, 2025. COMPLETE: Created comprehensive alibi question structure with scenario-building and creativity assessment
 - June 27, 2025. COMPLETE: Documented complete "Gimmi Alibi Ara" feature architecture and implementation details
-- June 27, 2025. COMPLETE: Made Call Hopar production-ready with environmental variable voice ID and comprehensive error handling
-- June 27, 2025. COMPLETE: Disabled 1-hour cooldown for development/testing while preserving production code in comments
-- June 27, 2025. COMPLETE: Added ELEVENLABS_VOICE_ID environmental variable support across all TTS endpoints
-- June 27, 2025. COMPLETE: Enhanced speech processing API with fallback roasts for transcription failures
-- June 27, 2025. COMPLETE: Implemented Web Speech API fallback system for Call Hopar due to ElevenLabs credit depletion
-- June 27, 2025. COMPLETE: System tries ElevenLabs first, falls back to browser TTS seamlessly - easy to restore when credits available
 
 ## Production Implementation Summary
 

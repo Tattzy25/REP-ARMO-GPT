@@ -16,7 +16,6 @@ import { ResumeWelcomeScreen } from "@/components/ResumeWelcomeScreen";
 import { ResumeQuestionCards } from "@/components/ResumeQuestionCards";
 import { ResumeRecapPage } from "@/components/ResumeRecapPage";
 import { ResumeResultPage } from "@/components/ResumeResultPage";
-import { CallHoparInterface } from "@/components/CallHoparInterface";
 import { CaptionQuestionCards } from "@/components/CaptionQuestionCards";
 import { CaptionResultPage } from "@/components/CaptionResultPage";
 
@@ -383,7 +382,7 @@ function App() {
               />
             )}
 
-
+            {appState === "call" && <CallInterface onEndCall={handleEndCall} />}
 
             {appState === "alibi-welcome" && (
               <AlibiWelcomeScreen
@@ -472,16 +471,6 @@ function App() {
               />
             )}
           </div>
-
-          {/* Full-screen overlays */}
-          {appState === "call" && (
-            <div className="fixed inset-0 z-50">
-              <CallHoparInterface 
-                onBack={handleBackToLobby}
-                username="User"
-              />
-            </div>
-          )}
         </div>
       </TooltipProvider>
     </QueryClientProvider>
