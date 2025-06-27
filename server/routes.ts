@@ -369,7 +369,7 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
   // Generate alibi story using existing AI system with proper persona integration
   app.post("/api/alibi/generate", async (req, res) => {
     try {
-      const { prompt, answers, username } = req.body;
+      const { prompt, answers, username, interactive = false } = req.body;
       
       if (!prompt) {
         return res.status(400).json({ error: "Prompt is required" });
@@ -442,8 +442,62 @@ Important: Address the user as "${username || "[Your Name]"}" not "hopar". Creat
       
       console.log('Generated alibi:', alibi.substring(0, 100) + '...');
       console.log('Saved to session:', alibiSession.id);
+
+      // Interactive Features
+      let responseData: any = { alibi, sessionId: alibiSession.id };
+
+      if (interactive) {
+        // Generate story chunks for progressive reveal
+        const chunks = alibi.split('. ').reduce((acc, sentence, index) => {
+          const chunkIndex = Math.floor(index / 2); // 2 sentences per chunk
+          if (!acc[chunkIndex]) acc[chunkIndex] = '';
+          acc[chunkIndex] += sentence + (index < alibi.split('. ').length - 1 ? '. ' : '');
+          return acc;
+        }, [] as string[]);
+
+        if (chunks.length > 1) {
+          responseData.chunks = chunks;
+        }
+
+        // Generate believability score based on answer analysis
+        const believabilityScore = generateBelievabilityScore(answers);
+        responseData.believabilityScore = believabilityScore.score;
+        responseData.scoreAnalysis = believabilityScore.analysis;
+
+        // Generate achievements based on creativity and consistency
+        const achievements = generateAchievements(answers, alibi);
+        if (achievements.length > 0) {
+          responseData.achievements = achievements;
+        }
+
+        // Generate alternative endings
+        try {
+          const alternativePrompt = `${enhancedSystemPrompt}
+
+Create 3 different alternative endings for this alibi story: "${alibi}"
+
+Each ending should be 2-3 sentences and offer a different approach or twist. Make them creative but still believable.
+
+PROFANITY RESTRICTIONS: Use Level 2 profanity (moderate language including fuck, bitch, ass, shit, damn, hell). No extreme profanity.
+
+Format as JSON array: ["ending1", "ending2", "ending3"]`;
+
+          const alternativeResponse = await generateAIResponseFallback(alternativePrompt, "gimmi-alibi-ara");
+          
+          try {
+            const alternatives = JSON.parse(alternativeResponse);
+            if (Array.isArray(alternatives) && alternatives.length > 0) {
+              responseData.alternativeEndings = alternatives;
+            }
+          } catch (parseError) {
+            console.log('Could not parse alternative endings, skipping');
+          }
+        } catch (error) {
+          console.log('Could not generate alternative endings, skipping');
+        }
+      }
       
-      res.json({ alibi, sessionId: alibiSession.id });
+      res.json(responseData);
     } catch (error) {
       console.error('Error generating alibi:', error);
       res.status(500).json({ error: "AI alibi generation failed - check your GROQ_API_KEY and try again" });
@@ -1541,4 +1595,117 @@ Create believable, detailed alibi stories with your edgy personality while focus
     console.error('Error in generateAIResponseFallback:', error);
     throw new Error(`AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+}
+
+// Helper function to generate believability score
+function generateBelievabilityScore(answers: string[]): { score: number; analysis: string } {
+  let score = 5; // Start with average believability
+  const factors = [];
+
+  // Check for consistency and detail level
+  const totalLength = answers.join(' ').length;
+  if (totalLength > 100) {
+    score += 1;
+    factors.push("Detailed answers");
+  } else if (totalLength < 30) {
+    score -= 2;
+    factors.push("Very brief answers");
+  }
+
+  // Check for obvious inconsistencies or gibberish
+  const gibberishCount = answers.filter(answer => 
+    /^[a-z\s]+$/i.test(answer) && answer.split(' ').every(word => word.length < 3)
+  ).length;
+  
+  if (gibberishCount > 2) {
+    score -= 3;
+    factors.push("Multiple nonsensical answers");
+  }
+
+  // Check for creativity vs generic responses
+  const genericPatterns = ['home', 'work', 'friend', 'nowhere', 'nothing'];
+  const genericCount = answers.filter(answer => 
+    genericPatterns.some(pattern => answer.toLowerCase().includes(pattern))
+  ).length;
+
+  if (genericCount <= 1) {
+    score += 1;
+    factors.push("Creative specificity");
+  } else if (genericCount >= 3) {
+    score -= 1;
+    factors.push("Generic responses");
+  }
+
+  // Check for plausible timeline consistency
+  if (answers[4] && answers[5]) { // Location and evidence
+    const locationSpecific = answers[4].length > 10;
+    const evidenceSpecific = answers[5].length > 10;
+    
+    if (locationSpecific && evidenceSpecific) {
+      score += 1;
+      factors.push("Specific location and evidence");
+    }
+  }
+
+  // Ensure score is within bounds
+  score = Math.max(1, Math.min(10, Math.round(score)));
+
+  // Generate analysis text
+  let analysis = "";
+  if (score >= 8) {
+    analysis = "Excellent alibi! Your story has strong consistency and believable details.";
+  } else if (score >= 6) {
+    analysis = "Solid alibi with room for improvement. Consider adding more specific details.";
+  } else if (score >= 4) {
+    analysis = "Moderate believability. Some elements need more development for credibility.";
+  } else {
+    analysis = "Needs work! Your alibi has several inconsistencies that might raise suspicion.";
+  }
+
+  if (factors.length > 0) {
+    analysis += ` Key factors: ${factors.join(', ')}.`;
+  }
+
+  return { score, analysis };
+}
+
+// Helper function to generate achievements
+function generateAchievements(answers: string[], alibi: string): string[] {
+  const achievements = [];
+
+  // Check for creative answers
+  const totalAnswerLength = answers.join(' ').length;
+  if (totalAnswerLength > 200) {
+    achievements.push("Detail Master");
+  }
+
+  // Check for humorous elements
+  if (alibi.toLowerCase().includes('damn') || alibi.toLowerCase().includes('shit') || 
+      alibi.toLowerCase().includes('hell')) {
+    achievements.push("Edgy Storyteller");
+  }
+
+  // Check for Armenian elements
+  if (alibi.includes('ախպեր') || alibi.includes('hopar') || alibi.includes('Armenian')) {
+    achievements.push("Cultural Authentic");
+  }
+
+  // Check for specific details
+  const specificAnswers = answers.filter(answer => answer.length > 15).length;
+  if (specificAnswers >= 4) {
+    achievements.push("Precision Planner");
+  }
+
+  // Check for consistency between location and evidence
+  if (answers[4] && answers[5] && answers[4].length > 5 && answers[5].length > 5) {
+    achievements.push("Evidence Expert");
+  }
+
+  // Random creativity bonus for using unique words
+  const uniqueWords = new Set(answers.join(' ').toLowerCase().split(/\s+/));
+  if (uniqueWords.size > 20) {
+    achievements.push("Vocabulary Virtuoso");
+  }
+
+  return achievements;
 }

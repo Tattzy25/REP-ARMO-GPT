@@ -20,6 +20,20 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // Interactive Storytelling States
+  const [storyChunks, setStoryChunks] = useState<string[]>([]);
+  const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
+  const [showingProgressively, setShowingProgressively] = useState(false);
+  const [alternativeEndings, setAlternativeEndings] = useState<string[]>([]);
+  const [selectedEnding, setSelectedEnding] = useState<number | null>(null);
+  const [showBranching, setShowBranching] = useState(false);
+  
+  // Gamification States
+  const [believabilityScore, setBelievabilityScore] = useState<number | null>(null);
+  const [scoreAnalysis, setScoreAnalysis] = useState<string>("");
+  const [achievements, setAchievements] = useState<string[]>([]);
+  const [showScoring, setShowScoring] = useState(false);
 
   const stopPlayback = () => {
     // Stop ElevenLabs audio
@@ -69,7 +83,8 @@ Evidence: ${answers[5] || 'no evidence provided'}
 Create a cohesive, detailed alibi story that weaves these elements together into a believable narrative. Make it sound legitimate while incorporating the user's specific answers.`,
           questions,
           answers,
-          username
+          username,
+          interactive: true // Request interactive storytelling features
         }),
       });
 
@@ -78,13 +93,60 @@ Create a cohesive, detailed alibi story that weaves these elements together into
       }
 
       const data = await response.json();
-      setAlibiStory(data.alibi);
+      
+      // Handle progressive storytelling if available
+      if (data.chunks && data.chunks.length > 0) {
+        setStoryChunks(data.chunks);
+        setShowingProgressively(true);
+        startProgressiveReveal(data.chunks);
+      } else {
+        setAlibiStory(data.alibi);
+      }
+      
+      // Handle gamification features
+      if (data.believabilityScore) {
+        setBelievabilityScore(data.believabilityScore);
+        setScoreAnalysis(data.scoreAnalysis || "");
+        setTimeout(() => setShowScoring(true), 2000);
+      }
+      
+      if (data.achievements && data.achievements.length > 0) {
+        setAchievements(data.achievements);
+      }
+      
+      // Handle alternative endings
+      if (data.alternativeEndings && data.alternativeEndings.length > 0) {
+        setAlternativeEndings(data.alternativeEndings);
+        setTimeout(() => setShowBranching(true), 5000);
+      }
+      
     } catch (error) {
       console.error('Error generating alibi:', error);
       setAlibiStory("Sorry, I couldn't generate your alibi. Please try again.");
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const startProgressiveReveal = (chunks: string[]) => {
+    setCurrentChunkIndex(0);
+    setAlibiStory(chunks[0]);
+    
+    // Reveal chunks progressively
+    chunks.forEach((_, index) => {
+      if (index > 0) {
+        setTimeout(() => {
+          setCurrentChunkIndex(index);
+          setAlibiStory(chunks.slice(0, index + 1).join(' '));
+        }, index * 2000); // 2 seconds between chunks
+      }
+    });
+  };
+
+  const selectAlternativeEnding = (endingIndex: number) => {
+    setSelectedEnding(endingIndex);
+    setAlibiStory(alibiStory + "\n\n" + alternativeEndings[endingIndex]);
+    setShowBranching(false);
   };
 
   const toggleExpanded = () => {
@@ -278,7 +340,110 @@ Create a cohesive, detailed alibi story that weaves these elements together into
                     }}
                   >
                     {alibiStory}
+                    {showingProgressively && currentChunkIndex < storyChunks.length - 1 && (
+                      <motion.span
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="text-blue-400 ml-2"
+                      >
+                        ●●●
+                      </motion.span>
+                    )}
                   </div>
+                  
+                  {/* Believability Score */}
+                  {showScoring && believabilityScore !== null && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="mt-6 p-4 rounded-xl"
+                      style={{
+                        background: '#404040',
+                        boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold text-white">Believability Score</h3>
+                        <div className="flex items-center">
+                          <span className="text-2xl font-bold text-green-400 mr-2">{believabilityScore}/10</span>
+                          <div className="flex">
+                            {[...Array(10)].map((_, i) => (
+                              <div
+                                key={i}
+                                className={`w-3 h-3 rounded-full mr-1 ${
+                                  i < believabilityScore ? 'bg-green-400' : 'bg-gray-600'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      {scoreAnalysis && (
+                        <p className="text-sm text-gray-300">{scoreAnalysis}</p>
+                      )}
+                    </motion.div>
+                  )}
+
+                  {/* Achievements */}
+                  {achievements.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="mt-4 flex flex-wrap gap-2"
+                    >
+                      {achievements.map((achievement, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                          className="px-3 py-1 rounded-full text-sm text-white"
+                          style={{
+                            background: 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)',
+                          }}
+                        >
+                          🏆 {achievement}
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+
+                  {/* Alternative Endings */}
+                  {showBranching && alternativeEndings.length > 0 && selectedEnding === null && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="mt-6 p-4 rounded-xl border border-blue-400"
+                      style={{
+                        background: '#404040',
+                        boxShadow: '8px 8px 16px #323232, -8px -8px 16px #484848'
+                      }}
+                    >
+                      <h3 className="text-lg font-semibold text-white mb-3">Choose Your Ending</h3>
+                      <div className="space-y-3">
+                        {alternativeEndings.map((ending, index) => (
+                          <motion.button
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                            onClick={() => selectAlternativeEnding(index)}
+                            className="w-full p-3 text-left rounded-lg text-white hover:bg-blue-600 transition-colors duration-200"
+                            style={{
+                              background: '#3a3a3a',
+                              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #424242'
+                            }}
+                          >
+                            <span className="text-blue-400 font-semibold">Option {index + 1}:</span>
+                            <p className="mt-1 text-sm">{ending.substring(0, 100)}...</p>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
                   
                   {alibiStory.length > 500 && (
                     <button
