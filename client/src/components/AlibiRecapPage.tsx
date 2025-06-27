@@ -228,6 +228,21 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
         className="p-6"
       >
         <div className="flex flex-wrap justify-center gap-4 mb-4">
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            onClick={onBack}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
+            style={{
+              background: '#3a3a3a',
+              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
+            }}
+          >
+            <ArrowLeft size={20} />
+            Back
+          </motion.button>
+
           <button
             onClick={handleDownload}
             className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
@@ -263,21 +278,6 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
           >
             {isPlaying ? <Pause size={24} /> : <Volume2 size={24} />}
           </button>
-
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
-            onClick={onBack}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-white hover:scale-105 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
-          >
-            <ArrowLeft size={20} />
-            Back
-          </motion.button>
         </div>
 
         <div className="flex justify-center">
