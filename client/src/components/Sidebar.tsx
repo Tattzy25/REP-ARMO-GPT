@@ -39,8 +39,11 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
         {isMobile && (
           <div className="absolute top-4 right-4 z-50">
             <button
-              onClick={onMobileClose}
-              className="p-2 rounded-lg text-white hover:bg-gray-600 transition-colors duration-200"
+              onClick={() => {
+                console.log('X button clicked, calling onMobileClose');
+                onMobileClose?.();
+              }}
+              className="p-2 rounded-lg text-white hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
               style={{ background: "#3a3a3a" }}
             >
               <X size={20} />

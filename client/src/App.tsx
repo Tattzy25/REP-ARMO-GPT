@@ -165,8 +165,11 @@ function App() {
             }}
           >
             <button
-              onClick={handleSidebarToggle}
-              className="absolute left-4 w-10 h-10 rounded-full text-white flex items-center justify-center"
+              onClick={() => {
+                console.log('Circle button clicked, opening sidebar');
+                handleSidebarToggle();
+              }}
+              className="absolute left-4 w-10 h-10 rounded-full text-white flex items-center justify-center cursor-pointer"
               style={{ background: "#2e2e2e" }}
             >
               <div className="w-3 h-3 rounded-full bg-white"></div>
