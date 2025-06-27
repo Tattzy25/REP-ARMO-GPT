@@ -6,7 +6,11 @@ interface ArmoLobbyProps {
 }
 
 export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
-  const features = Object.values(vibeConfigs);
+  // Filter out buttons that start with "Armo" and exclude utility buttons
+  const features = Object.values(vibeConfigs).filter(feature => 
+    !feature.title.startsWith('Armo') && 
+    !['lobby', 'gallery', 'recent', 'therapy'].includes(feature.id)
+  );
 
   return (
     <div className="flex-1 flex items-center justify-center p-8">
@@ -52,7 +56,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8"
+          className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8"
         >
           {features.map((feature, index) => (
             <motion.button
@@ -76,8 +80,7 @@ export default function ArmoLobby({ onSelectVibe }: ArmoLobbyProps) {
               }}
             >
               <div className="text-4xl mb-3 group-hover:bounce-slow">{feature.emoji}</div>
-              <h3 className="font-bold text-lg mb-1 text-white">{feature.title.split(' ')[0]}</h3>
-              <p className="text-xs text-gray-200">{feature.subtitle.split(' ').slice(0, 2).join(' ')}</p>
+              <h3 className="font-bold text-lg text-white">{feature.title}</h3>
             </motion.button>
           ))}
         </motion.div>
