@@ -9,8 +9,9 @@ import ChatInterface from "@/components/ChatInterface";
 import CallInterface from "@/components/CallInterface";
 import Sidebar from "@/components/Sidebar";
 import { AlibiWelcomeScreen } from "@/components/AlibiWelcomeScreen";
+import { AlibiQuestionCards } from "@/components/AlibiQuestionCards";
 
-type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-form";
+type AppState = "lobby" | "chat" | "call" | "alibi-welcome" | "alibi-questions" | "alibi-result";
 
 function App() {
   const [appState, setAppState] = useState<AppState>("lobby");
@@ -67,11 +68,21 @@ function App() {
   };
 
   const handleAlibiStart = () => {
-    setAppState("alibi-form");
+    setAppState("alibi-questions");
   };
 
   const handleAlibiBack = () => {
     setAppState("lobby");
+  };
+
+  const handleAlibiComplete = (answers: string[]) => {
+    console.log('Alibi answers:', answers);
+    // TODO: Generate alibi story using AI
+    setAppState("alibi-result");
+  };
+
+  const handleAlibiQuestionsBack = () => {
+    setAppState("alibi-welcome");
   };
 
   const handleSidebarToggle = () => {
@@ -160,7 +171,13 @@ function App() {
             {appState === "alibi-welcome" && (
               <AlibiWelcomeScreen
                 onStart={handleAlibiStart}
-                onBack={handleAlibiBack}
+              />
+            )}
+
+            {appState === "alibi-questions" && (
+              <AlibiQuestionCards
+                onComplete={handleAlibiComplete}
+                onBack={handleAlibiQuestionsBack}
               />
             )}
           </div>
