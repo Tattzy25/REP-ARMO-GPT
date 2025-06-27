@@ -55,6 +55,7 @@ export function AlibiResultPage({ questions, answers, onBack, onRestart, usernam
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          prompt: `Generate a detailed alibi story based on these details: ${answers.join(', ')}`,
           questions,
           answers,
           username
