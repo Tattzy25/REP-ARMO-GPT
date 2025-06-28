@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, X, Image } from "lucide-react";
@@ -220,16 +220,17 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Chat Header */}
-      <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className={`flex items-center justify-between border-b border-gray-600/20 backdrop-blur ${isMobile ? 'p-3' : 'p-4'}`}
-        style={{ 
-          background: '#3a3a3a',
-          boxShadow: '0 4px 8px #323232'
-        }}
-      >
+      {/* Chat Header - Hidden on Mobile */}
+      {!isMobile && (
+        <motion.div
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="flex items-center justify-between border-b border-gray-600/20 backdrop-blur p-4"
+          style={{ 
+            background: '#3a3a3a',
+            boxShadow: '0 4px 8px #323232'
+          }}
+        >
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           <button
             onClick={onBackToLobby}
@@ -254,7 +255,8 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
             <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>{vibeConfig.subtitle}</p>
           </div>
         </div>
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Messages Area */}
       <div className={`flex-1 overflow-y-auto space-y-4 pb-40 chat-messages ${isMobile ? 'p-3' : 'p-6'}`} style={{ background: '#3a3a3a' }}>

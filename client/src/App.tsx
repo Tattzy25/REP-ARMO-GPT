@@ -324,6 +324,8 @@ function App() {
             }}
           >
             <button
+              aria-label="Toggle Sidebar"
+              title="Toggle Sidebar"
               onClick={() => {
                 console.log('Circle button clicked, opening sidebar');
                 handleSidebarToggle();

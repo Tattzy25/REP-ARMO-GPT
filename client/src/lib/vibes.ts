@@ -30,16 +30,7 @@ export const vibeConfigs: Record<string, VibeConfig> = {
     welcomeMessage: 'Բարév ախպեր! Ready to chat about anything? I\'m here to help with whatever you need! 🤖',
     glowColor: 'cyan'
   },
-  roast: {
-    id: 'roast',
-    title: 'Smoke & Roast',
-    subtitle: 'High-Cussing Insult Mode',
-    personality: 'roasting',
-    icon: 'fas fa-fire',
-    emoji: '🔥',
-    welcomeMessage: 'Ayo, what\'s good? You came to the right place to get absolutely ROASTED! Don\'t come crying to me later, ախպեր! 🔥',
-    glowColor: 'coral'
-  },
+
   call: {
     id: 'call',
     title: 'Call Hopar Ara',

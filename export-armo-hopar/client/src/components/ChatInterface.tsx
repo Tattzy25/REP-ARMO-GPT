@@ -220,41 +220,43 @@ export default function ChatInterface({ currentVibe, onBackToLobby, isSidebarCol
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Chat Header */}
-      <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className={`flex items-center justify-between border-b border-gray-600/20 backdrop-blur ${isMobile ? 'p-3' : 'p-4'}`}
-        style={{ 
-          background: '#3a3a3a',
-          boxShadow: '0 4px 8px #323232'
-        }}
-      >
-        <div className="flex items-center space-x-3 flex-1 min-w-0">
-          <button
-            onClick={onBackToLobby}
-            className={`rounded-lg transition-all duration-200 ${isMobile ? 'p-1.5' : 'p-2'}`}
-            style={{
-              background: '#404040',
-              boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#404040';
-            }}
-          >
-            <ArrowLeft size={isMobile ? 16 : 20} className="text-white" />
-          </button>
-          <div className="flex-1 text-center">
-            <h1 className={`font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent ${isMobile ? 'text-lg' : 'text-xl'}`}>
-              {vibeConfig.title}
-            </h1>
-            <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>{vibeConfig.subtitle}</p>
+      {/* Chat Header - Only show on desktop */}
+      {!isMobile && (
+        <motion.div
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="flex items-center justify-between border-b border-gray-600/20 backdrop-blur p-4"
+          style={{ 
+            background: '#3a3a3a',
+            boxShadow: '0 4px 8px #323232'
+          }}
+        >
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <button
+              onClick={onBackToLobby}
+              className="rounded-lg transition-all duration-200 p-2"
+              style={{
+                background: '#404040',
+                boxShadow: '4px 4px 8px #323232, -4px -4px 8px #484848'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#404040';
+              }}
+            >
+              <ArrowLeft size={20} className="text-white" />
+            </button>
+            <div className="flex-1 text-center">
+              <h1 className="font-bold bg-gradient-to-r from-red-500 via-blue-500 to-orange-400 bg-clip-text text-transparent text-xl">
+                {vibeConfig.title}
+              </h1>
+              <p className="text-gray-300 text-sm">{vibeConfig.subtitle}</p>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* Messages Area */}
       <div className={`flex-1 overflow-y-auto space-y-4 pb-40 chat-messages ${isMobile ? 'p-3' : 'p-6'}`} style={{ background: '#3a3a3a' }}>
