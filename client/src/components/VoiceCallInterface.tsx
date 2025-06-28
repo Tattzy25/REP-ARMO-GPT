@@ -275,7 +275,8 @@ export default function VoiceCallInterface({ onClose, currentVibe }: VoiceCallIn
           onClose();
         }}
         className="absolute top-8 left-8 p-4 rounded-full border-2 border-white/30 hover:border-white/50 transition-colors z-10"
-        style={{ cursor: 'pointer' }}
+        title="Close voice call interface"
+        aria-label="Close voice call interface"
       >
         <ArrowLeft className="w-6 h-6 text-white" />
       </button>

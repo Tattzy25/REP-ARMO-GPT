@@ -15,10 +15,9 @@ export async function seedPersonaData() {
           levelNumber: getLevelNumber(persona.id),
           name: persona.name,
           description: persona.description,
-          allowedLanguage: persona.languageRules.allowedProfanity,
-          forbiddenLanguage: persona.languageRules.forbiddenWords,
           systemPrompt: persona.systemPrompt,
-          languageRules: JSON.stringify(persona.languageRules),
+          attitudePersonality: persona.seedContent.personalityTraits.join(', '),
+          languageUsage: persona.languageRules.allowedProfanity.join(', '),
           isActive: true
         });
         console.log(`✅ Created persona: ${persona.name}`);
@@ -41,9 +40,8 @@ export async function seedPersonaData() {
             personaLevelId: persona.id,
             wordCategory: category,
             permissionLevel: getPermissionLevel(persona.id, category),
-            exampleWords: getExampleWords(category),
-            contextConditions: getContextConditions(persona.id, category),
-            isActive: true
+            examples: getExampleWords(category),
+            conditions: getContextConditions(persona.id, category)
           });
         } catch (error) {
           // Permission may already exist
@@ -168,7 +166,7 @@ export async function seedPersonaData() {
 
   } catch (error) {
     console.error("❌ Persona seeding failed:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error).message };
   }
 }
 

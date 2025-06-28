@@ -396,6 +396,7 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
       await personaAI.analyzeUserMessage(
         userId,
         alibiSession.id,
+        0, // No specific message ID for alibi analysis
         combinedAnswers,
         combinedAnswers.length,
         1000 // Default response time
@@ -405,7 +406,10 @@ Keep it to 1-2 sentences max. Be savage, clever, and use strong language for roa
       const personaContext = await personaAI.getPersonaContext(userId, alibiSession.id, "gimmi-alibi-ara");
       
       // Build enhanced system prompt using persona system
-      const enhancedSystemPrompt = personaAI.buildEnhancedSystemPrompt(personaContext);
+      let enhancedSystemPrompt = '';
+      if (personaContext !== null && personaContext !== undefined) {
+        enhancedSystemPrompt = personaAI.buildEnhancedSystemPrompt(personaContext);
+      }
       
       // Create final prompt combining system prompt with alibi request
       const finalPrompt = `${enhancedSystemPrompt}
@@ -531,12 +535,13 @@ Format as JSON array: ["ending1", "ending2", "ending3"]`;
       await personaAI.analyzeUserMessage(
         userId, 
         captionSession.id, 
+        0, // No specific message ID for caption analysis
         userMessage, 
         userMessage.length,
         Date.now()
       );
       
-      const personaContext = await personaAI.getPersonaContext(userId, captionSession.id, "make-me-famous-ara");
+      const personaContext = await personaAI.getPersonaContextForUser(userId, captionSession.id, "make-me-famous-ara");
       
       // Build the system prompt from the attached specification
       const systemPrompt = `You are Armo Hopar's **Fame Storyteller AI**—a wildly imaginative, slightly savage raconteur. Use the user's punchy answers below to spin a two-act blockbuster of fame: first a hilarious misfire, then the real epic rise.

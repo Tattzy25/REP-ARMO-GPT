@@ -1,0 +1,54 @@
+.container {
+  background: #3a3a3a;
+}
+
+.questionCard {
+  background: #3a3a3a;
+  box-shadow: 12px 12px 24px #323232, -12px -12px 24px #484848;
+}
+
+.textArea {
+  background: #2e2e2e;
+  box-shadow: inset 8px 8px 16px #262626, inset -8px -8px 16px #363636;
+}
+
+.navigationButton {
+  background: #3a3a3a;
+  box-shadow: 8px 8px 16px #323232, -8px -8px 16px #484848;
+}
+
+.navigationButtonDisabled {
+  background: #3a3a3a;
+  box-shadow: inset 4px 4px 8px #323232, inset -4px -4px 8px #484848;
+}
+
+.progressBar {
+  background: #3a3a3a;
+  box-shadow: 8px 8px 16px #323232, -8px -8px 16px #484848;
+}
+
+.completeButton {
+  background: #3a3a3a;
+  box-shadow: 8px 8px 16px #323232, -8px -8px 16px #484848;
+}
+
+.completeButtonHover {
+  box-shadow: 8px 8px 16px #323232, -8px -8px 16px #484848, 0 0 20px rgba(147, 51, 234, 0.6);
+}
+
+.modalOverlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.modalContent {
+  background: #2e2e2e;
+}
+
+.modalButton {
+  background: #2e2e2e;
+  box-shadow: inset 6px 6px 12px #252525, inset -6px -6px 12px #373737;
+}
+
+.modalButtonHover {
+  box-shadow: inset 6px 6px 12px #252525, inset -6px -6px 12px #373737, 0 0 20px rgba(147, 51, 234, 0.6);
+}

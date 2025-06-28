@@ -92,7 +92,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new HTMLAudioElement(audioUrl);
+      const audio = new Audio(audioUrl);
       
       setCurrentAudio(audio);
       setIsLoadingAudio(false);
@@ -112,7 +112,7 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
       };
       
       await audio.play();
-    } catch (error) {
+    } catch (error: any) {
       console.error('ElevenLabs TTS failed:', error);
       setIsPlaying(false);
       setIsLoadingAudio(false);
@@ -186,6 +186,9 @@ export function ResumeRecapPage({ questions, answers, onEdit, onBack, onNext, us
               {editingIndex === index ? (
                 <div className="space-y-4">
                   <textarea
+                    aria-label="Edit answer"
+                    placeholder="Enter your answer here"
+                    title="Answer input field"
                     value={tempAnswer}
                     onChange={(e) => setTempAnswer(e.target.value)}
                     className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"

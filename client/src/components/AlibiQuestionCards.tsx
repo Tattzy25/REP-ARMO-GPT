@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { QuestionBubble } from "./QuestionBubble";
+import styles from "./AlibiQuestionCards.module.css";
 
 interface AlibiQuestionCardsProps {
   onComplete: (answers: string[], questions: string[]) => void;
@@ -128,7 +129,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
   const canProceed = validation.isValid;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#3a3a3a" }}>
+    <div className="min-h-screen flex flex-col bg-[#3a3a3a]">
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-2 pt-4">
         <div className="w-full max-w-4xl flex flex-col items-center">
@@ -141,13 +142,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
           transition={{ duration: 0.3 }}
           className="w-full max-w-2xl mb-4"
         >
-          <div 
-            className="rounded-2xl p-8 lg:p-12"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
-            }}
-          >
+          <div className={`rounded-2xl p-8 lg:p-12 ${styles.questionCard}`}>
             {/* Question Bubble */}
             <div className="mb-8 flex justify-center">
               <QuestionBubble question={questions[currentQuestion]} />
@@ -163,11 +158,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
                   currentAnswer && !validation.isValid 
                     ? 'focus:ring-2 focus:ring-red-500 border-2 border-red-500' 
                     : 'focus:ring-2 focus:ring-blue-500'
-                }`}
-                style={{
-                  background: '#2e2e2e',
-                  boxShadow: 'inset 8px 8px 16px #262626, inset -8px -8px 16px #363636'
-                }}
+                } ${styles.textArea}`}
               />
               
               {/* Validation Message */}
@@ -206,6 +197,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
 
           {/* Next Button */}
           <button
+            title="Next question"
             onClick={handleNext}
             disabled={!canProceed}
             className={`w-16 h-16 rounded-full flex items-center justify-center text-white transition-all duration-200 ${
@@ -225,6 +217,7 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
         {/* Progress Bar */}
         <div className="w-full max-w-md">
           <div
+
             className="h-12 rounded-full flex items-center justify-center px-6"
             style={{
               background: '#3a3a3a',
@@ -282,17 +275,13 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: -50 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(0, 0, 0, 0.8)" }}
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${styles.modalOverlay}`}
         >
           <motion.div
             initial={{ rotateX: -90 }}
             animate={{ rotateX: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-2xl w-full rounded-2xl p-8 text-center"
-            style={{
-              background: '#2e2e2e'
-            }}
+            className={`max-w-2xl w-full rounded-2xl p-8 text-center ${styles.modalContent}`}
           >
             {/* Hopar Avatar/Icon */}
             <motion.div
@@ -355,17 +344,13 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: -50 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: "rgba(0, 0, 0, 0.8)" }}
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${styles.modalOverlay}`}
         >
           <motion.div
             initial={{ rotateX: -90 }}
             animate={{ rotateX: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-md w-full rounded-2xl p-8 text-center"
-            style={{
-              background: '#2e2e2e'
-            }}
+            className={`max-w-md w-full rounded-2xl p-8 text-center ${styles.modalContent}`}
           >
             {/* Error Icon */}
             <motion.div
@@ -394,16 +379,12 @@ export function AlibiQuestionCards({ onComplete, onBack, username = "[Your Name]
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 1.0 }}
               onClick={() => setShowErrorPopup(false)}
-              className="px-6 py-3 rounded-xl text-white font-medium transition-all duration-200 hover:scale-105"
-              style={{
-                background: '#2e2e2e',
-                boxShadow: 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737'
-              }}
+              className={`px-6 py-3 rounded-xl text-white font-medium transition-all duration-200 hover:scale-105 ${styles.modalButton}`}
               onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737, 0 0 20px rgba(147, 51, 234, 0.6)';
+                e.currentTarget.classList.add(styles.modalButtonHover);
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'inset 6px 6px 12px #252525, inset -6px -6px 12px #373737';
+                e.currentTarget.classList.remove(styles.modalButtonHover);
               }}
             >
               Close

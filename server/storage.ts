@@ -56,22 +56,28 @@ export interface IStorage {
   
   recordMoodDetection(detection: InsertUserMoodDetection): Promise<UserMoodDetection>;
   getMoodHistory(userId: number, sessionId: number, limit?: number): Promise<UserMoodDetection[]>;
+  getRecentMoodDetections(userId: number, limit?: number): Promise<UserMoodDetection[]>;
   
   recordEmotionDetection(detection: InsertUserEmotionDetection): Promise<UserEmotionDetection>;
   getEmotionHistory(userId: number, sessionId: number, limit?: number): Promise<UserEmotionDetection[]>;
+  getRecentEmotionDetections(userId: number, limit?: number): Promise<UserEmotionDetection[]>;
   
   recordBehaviorDetection(detection: InsertUserBehaviorDetection): Promise<UserBehaviorDetection>;
   getBehaviorHistory(userId: number, sessionId: number, limit?: number): Promise<UserBehaviorDetection[]>;
+  getRecentBehaviorDetections(userId: number, limit?: number): Promise<UserBehaviorDetection[]>;
   
   recordEngagementDetection(detection: InsertUserEngagementDetection): Promise<UserEngagementDetection>;
   getEngagementHistory(userId: number, sessionId: number, limit?: number): Promise<UserEngagementDetection[]>;
+  getRecentEngagementDetections(userId: number, limit?: number): Promise<UserEngagementDetection[]>;
   
   recordIntentDetection(detection: InsertUserIntentDetection): Promise<UserIntentDetection>;
   getIntentHistory(userId: number, sessionId: number, limit?: number): Promise<UserIntentDetection[]>;
+  getRecentIntentDetections(userId: number, limit?: number): Promise<UserIntentDetection[]>;
   
   // Content learning methods
   saveReusableContent(content: InsertReusableContentRepository): Promise<ReusableContentRepository>;
   getReusableContent(category: string, personaLevel: number, excludeUserId?: number): Promise<ReusableContentRepository[]>;
+  getReusableContentForUser(userId: number, limit?: number): Promise<ReusableContentRepository[]>;
   recordContentUsage(usage: InsertContentUsageTracking): Promise<ContentUsageTracking>;
   getContentReuseRules(): Promise<ContentReuseRules[]>;
 }
@@ -295,6 +301,13 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
+  async getRecentMoodDetections(userId: number, limit = 10): Promise<UserMoodDetection[]> {
+    return await db.select().from(userMoodDetection)
+      .where(eq(userMoodDetection.userId, userId))
+      .orderBy(desc(userMoodDetection.createdAt))
+      .limit(limit);
+  }
+
   async recordEmotionDetection(detection: InsertUserEmotionDetection): Promise<UserEmotionDetection> {
     const [result] = await db.insert(userEmotionDetection).values(detection).returning();
     return result;
@@ -306,6 +319,13 @@ export class DatabaseStorage implements IStorage {
         eq(userEmotionDetection.userId, userId),
         eq(userEmotionDetection.sessionId, sessionId)
       ))
+      .orderBy(desc(userEmotionDetection.createdAt))
+      .limit(limit);
+  }
+
+  async getRecentEmotionDetections(userId: number, limit = 10): Promise<UserEmotionDetection[]> {
+    return await db.select().from(userEmotionDetection)
+      .where(eq(userEmotionDetection.userId, userId))
       .orderBy(desc(userEmotionDetection.createdAt))
       .limit(limit);
   }
@@ -325,6 +345,13 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
+  async getRecentBehaviorDetections(userId: number, limit = 10): Promise<UserBehaviorDetection[]> {
+    return await db.select().from(userBehaviorDetection)
+      .where(eq(userBehaviorDetection.userId, userId))
+      .orderBy(desc(userBehaviorDetection.createdAt))
+      .limit(limit);
+  }
+
   async recordEngagementDetection(detection: InsertUserEngagementDetection): Promise<UserEngagementDetection> {
     const [result] = await db.insert(userEngagementDetection).values(detection).returning();
     return result;
@@ -336,6 +363,13 @@ export class DatabaseStorage implements IStorage {
         eq(userEngagementDetection.userId, userId),
         eq(userEngagementDetection.sessionId, sessionId)
       ))
+      .orderBy(desc(userEngagementDetection.createdAt))
+      .limit(limit);
+  }
+
+  async getRecentEngagementDetections(userId: number, limit = 10): Promise<UserEngagementDetection[]> {
+    return await db.select().from(userEngagementDetection)
+      .where(eq(userEngagementDetection.userId, userId))
       .orderBy(desc(userEngagementDetection.createdAt))
       .limit(limit);
   }
@@ -355,6 +389,13 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
+  async getRecentIntentDetections(userId: number, limit = 10): Promise<UserIntentDetection[]> {
+    return await db.select().from(userIntentDetection)
+      .where(eq(userIntentDetection.userId, userId))
+      .orderBy(desc(userIntentDetection.createdAt))
+      .limit(limit);
+  }
+
   // Content learning methods
   async saveReusableContent(content: InsertReusableContentRepository): Promise<ReusableContentRepository> {
     const [result] = await db.insert(reusableContentRepository).values(content).returning();
@@ -362,16 +403,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getReusableContent(category: string, personaLevel: number, excludeUserId?: number): Promise<ReusableContentRepository[]> {
-    let query = db.select().from(reusableContentRepository)
-      .where(and(
-        eq(reusableContentRepository.contentCategory, category),
-        sql`${reusableContentRepository.allowedPersonaLevel} <= ${personaLevel}`,
-        eq(reusableContentRepository.isActive, true)
-      ));
+    const conditions = [
+      eq(reusableContentRepository.contentCategory, category),
+      sql`${reusableContentRepository.allowedPersonaLevel} <= ${personaLevel}`,
+      eq(reusableContentRepository.isActive, true)
+    ];
 
     if (excludeUserId) {
-      query = query.where(sql`${reusableContentRepository.sourceUserId} != ${excludeUserId}`);
+      conditions.push(sql`${reusableContentRepository.sourceUserId} != ${excludeUserId}`);
     }
+
+    const query = db.select().from(reusableContentRepository)
+      .where(and(...conditions));
 
     return await query.orderBy(desc(reusableContentRepository.qualityScore));
   }
@@ -379,6 +422,16 @@ export class DatabaseStorage implements IStorage {
   async recordContentUsage(usage: InsertContentUsageTracking): Promise<ContentUsageTracking> {
     const [result] = await db.insert(contentUsageTracking).values(usage).returning();
     return result;
+  }
+
+  async getReusableContentForUser(userId: number, limit = 10): Promise<ReusableContentRepository[]> {
+    return await db.select().from(reusableContentRepository)
+      .where(and(
+        eq(reusableContentRepository.sourceUserId, userId),
+        eq(reusableContentRepository.isActive, true)
+      ))
+      .orderBy(desc(reusableContentRepository.createdAt))
+      .limit(limit);
   }
 
   async getContentReuseRules(): Promise<ContentReuseRules[]> {

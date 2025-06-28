@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, RotateCcw, Download, Volume2, Copy, Pause, Loader2 } from 'lucide-react';
+import styles from './AlibiRecapPage.module.css';
 
 interface AlibiRecapPageProps {
   questions: string[];
@@ -162,13 +163,9 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="py-2 px-6 rounded-3xl text-center max-w-xs mx-auto"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
-            }}
+            className={`py-2 px-6 rounded-3xl text-center max-w-xs mx-auto ${styles.container}`}
           >
-            <h2 className="text-4xl font-bold font-audiowide" style={{ color: '#9333ea' }}>RECAP</h2>
+            <h2 className={`text-4xl font-bold font-audiowide ${styles.recapTitle}`}>RECAP</h2>
           </motion.div>
 
           {questions.map((question, index) => (
@@ -177,21 +174,17 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="p-6 rounded-3xl"
-              style={{
-                background: '#3a3a3a',
-                boxShadow: '12px 12px 24px #323232, -12px -12px 24px #484848'
-              }}
+              className={`p-6 rounded-3xl ${styles.questionCard}`}
             >
               <div className="mb-4">
-                <h3 className="font-audiowide mb-2 font-medium text-[#9333ea]" style={{ fontSize: '18px', color: '#9333ea' }}>
+                <h3 className={`font-audiowide mb-2 font-medium ${styles.questionTitle}`}>
                   Question {index + 1}
                 </h3>
                 <p className="text-white">{question}</p>
               </div>
               
               <div>
-                <h4 className="font-audiowide font-medium mb-2" style={{ fontSize: '18px', color: '#9333ea' }}>Your Answer:</h4>
+                <h4 className={`font-audiowide font-medium mb-2 ${styles.answerTitle}`}>Your Answer:</h4>
                 {editingIndex === index ? (
                   <div className="space-y-3">
                     <textarea
@@ -199,6 +192,8 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
                       onChange={(e) => setTempAnswer(e.target.value)}
                       className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       rows={3}
+                      placeholder="Enter your answer here..."
+                      aria-label="Edit your answer"
                     />
                     <div className="flex gap-2">
                       <button
@@ -256,11 +251,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
 
           <button
             onClick={handleDownload}
-            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            className={`p-4 rounded-xl text-white hover:scale-110 transition-all duration-200 ${styles.actionButton}`}
             title="Download Recap"
           >
             <Download size={24} />
@@ -268,11 +259,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
 
           <button
             onClick={handleCopy}
-            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            className={`p-4 rounded-xl text-white hover:scale-110 transition-all duration-200 ${styles.actionButton}`}
             title="Copy to Clipboard"
           >
             <Copy size={24} />
@@ -280,11 +267,7 @@ export function AlibiRecapPage({ questions, answers, onEdit, onBack, onNext, use
 
           <button
             onClick={handleReadAloud}
-            className="p-4 rounded-xl text-white hover:scale-110 transition-all duration-200"
-            style={{
-              background: '#3a3a3a',
-              boxShadow: '8px 8px 16px #2e2e2e, -8px -8px 16px #464646'
-            }}
+            className={`p-4 rounded-xl text-white hover:scale-110 transition-all duration-200 ${styles.actionButton}`}
             title={isLoadingAudio ? "Loading audio..." : isPlaying ? "Pause" : "Read Aloud"}
             disabled={isLoadingAudio}
           >

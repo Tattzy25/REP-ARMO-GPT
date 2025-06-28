@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { vibeConfigs } from '@/lib/vibes';
@@ -45,6 +46,7 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
         {isMobile && (
           <div className="absolute top-4 right-4 z-50">
             <button
+              title="Close sidebar"
               onClick={() => {
                 console.log('X button clicked, calling onMobileClose');
                 onMobileClose?.();
@@ -72,6 +74,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                   className="sr-only"
                   checked={isCollapsed}
                   onChange={(e) => handleToggle(e.target.checked)}
+                  title="Toggle sidebar collapse"
+                  aria-label="Toggle sidebar collapse"
                 />
                 <div 
                   className="h-full w-full rounded-full transition-transform duration-400"
@@ -118,6 +122,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
           <motion.button
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
+            title="Navigate to Armo Lobby"
+            aria-label="Navigate to Armo Lobby"
             onClick={() => {
               setIsDropdownOpen(false);
               onVibeSelect('lobby');
@@ -129,19 +135,21 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
               borderColor: '#292929',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.boxShadow = 'none';
-              const svg = e.currentTarget.querySelector('svg path');
-              if (svg) svg.style.fill = '#ffffff';
-            }}
+                  const target = e.currentTarget as HTMLElement;
+                  target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                  target.style.color = '#ffffff';
+                  target.style.boxShadow = 'none';
+                  const svg = target.querySelector('svg path');
+                  if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
+                }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
-              const svg = e.currentTarget.querySelector('svg path');
-              if (svg) svg.style.fill = 'url(#homeIconGradient)';
-            }}
+                const target = e.currentTarget as HTMLElement;
+                target.style.background = 'linear-gradient(to bottom, #171717, #242424)';
+                target.style.color = '#ffffff';
+                target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
+                const svg = target.querySelector('svg path');
+                if (svg instanceof SVGElement) svg.style.fill = 'url(#homeIconGradient)';
+              }}
           >
             ARMO LOBBY
             <div 
@@ -175,6 +183,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
+            title="Open The Vibez menu"
+            aria-label="Open The Vibez menu"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="w-full mb-3 relative px-4 py-3 font-bold text-white cursor-pointer transition-all duration-200 inline-flex items-center justify-center rounded-full border"
             style={{
@@ -189,7 +199,7 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                 e.currentTarget.style.color = '#ffffff';
                 e.currentTarget.style.boxShadow = 'none';
                 const svg = e.currentTarget.querySelector('svg path');
-                if (svg) svg.style.fill = '#ffffff';
+                if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
               }
             }}
             onMouseLeave={(e) => {
@@ -198,7 +208,7 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                 e.currentTarget.style.color = '#ffffff';
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
                 const svg = e.currentTarget.querySelector('svg path');
-                if (svg) svg.style.fill = 'url(#iconGradient)';
+                if (svg instanceof SVGElement) svg.setAttribute('fill', 'url(#iconGradient)');
               }
             }}
           >
@@ -235,6 +245,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            title="Navigate to Gallery"
+            aria-label="Navigate to Gallery"
             onClick={() => {
               setIsDropdownOpen(false);
               onVibeSelect('gallery');
@@ -246,18 +258,20 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
               borderColor: '#292929',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.boxShadow = 'none';
-              const svg = e.currentTarget.querySelector('svg path');
-              if (svg) svg.style.fill = '#ffffff';
-            }}
+                const target = e.currentTarget as HTMLElement;
+                target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                target.style.color = '#ffffff';
+                target.style.boxShadow = 'none';
+                const svg = target.querySelector('svg path');
+                if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
+              }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(to bottom, #171717, #242424)';
-              e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
-              const svg = e.currentTarget.querySelector('svg path');
-              if (svg) svg.style.fill = 'url(#galleryIconGradient)';
+              const target = e.currentTarget as HTMLElement;
+              target.style.background = 'linear-gradient(to bottom, #171717, #242424)';
+              target.style.color = '#ffffff';
+              target.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 1), 0 10px 20px rgba(0, 0, 0, 0.4)';
+              const svg = target.querySelector('svg path');
+              if (svg instanceof SVGElement) svg.style.fill = 'url(#galleryIconGradient)';
             }}
           >
             GALLERY
@@ -306,6 +320,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                   setIsDropdownOpen(false);
                   setShowRecentChats(true);
                 }}
+                title="View recent chats"
+                aria-label="View recent chats"
                 className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl border-none cursor-pointer font-bold text-xs uppercase transition-all duration-200"
                 style={{
                   background: '#2e2e2e',
@@ -314,18 +330,20 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                   margin: '3px'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.boxShadow = 'none';
-                  e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                  e.target.style.color = '#ffffff';
-                  const svg = e.target.querySelector('svg');
-                  if (svg) svg.style.fill = '#ffffff';
+                  const target = e.target as HTMLElement;
+                  target.style.boxShadow = 'none';
+                  target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                  target.style.color = '#ffffff';
+                  const svg = target.querySelector('svg');
+                  if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
-                  e.target.style.background = '#2e2e2e';
-                  e.target.style.color = '#ffffff';
-                  const svg = e.target.querySelector('svg');
-                  if (svg) svg.style.fill = '#ffffff';
+                  const target = e.target as HTMLElement;
+                  target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
+                  target.style.background = '#2e2e2e';
+                  target.style.color = '#ffffff';
+                  const svg = target.querySelector('svg');
+                  if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
                 }}
               >
                 <svg 
@@ -339,6 +357,8 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
               </button>
               
               <button 
+                title="Create a new chat"
+                aria-label="Create a new chat"
                 onClick={async () => {
                   try {
                     setIsDropdownOpen(false);
@@ -378,18 +398,20 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                   margin: '3px'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.boxShadow = 'none';
-                  e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                  e.target.style.color = '#ffffff';
-                  const svg = e.target.querySelector('svg');
-                  if (svg) svg.style.fill = '#ffffff';
+                  const target = e.target as HTMLElement;
+                  target.style.boxShadow = 'none';
+                  target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                  target.style.color = '#ffffff';
+                  const svg = target.querySelector('svg');
+                  if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
-                  e.target.style.background = '#2e2e2e';
-                  e.target.style.color = '#ffffff';
-                  const svg = e.target.querySelector('svg');
-                  if (svg) svg.style.fill = '#ffffff';
+                  const target = e.target as HTMLElement;
+                  target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
+                  target.style.background = '#2e2e2e';
+                  target.style.color = '#ffffff';
+                  const svg = target.querySelector('svg');
+                  if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
                 }}
               >
                 <svg 
@@ -542,26 +564,30 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
             }}
           >
             <button 
+              title="View account settings"
+              aria-label="View account settings"
               className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl border-none cursor-pointer font-bold text-xs uppercase transition-all duration-200"
               style={{
-                background: '#2e2e2e',
+                background: '#3e3e3e',
                 boxShadow: 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d',
                 color: '#ffffff',
                 margin: '3px'
               }}
               onMouseEnter={(e) => {
-                e.target.style.boxShadow = 'none';
-                e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                e.target.style.color = '#ffffff';
-                const svg = e.target.querySelector('svg');
-                if (svg) svg.style.fill = '#ffffff';
+                const target = e.target as HTMLElement;
+                target.style.boxShadow = 'none';
+                target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                target.style.color = '#ffffff';
+                const svg = target.querySelector('svg');
+                if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
               }}
               onMouseLeave={(e) => {
-                e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
-                e.target.style.background = '#2e2e2e';
-                e.target.style.color = '#ffffff';
-                const svg = e.target.querySelector('svg');
-                if (svg) svg.style.fill = '#ffffff';
+                const target = e.target as HTMLElement;
+                target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
+                target.style.background = '#2e2e2e';
+                target.style.color = '#ffffff';
+                const svg = target.querySelector('svg');
+                if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
               }}
             >
               <svg 
@@ -583,18 +609,20 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
                 margin: '3px'
               }}
               onMouseEnter={(e) => {
-                e.target.style.boxShadow = 'none';
-                e.target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
-                e.target.style.color = '#ffffff';
-                const svg = e.target.querySelector('svg');
-                if (svg) svg.style.fill = '#ffffff';
+                const target = e.target as HTMLElement;
+                target.style.boxShadow = 'none';
+                target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+                target.style.color = '#ffffff';
+                const svg = target.querySelector('svg');
+                if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
               }}
               onMouseLeave={(e) => {
-                e.target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
-                e.target.style.background = '#2e2e2e';
-                e.target.style.color = '#ffffff';
-                const svg = e.target.querySelector('svg');
-                if (svg) svg.style.fill = '#ffffff';
+                const target = e.target as HTMLElement;
+                target.style.boxShadow = 'inset 5px 5px 5px #1f1f1f, inset -5px -5px 5px #3d3d3d';
+                target.style.background = '#2e2e2e';
+                target.style.color = '#ffffff';
+                const svg = target.querySelector('svg');
+                if (svg instanceof SVGElement) svg.style.fill = '#ffffff';
               }}
             >
               <svg 
@@ -609,22 +637,26 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
           </div>
         </motion.div>
       </div>
-      
+
       {/* Toggle Button when collapsed */}
       {isCollapsed && (
         <div className="fixed left-2 top-4 z-50">
           <button
             onClick={() => handleToggle(false)}
+            title="Expand sidebar"
+            aria-label="Expand sidebar"
             className="p-2 rounded-lg transition-all duration-200"
             style={{
               background: '#2e2e2e',
               boxShadow: '4px 4px 8px #1f1f1f, -4px -4px 8px #3d3d3d'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
+              const target = e.currentTarget as HTMLElement;
+              target.style.background = 'linear-gradient(135deg, #ff4444, #4444ff, #ff8800)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#2e2e2e';
+              const target = e.currentTarget as HTMLElement;
+              target.style.background = '#2e2e2e';
             }}
           >
             <svg 
@@ -636,6 +668,12 @@ export default function Sidebar({ currentVibe, onVibeSelect, onSidebarToggle, is
             </svg>
           </button>
         </div>
+      )}
+      {/* Recent Chats Modal */}
+      {showRecentChats && (
+        <RecentChatsList
+          onSelectChat={onSelectChat || ((_sessionId: number) => {})}
+        />
       )}
     </>
   );

@@ -1,0 +1,28 @@
+.container {
+  background: #3a3a3a;
+  box-shadow: 12px 12px 24px #323232, -12px -12px 24px #484848;
+}
+
+.questionCard {
+  background: #3a3a3a;
+  box-shadow: 12px 12px 24px #323232, -12px -12px 24px #484848;
+}
+
+.questionTitle {
+  font-size: 18px;
+  color: #9333ea;
+}
+
+.answerTitle {
+  font-size: 18px;
+  color: #9333ea;
+}
+
+.actionButton {
+  background: #3a3a3a;
+  box-shadow: 8px 8px 16px #2e2e2e, -8px -8px 16px #464646;
+}
+
+.recapTitle {
+  color: #9333ea;
+}
