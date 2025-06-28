@@ -1,0 +1,553 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes wave-pulse {
+  0%, 100% { 
+    transform: scaleY(1); 
+    opacity: 0.7; 
+  }
+  50% { 
+    transform: scaleY(1.8); 
+    opacity: 1; 
+  }
+}
+
+@keyframes voice-pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(1.05); 
+    opacity: 0.9; 
+  }
+}
+
+/* From Uiverse.io by MuhammadHasann */ 
+.button {
+  --black-700: hsla(0 0% 12% / 1);
+  --border_radius: 9999px;
+  --transtion: 0.3s ease-in-out;
+  --offset: 2px;
+
+  cursor: pointer;
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  transform-origin: center;
+
+  padding: 1rem 2rem;
+  background-color: transparent;
+
+  border: none;
+  border-radius: var(--border_radius);
+  transform: scale(calc(1 + (var(--active, 0) * 0.1)));
+
+  transition: transform var(--transtion);
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 100%;
+  height: 100%;
+  background-color: var(--black-700);
+
+  border-radius: var(--border_radius);
+  box-shadow: inset 0 0.5px hsl(0, 0%, 100%), inset 0 -1px 2px 0 hsl(0, 0%, 0%),
+    0px 4px 10px -4px hsla(0 0% 0% / calc(1 - var(--active, 0))),
+    0 0 0 calc(var(--active, 0) * 0.375rem) hsl(260 97% 50% / 0.75);
+
+  transition: all var(--transtion);
+  z-index: 0;
+}
+
+.button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 100%;
+  height: 100%;
+  background-color: hsla(260 97% 61% / 0.75);
+  background-image: radial-gradient(
+      at 51% 89%,
+      hsla(266, 45%, 74%, 1) 0px,
+      transparent 50%
+    ),
+    radial-gradient(at 100% 100%, hsla(266, 36%, 60%, 1) 0px, transparent 50%),
+    radial-gradient(at 22% 91%, hsla(266, 36%, 60%, 1) 0px, transparent 50%);
+  background-position: top;
+
+  opacity: var(--active, 0);
+  border-radius: var(--border_radius);
+  transition: opacity var(--transtion);
+  z-index: 2;
+}
+
+.button:is(:hover, :focus-visible) {
+  --active: 1;
+}
+.button:active {
+  transform: scale(1);
+}
+
+.button .dots_border {
+  --size_border: calc(100% + 2px);
+
+  overflow: hidden;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: var(--size_border);
+  height: var(--size_border);
+  background-color: transparent;
+
+  border-radius: var(--border_radius);
+  z-index: -10;
+}
+
+.button .dots_border::before {
+  content: "";
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: left;
+  transform: rotate(0deg);
+
+  width: 100%;
+  height: 2rem;
+  background-color: white;
+
+  mask: linear-gradient(transparent 0%, white 120%);
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.button .sparkle {
+  position: relative;
+  z-index: 10;
+
+  width: 1.75rem;
+}
+
+.button .sparkle .path {
+  fill: currentColor;
+  stroke: currentColor;
+
+  transform-origin: center;
+
+  color: hsl(0, 0%, 100%);
+}
+
+.button:is(:hover, :focus) .sparkle .path {
+  animation: path 1.5s linear 0.5s infinite;
+}
+
+.button .sparkle .path:nth-child(1) {
+  --scale_path_1: 1.2;
+}
+.button .sparkle .path:nth-child(2) {
+  --scale_path_2: 1.2;
+}
+.button .sparkle .path:nth-child(3) {
+  --scale_path_3: 1.2;
+}
+
+@keyframes path {
+  0%,
+  34%,
+  71%,
+  100% {
+    transform: scale(1);
+  }
+  17% {
+    transform: scale(var(--scale_path_1, 1));
+  }
+  49% {
+    transform: scale(var(--scale_path_2, 1));
+  }
+  83% {
+    transform: scale(var(--scale_path_3, 1));
+  }
+}
+
+.button .text_button {
+  position: relative;
+  z-index: 10;
+
+  background-image: linear-gradient(
+    90deg,
+    hsla(0 0% 100% / 1) 0%,
+    hsla(0 0% 100% / var(--active, 0)) 120%
+  );
+  background-clip: text;
+
+  font-size: 1rem;
+  color: transparent;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background: #3a3a3a !important;
+  overflow-x: hidden;
+}
+
+.fas {
+  color: inherit !important;
+}
+
+/* Neumorphic Button Styles */
+.neumorphic-button {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.neumorphic-button .toggle {
+  position: relative;
+  height: 60px;
+  width: 60px;
+}
+
+.neumorphic-button .toggle:before {
+  box-shadow: 0;
+  border-radius: 50px;
+  background: #fff;
+  position: absolute;
+  margin-left: -25px;
+  margin-top: -25px;
+  opacity: 0.2;
+  height: 50px;
+  width: 50px;
+  left: 50%;
+  top: 50%;
+}
+
+.neumorphic-button .toggle .button {
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 8px 15px -2px rgba(0, 0, 0, 0.5), inset 0 -2px 3px -1px rgba(0, 0, 0, 0.2), 0 -6px 10px -1px rgba(255, 255, 255, 0.6), inset 0 2px 3px -1px rgba(255, 255, 255, 0.2), inset 0 0 3px 1px rgba(255, 255, 255, 0.8), inset 0 12px 18px 0 rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  position: absolute;
+  background: #3a3a3a;
+  margin-left: -25px;
+  margin-top: -25px;
+  display: block;
+  height: 50px;
+  width: 50px;
+  left: 50%;
+  top: 50%;
+}
+
+.neumorphic-button .toggle .label {
+  transition: color 300ms ease-out;
+  line-height: 60px;
+  text-align: center;
+  position: absolute;
+  font-weight: 700;
+  font-size: 20px;
+  display: block;
+  opacity: 0.9;
+  height: 100%;
+  width: 100%;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.neumorphic-button .toggle input {
+  opacity: 0;
+  position: absolute;
+  cursor: pointer;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+
+.neumorphic-button .toggle input:active ~ .button {
+  filter: blur(0.3px);
+  box-shadow: 0 6px 15px -2px rgba(0, 0, 0, 0.4), inset 0 -4px 18px 1px rgba(255, 255, 255, 0.9), 0 -6px 10px -1px rgba(255, 255, 255, 0.6), inset 0 4px 15px 0 rgba(0, 0, 0, 0.4), inset 0 0 6px 1px rgba(255, 255, 255, 0.6);
+}
+
+.neumorphic-button .toggle input:active ~ .label {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.neumorphic-button .toggle input:checked ~ .button {
+  filter: blur(0.3px);
+  box-shadow: 0 6px 15px -2px rgba(0, 0, 0, 0.4), inset 0 -4px 15px -1px rgba(255, 255, 255, 0.9), 0 -6px 10px -1px rgba(255, 255, 255, 0.6), inset 0 4px 12px 0 rgba(0, 0, 0, 0.2), inset 0 0 3px 1px rgba(255, 255, 255, 0.6);
+}
+
+.neumorphic-button .toggle input:checked ~ .label {
+  color: rgba(255, 0, 0, 0.9);
+}
+
+/* Remove global checked styling - handle individually per button */
+
+.neumorphic-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+
+  /* Armo-GPT Custom Colors */
+  --armo-navy: hsl(238, 41%, 15%);
+  --armo-blue: hsl(220, 42%, 18%);
+  --armo-accent: hsl(220, 58%, 21%);
+  --armo-red: hsl(345, 78%, 62%);
+  --neon-cyan: hsl(195, 100%, 50%);
+  --neon-coral: hsl(0, 71%, 71%);
+  --neon-teal: hsl(175, 58%, 65%);
+  
+  /* Dark Theme Colors */
+  --dark-bg: #3a3a3a;
+  --dark-bg-light: #404040;
+  --dark-shadow-light: #323232;
+  --dark-shadow-dark: #484848;
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    background: #bbbbbb;
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .neumorphic {
+    box-shadow: 8px 8px 16px #9f9f9f, -8px -8px 16px #d7d7d7;
+  }
+  
+  .neumorphic-inset {
+    box-shadow: inset 8px 8px 16px #9f9f9f, inset -8px -8px 16px #d7d7d7;
+  }
+  
+  .neon-cyan-glow {
+    box-shadow: 0 0 20px hsla(195, 100%, 50%, 0.3);
+  }
+  
+  .neon-coral-glow {
+    box-shadow: 0 0 20px hsla(0, 71%, 71%, 0.3);
+  }
+  
+  .neon-teal-glow {
+    box-shadow: 0 0 20px hsla(175, 58%, 65%, 0.3);
+  }
+  
+  .glow-animation {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.2), 0 0 10px rgba(255, 255, 255, 0.1), 0 0 15px rgba(255, 255, 255, 0.05);
+    }
+    to {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.15), 0 0 30px rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -320px !important;
+    width: 320px !important;
+    height: 100vh !important;
+    z-index: 1000 !important;
+    transition: left 0.3s ease-in-out !important;
+    transform: none !important;
+  }
+  
+  .sidebar.open {
+    left: 0 !important;
+  }
+  
+  .main-content {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+  
+  .mobile-header {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+  }
+  
+  .mobile-content-padding {
+    padding-top: 64px !important;
+  }
+  
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+  
+  .mobile-overlay.show {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none !important;
+  }
+  
+  .sidebar {
+    position: relative !important;
+    transform: none !important;
+  }
+}
+  .pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .bounce-slow {
+    animation: bounce 3s infinite;
+  }
+  
+  .typing-animation {
+    animation: typing 1.5s steps(10, end) infinite;
+  }
+  
+  .bg-armo-navy {
+    background-color: var(--armo-navy);
+  }
+  
+  .bg-armo-blue {
+    background-color: var(--armo-blue);
+  }
+  
+  .bg-armo-accent {
+    background-color: var(--armo-accent);
+  }
+  
+  .bg-armo-red {
+    background-color: var(--armo-red);
+  }
+  
+  .text-neon-cyan {
+    color: var(--neon-cyan);
+  }
+  
+  .text-neon-coral {
+    color: var(--neon-coral);
+  }
+  
+  .text-neon-teal {
+    color: var(--neon-teal);
+  }
+  
+  .border-armo-accent {
+    border-color: var(--armo-accent);
+  }
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan), 0 0 15px var(--neon-cyan);
+  }
+  to {
+    box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+  }
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Hide scrollbar completely for dropdown content */
+.dropdown-content::-webkit-scrollbar {
+  display: none;
+}
+
+.dropdown-content {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
